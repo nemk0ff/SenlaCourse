@@ -1,7 +1,7 @@
 public class Laptop implements IProduct{
-    private IProductPart Package = null;
-    private IProductPart Motherboard = null;
-    private IProductPart Monitor = null;
+    private IProductPart Package;
+    private IProductPart Motherboard;
+    private IProductPart Monitor;
 
     Laptop(){
         System.out.println("Laptop is created!");

@@ -1,7 +1,7 @@
 public class AssemblyLineLaptops implements  IAssemblyLine{
-    ILineStep firstStep = null;
-    ILineStep secondStep = null;
-    ILineStep thirdStep = null;
+    private ILineStep firstStep;
+    private ILineStep secondStep;
+    private ILineStep thirdStep;
 
     AssemblyLineLaptops(ILineStep firstStep, ILineStep secondStep, ILineStep thirdStep){
         this.firstStep = firstStep;
