@@ -1,7 +1,7 @@
 public class Main {
     public static void main(String[] args) {
-        int number = new java.util.Random().nextInt(900);
-        number += 100;
+        java.util.Random random = new java.util.Random();
+        int number = random.nextInt(900) + 100;
 
         System.out.println("Число: " + number);
 
