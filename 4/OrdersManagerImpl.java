@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrdersManagerImpl implements OrderManager{
+public class OrdersManagerImpl implements OrdersManager{
     private final List<Order> orders;
 
     public OrdersManagerImpl() {
@@ -9,7 +9,8 @@ public class OrdersManagerImpl implements OrderManager{
     }
 
     // Закрыть запросы по книге
-    void closeRequests(Book book){
+    @Override
+    public void closeRequests(Book book){
         for (Order order : orders) {
             if (order.getBook().equals(book) && order.getStatus() == OrderStatus.NotCompleted) {
                 order.setStatus(OrderStatus.Completed);
@@ -18,7 +19,8 @@ public class OrdersManagerImpl implements OrderManager{
     }
 
     // Добавить заказ
-    void addOrder(Order order){
+    @Override
+    public void addOrder(Order order){
         orders.add(order);
     }
 
@@ -38,6 +40,7 @@ public class OrdersManagerImpl implements OrderManager{
         }
     }
 
+    @Override
     public List<Order> getOrders(){
         return orders;
     }

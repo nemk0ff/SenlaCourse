@@ -7,7 +7,7 @@ public class Main {
 
         // Списать книгу со склада
         System.out.println("Списать книгу со склада: Дубровский");
-        myManager.writeOff(new Book("Дубровский", "А.С.Пушкин"));
+        myManager.writeOff(new Book("Дубровский", "А.С.Пушкин"), 1);
         printAbout(myManager);
 
         // Создать заказ
@@ -34,9 +34,8 @@ public class Main {
 
         // Добавить книгу на склад
         System.out.println("Добавить книгу на склад: Капитанская дочка");
-        myManager.addBook(new Book("Капитанская дочка", "А.С.Пушкин"));
+        myManager.addBook(new Book("Капитанская дочка", "А.С.Пушкин"), 1);
         printAbout(myManager);
-
     }
 
     public static void printAbout(MainManagerImpl manager){

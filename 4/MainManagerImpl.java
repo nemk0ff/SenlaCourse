@@ -1,6 +1,6 @@
 public class MainManagerImpl implements MainManager{
-    private final LibraryManagerImpl libraryManager;
-    private final OrdersManagerImpl ordersManager;
+    private final LibraryManager libraryManager;
+    private final OrdersManager ordersManager;
 
     MainManagerImpl(){
         libraryManager = new LibraryManagerImpl();
@@ -9,8 +9,8 @@ public class MainManagerImpl implements MainManager{
 
     // Списать книгу со склада
     @Override
-    public void writeOff(Book book){
-        libraryManager.writeOff(book);
+    public void writeOff(Book book, Integer amount){
+        libraryManager.writeOff(book, amount);
     }
 
     // Создать заказ
@@ -19,7 +19,7 @@ public class MainManagerImpl implements MainManager{
 
         if(libraryManager.isAvailable(book)){
             newOrder = new Order(book, OrderStatus.Completed);
-            writeOff(book);
+            writeOff(book, 1);
         }
         // Оставить запрос на книгу
         else{
@@ -43,16 +43,16 @@ public class MainManagerImpl implements MainManager{
 
     // Добавить книгу
     @Override
-    public void addBook(Book book){
-        libraryManager.addBook(book);
+    public void addBook(Book book, Integer amount){
+        libraryManager.addBook(book, amount);
         ordersManager.closeRequests(book);
     }
 
-    public LibraryManagerImpl getLibraryManager(){
+    public LibraryManager getLibraryManager(){
         return libraryManager;
     }
 
-    public OrdersManagerImpl getOrdersManager(){
+    public OrdersManager getOrdersManager(){
         return ordersManager;
     }
 }

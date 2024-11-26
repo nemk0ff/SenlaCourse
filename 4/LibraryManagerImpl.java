@@ -6,39 +6,38 @@ public class LibraryManagerImpl implements LibraryManager{
 
     LibraryManagerImpl(){
         books = new ArrayList<>();
-        books.add(new Book("Война и Мир", "Л.Н.Толстой", BookStatus.Available));
-        books.add(new Book("Анна Каренина", "Л.Н.Толстой", BookStatus.Available));
-        books.add(new Book("Капитанская дочка", "А.С.Пушкин", BookStatus.Available));
-        books.add(new Book("Мёртвые души", "Н.В.Гоголь", BookStatus.NotAvailable));
-        books.add(new Book("Ревизор", "Н.В.Гоголь", BookStatus.NotAvailable));
-        books.add(new Book("Дубровский", "А.С.Пушкин", BookStatus.Available));
+        books.add(new Book("Война и Мир", "Л.Н.Толстой", 1));
+        books.add(new Book("Анна Каренина", "Л.Н.Толстой", 1));
+        books.add(new Book("Капитанская дочка", "А.С.Пушкин", 1));
+        books.add(new Book("Мёртвые души", "Н.В.Гоголь", 0));
+        books.add(new Book("Ревизор", "Н.В.Гоголь", 0));
+        books.add(new Book("Дубровский", "А.С.Пушкин", 2));
     }
 
     // Списать со склада
     @Override
-    public void writeOff(Book book){
+    public void writeOff(Book book, Integer amount){
         for (Book value : books) {
             if (value.equals(book)) {
-                value.setStatus(BookStatus.NotAvailable);
+                value.setAmount(-amount);
             }
         }
     }
 
     // Добавить книгу
     @Override
-    public void addBook(Book book){
-        book.setStatus(BookStatus.NotAvailable);
+    public void addBook(Book book, Integer amount){
         for (Book value : books) {
             if (value.equals(book)) {
-                value.setStatus(BookStatus.Available);
+                value.setAmount(amount);
                 return;
             }
         }
-        book.setStatus(BookStatus.Available);
         books.add(book);
     }
 
     // Проверить, доступна ли книга
+    @Override
     public Boolean isAvailable(Book book){
         for (Book value : books) {
             if (value.equals(book) && value.getStatus() == BookStatus.Available){
@@ -48,6 +47,7 @@ public class LibraryManagerImpl implements LibraryManager{
         return false;
     }
 
+    @Override
     public List<Book> getBooks() {
         return books;
     }

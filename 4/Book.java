@@ -4,21 +4,19 @@ public class Book {
     private final String name;
     private final String author;
     private BookStatus status;
-    private static Integer quantity;
     private Integer amount;
 
-    public Book(String name, String author, BookStatus status, Integer addQuantity, Integer amount) {
+    public Book(String name, String author, Integer amount) {
         this.name = name;
         this.author = author;
-        this.status = status;
         this.amount = amount;
-        quantity += addQuantity;
-    }
 
-    public Book(String name, String author, BookStatus status) {
-        this.name = name;
-        this.author = author;
-        this.status = status;
+        if(this.amount > 0){
+            this.status = BookStatus.Available;
+        } else{
+            this.amount = 0;
+            this.status = BookStatus.NotAvailable;
+        }
     }
 
     public Book(String name, String author) {
@@ -42,11 +40,26 @@ public class Book {
         this.status = status;
     }
 
+    void setAmount(Integer amount){
+        this.amount += amount;
+        if(amount > 0){
+            status = BookStatus.Available;
+        }
+        else{
+            this.amount = 0;
+            status = BookStatus.NotAvailable;
+        }
+    }
+
+    Integer getAmount(){
+        return amount;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Book book = (Book) o;
-        return Objects.equals(name, book.name) && Objects.equals(author, book.author) && Objects.equals(amount, book.amount);
+        return Objects.equals(name, book.name) && Objects.equals(author, book.author);
     }
 }
