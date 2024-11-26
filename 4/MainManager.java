@@ -1,10 +1,10 @@
-public class MainManager implements Libraryable, Orderable{
-    private final LibraryManager libraryManager;
-    private final OrdersManager ordersManager;
+public class MainManager implements LibraryManager, OrderManager{
+    private final LibraryManagerImpl libraryManager;
+    private final OrdersManagerImpl ordersManager;
 
     MainManager(){
-        libraryManager = new LibraryManager();
-        ordersManager = new OrdersManager();
+        libraryManager = new LibraryManagerImpl();
+        ordersManager = new OrdersManagerImpl();
     }
 
     // Списать книгу со склада
@@ -48,11 +48,11 @@ public class MainManager implements Libraryable, Orderable{
         ordersManager.closeRequests(book);
     }
 
-    public LibraryManager getLibraryManager(){
+    public LibraryManagerImpl getLibraryManager(){
         return libraryManager;
     }
 
-    public OrdersManager getOrdersManager(){
+    public OrdersManagerImpl getOrdersManager(){
         return ordersManager;
     }
 }
