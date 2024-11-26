@@ -2,7 +2,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        MainManager myManager = new MainManager();
+        MainManagerImpl myManager = new MainManagerImpl();
         printAbout(myManager);
 
         // Списать книгу со склада
@@ -39,7 +39,7 @@ public class Main {
 
     }
 
-    public static void printAbout(MainManager manager){
+    public static void printAbout(MainManagerImpl manager){
         System.out.println("BOOKS:");
         List<Book> books = manager.getLibraryManager().getBooks();
         for (Book book : books) {

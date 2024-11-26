@@ -4,6 +4,16 @@ public class Book {
     private final String name;
     private final String author;
     private BookStatus status;
+    private static Integer quantity;
+    private Integer amount;
+
+    public Book(String name, String author, BookStatus status, Integer addQuantity, Integer amount) {
+        this.name = name;
+        this.author = author;
+        this.status = status;
+        this.amount = amount;
+        quantity += addQuantity;
+    }
 
     public Book(String name, String author, BookStatus status) {
         this.name = name;
@@ -14,7 +24,6 @@ public class Book {
     public Book(String name, String author) {
         this.name = name;
         this.author = author;
-        this.status = BookStatus.NotAvailable;
     }
 
     public String getName() {
@@ -38,6 +47,6 @@ public class Book {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Book book = (Book) o;
-        return Objects.equals(name, book.name) && Objects.equals(author, book.author);
+        return Objects.equals(name, book.name) && Objects.equals(author, book.author) && Objects.equals(amount, book.amount);
     }
 }
