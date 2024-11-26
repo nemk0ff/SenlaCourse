@@ -1,4 +1,4 @@
-enum BookStatus{
+public enum BookStatus{
     Available,
     NotAvailable
 }
