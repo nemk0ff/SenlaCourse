@@ -14,7 +14,8 @@ public class MainManagerImpl implements MainManager{
     }
 
     // Создать заказ
-    void createOrder(Book book){
+    @Override
+    public void createOrder(Book book){
         Order newOrder;
 
         if(libraryManager.isAvailable(book)){
