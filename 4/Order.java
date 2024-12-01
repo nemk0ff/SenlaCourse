@@ -1,12 +1,41 @@
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class Order {
     private OrderStatus status;
     private final Book book;
+    private Integer price;
+    private LocalDate completeDate;
+    private final String clientName;
 
-    Order(Book book, OrderStatus status){
+    Order(Book book, OrderStatus status, LocalDate completeDate, String clientName){
         this.book = book;
         this.status = status;
+        this.price = book.getPrice();
+        this.completeDate = completeDate;
+        this.clientName = clientName;
+    }
+
+    Order(Book book, String clientName){
+        this.book = book;
+        this.price = book.getPrice();
+        this.clientName = clientName;
+    }
+
+    public LocalDate getCompleteDate() {
+        return completeDate;
+    }
+
+    public void setCompleteDate(LocalDate completeDate) {
+        this.completeDate = completeDate;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
     }
 
     public OrderStatus getStatus() {
@@ -21,11 +50,19 @@ public class Order {
         return book;
     }
 
+    public String getInfoAbout(){
+        return clientName + ",  " + price + ",  " + status + ",  " + (completeDate == null ? "null" : completeDate.toString());
+    }
+
+    public String getInfoAboutBook(){
+        return book.getName() + ",  " + book.getAuthor() + ",  " + book.getPublicationDate();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Order order = (Order) o;
-        return status == order.status && Objects.equals(book, order.book);
+        return Objects.equals(clientName, order.clientName) && Objects.equals(book, order.book);
     }
 }
