@@ -4,8 +4,8 @@ import java.util.Objects;
 public class Book {
     private final String name;
     private final String author;
-    private Integer publicationDate = null;
-    private LocalDate lastDeliveredDate = null;
+    private final Integer publicationDate;
+    private LocalDate lastDeliveredDate;
     private final Integer price;
     private BookStatus status = BookStatus.NotAvailable;
     private Integer amount;
