@@ -15,13 +15,14 @@ public interface MainManager{
     List<Book> getBooksByPrice();
     List<Book> getBooksByAvailable();
 
+    List<Request> getRequests();
     List<Order> getOrders();
     List<Order> getOrdersByDate();
     List<Order> getOrdersByPrice();
     List<Order> getOrdersByStatus();
 
-    List<Map.Entry<Book, List<Order>>> getOrdersByBooksByCount();
-    List<Map.Entry<Book, List<Order>>> getOrdersByBooksByDate();
+    List<Map.Entry<Book, Long>> getRequestsByCount();
+    List<Map.Entry<Book, Long>> getRequestsByDate();
 
     List<Order> getCompletedOrdersByDate(LocalDate begin, LocalDate end);
     List<Order> getCompletedOrdersByPrice(LocalDate begin, LocalDate end);

@@ -17,7 +17,7 @@ public class Main {
         //testOrdersGetters(myManager);
 
         // Получаем список запросов на книгу (сортировка по количеству запросов, по цене)
-        //testGetOrdersByBooks(myManager);
+        testGetOrdersByBooks(myManager);
 
         // Получаем список выполненных заказов за период времени (сортировка по дате, цене)
         //testCompletedOrders(myManager);
@@ -40,18 +40,20 @@ public class Main {
 
     public static void testGetOrdersByBooks(MainManagerImpl myManager){
         System.out.println("Получаем список запросов на книгу (сортировка по количеству запросов)");
-        List<Map.Entry<Book, List<Order>>> results = myManager.getOrdersByBooksByCount();
+        List<Map.Entry<Book, Long>> results = myManager.getRequestsByCount();
         results.forEach(entry -> {
-            System.out.println(entry.getKey().getName() + ": ");
-            entry.getValue().forEach(value -> System.out.println(value.getInfoAbout()));
+            System.out.println(entry.getKey().getInfoAbout());
+            System.out.println("Количество запросов: " + entry.getValue());
+            System.out.println();
         });
         System.out.println("---------------------------------------");
 
         System.out.println("Получаем список запросов на книгу (сортировка по цене)");
-        results = myManager.getOrdersByBooksByDate();
+        results = myManager.getRequestsByDate();
         results.forEach(entry -> {
-            System.out.println(entry.getKey().getName() + ": ");
-            entry.getValue().forEach(value -> System.out.println(value.getInfoAbout()));
+            System.out.println(entry.getKey().getInfoAbout());
+            System.out.println("Количество запросов: " + entry.getValue());
+            System.out.println();
         });
         System.out.println("---------------------------------------");
     }
@@ -217,7 +219,7 @@ public class Main {
 
         // Оставить запрос на книгу
         System.out.println("Оставить запрос на книгу: Капитанская почка");
-        Book testBook2 = new Book("Капитанская почка", "А.С.Пупкин", 300, 2024);
+        Book testBook2 = new Book("Капитанская почка", "А.С.Пупкин", 200, 2024);
         myManager.createOrder(testBook2, "Сергей Юртаев");
         printAbout(myManager);
 

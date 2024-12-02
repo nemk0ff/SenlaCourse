@@ -82,7 +82,12 @@ public class Book {
         if (o == null || getClass() != o.getClass()) return false;
         Book book = (Book) o;
         return Objects.equals(name, book.name) && Objects.equals(author, book.author)
-                && Objects.equals(publicationDate, ((Book) o).publicationDate)
-                && Objects.equals(price, ((Book) o).price);
+                && Objects.equals(publicationDate, book.publicationDate)
+                && Objects.equals(price, book.price);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, author, publicationDate, price);
     }
 }

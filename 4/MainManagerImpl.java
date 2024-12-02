@@ -27,7 +27,7 @@ public class MainManagerImpl implements MainManager{
             newOrder = new Order(book, OrderStatus.Completed, LocalDate.of(1998, 12, 12), clientName);
             writeOff(book, 1);
         }
-        // Оставить запрос на книгу
+        // Оставить запрос на книгу(в addOrder)
         else{
             newOrder = new Order(book, OrderStatus.NotCompleted, LocalDate.of(1998, 12, 12), clientName);
         }
@@ -97,6 +97,11 @@ public class MainManagerImpl implements MainManager{
         return ordersManager.getOrders();
     }
     @Override
+    public List<Request> getRequests(){
+        return ordersManager.getRequests();
+    }
+
+    @Override
     public List<Order> getOrdersByDate(){
         List<Order> sortedOrders = ordersManager.getOrders();
         sortedOrders.sort(Comparator.comparing(Order::getCompleteDate, Comparator.nullsFirst(Comparator.naturalOrder())));
@@ -116,22 +121,22 @@ public class MainManagerImpl implements MainManager{
     }
 
     @Override
-    public List<Map.Entry<Book, List<Order>>> getOrdersByBooksByCount(){
-        return ordersManager.getOrders()
+    public List<Map.Entry<Book, Long>> getRequestsByCount(){
+        return ordersManager.getRequests()
                 .stream()
-                .collect(Collectors.groupingBy(Order::getBook))
+                .collect(Collectors.groupingBy(Request::getBook, Collectors.counting()))
                 .entrySet().stream()
-                .sorted(Map.Entry.<Book, List<Order>>comparingByKey(Comparator.comparing(Book::getName)))
-                .toList();
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toList());
     }
     @Override
-    public List<Map.Entry<Book, List<Order>>> getOrdersByBooksByDate(){
-        return ordersManager.getOrders()
+    public List<Map.Entry<Book, Long>> getRequestsByDate(){
+        return ordersManager.getRequests()
                 .stream()
-                .collect(Collectors.groupingBy(Order::getBook))
+                .collect(Collectors.groupingBy(Request::getBook, Collectors.counting()))
                 .entrySet().stream()
-                .sorted(Map.Entry.<Book, List<Order>>comparingByKey(Comparator.comparing(Book::getPrice)))
-                .toList();
+                .sorted(Comparator.comparingDouble(entry -> entry.getKey().getPrice()))
+                .collect(Collectors.toList());
     }
 
     @Override
