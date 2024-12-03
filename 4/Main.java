@@ -1,14 +1,13 @@
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.SortedMap;
 
 public class Main {
     public static void main(String[] args) {
         MainManagerImpl myManager = new MainManagerImpl();
 
         // Проверяем работоспособность магазина: создаем книги, заказы и т.п.
-        testMyManager(myManager);
+        //testMyManager(myManager);
 
         // Получаем списки книг с разной сортировкой
         //testBooksGetters(myManager);
@@ -17,7 +16,7 @@ public class Main {
         //testOrdersGetters(myManager);
 
         // Получаем список запросов на книгу (сортировка по количеству запросов, по цене)
-        testGetOrdersByBooks(myManager);
+        testGetRequestsByBooks(myManager);
 
         // Получаем список выполненных заказов за период времени (сортировка по дате, цене)
         //testCompletedOrders(myManager);
@@ -38,21 +37,21 @@ public class Main {
         //testShowBookDetails(myManager);
     }
 
-    public static void testGetOrdersByBooks(MainManagerImpl myManager){
+    public static void testGetRequestsByBooks(MainManagerImpl myManager){
         System.out.println("Получаем список запросов на книгу (сортировка по количеству запросов)");
-        List<Map.Entry<Book, Long>> results = myManager.getRequestsByCount();
-        results.forEach(entry -> {
-            System.out.println(entry.getKey().getInfoAbout());
-            System.out.println("Количество запросов: " + entry.getValue());
+        SortedMap<Book, Long> results = myManager.getRequestsByCount();
+        results.forEach((key, value) -> {
+            System.out.println(key.getInfoAbout());
+            System.out.println("Количество запросов: " + value);
             System.out.println();
         });
         System.out.println("---------------------------------------");
 
         System.out.println("Получаем список запросов на книгу (сортировка по цене)");
-        results = myManager.getRequestsByDate();
-        results.forEach(entry -> {
-            System.out.println(entry.getKey().getInfoAbout());
-            System.out.println("Количество запросов: " + entry.getValue());
+        results = myManager.getRequestsByPrice();
+        results.forEach((key, value) -> {
+            System.out.println(key.getInfoAbout());
+            System.out.println("Количество запросов: " + value);
             System.out.println();
         });
         System.out.println("---------------------------------------");
@@ -208,19 +207,19 @@ public class Main {
         // Списать книгу со склада
         System.out.println("Списать книгу со склада: Дубровский");
         Book testBook = new Book("Дубровский", "А.С.Пушкин", 450, 1833);
-        myManager.writeOff(testBook, 1);
+        myManager.writeOff(testBook, 1, LocalDate.of(2024, 12, 2));
         printAbout(myManager);
 
         // Создать заказ
         System.out.println("Создать заказ: Капитанская дочка");
         Book testBook1 = new Book("Капитанская дочка", "А.С.Пушкин", 200, 1836);
-        myManager.createOrder(testBook1, "Дарья Иванова");
+        myManager.createOrder(testBook1, "Дарья Иванова", LocalDate.of(2024, 10, 16));
         printAbout(myManager);
 
         // Оставить запрос на книгу
         System.out.println("Оставить запрос на книгу: Капитанская почка");
         Book testBook2 = new Book("Капитанская почка", "А.С.Пупкин", 200, 2024);
-        myManager.createOrder(testBook2, "Сергей Юртаев");
+        myManager.createOrder(testBook2, "Сергей Юртаев", LocalDate.of(2024, 9, 13));
         printAbout(myManager);
 
         // Изменить статус заказа

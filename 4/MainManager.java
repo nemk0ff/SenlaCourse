@@ -1,13 +1,14 @@
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 
 public interface MainManager{
     void addBook(Book book, Integer amount);
-    void writeOff(Book book, Integer amount);
+    void writeOff(Book book, Integer amount, LocalDate saleDate);
     void cancelOrder(Order order);
     void setOrderStatus(Order order, OrderStatus status);
-    void createOrder(Book book, String clientName);
+    void createOrder(Book book, String clientName, LocalDate createDate);
 
     List<Book> getBooks();
     List<Book> getBooksByAlphabet();
@@ -21,15 +22,15 @@ public interface MainManager{
     List<Order> getOrdersByPrice();
     List<Order> getOrdersByStatus();
 
-    List<Map.Entry<Book, Long>> getRequestsByCount();
-    List<Map.Entry<Book, Long>> getRequestsByDate();
+    SortedMap<Book, Long> getRequestsByCount();
+    SortedMap<Book, Long> getRequestsByPrice();
 
     List<Order> getCompletedOrdersByDate(LocalDate begin, LocalDate end);
     List<Order> getCompletedOrdersByPrice(LocalDate begin, LocalDate end);
 
     Integer getEarnedSum(LocalDate begin, LocalDate end);
 
-    Integer getCountCompletedOrders(LocalDate begin, LocalDate end);
+    Long getCountCompletedOrders(LocalDate begin, LocalDate end);
 
     List<Book> getStaleBooksByDate();
     List<Book> getStaleBooksByPrice();

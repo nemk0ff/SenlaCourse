@@ -59,7 +59,9 @@ public class OrdersManagerImpl implements OrdersManager{
     public void addOrder(Order order){
         orders.add(order);
         // Если статус заказа "NotCompleted", то нужно создать запрос на книгу
-        requests.add(new Request(order.getBook()));
+        if(!order.isCompleted()){
+            requests.add(new Request(order.getBook()));
+        }
     }
 
     // Отменить заказ

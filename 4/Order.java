@@ -58,6 +58,10 @@ public class Order {
         return book.getName() + ",  " + book.getAuthor() + ",  " + book.getPublicationDate();
     }
 
+    Boolean isCompleted(){
+        return (status == OrderStatus.Completed);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
