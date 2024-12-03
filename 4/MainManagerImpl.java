@@ -122,22 +122,22 @@ public class MainManagerImpl implements MainManager{
     }
 
     @Override
-    public SortedMap<Book, Long> getRequestsByCount(){
+    public LinkedHashMap<Book, Long> getRequestsByCount(){
         return ordersManager.getRequests()
                 .stream()
                 .collect(Collectors.groupingBy(Request::getBook, Collectors.counting()))
                 .entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, TreeMap::new));
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
     @Override
-    public SortedMap<Book, Long> getRequestsByPrice(){
+    public LinkedHashMap<Book, Long> getRequestsByPrice(){
         return ordersManager.getRequests()
                 .stream()
                 .collect(Collectors.groupingBy(Request::getBook, Collectors.counting()))
                 .entrySet().stream()
                 .sorted(Comparator.comparingInt(entry -> entry.getKey().getPrice()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (first, second) -> first, TreeMap::new));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
     @Override

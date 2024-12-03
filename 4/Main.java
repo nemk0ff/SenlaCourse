@@ -1,13 +1,13 @@
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.SortedMap;
 
 public class Main {
     public static void main(String[] args) {
         MainManagerImpl myManager = new MainManagerImpl();
 
         // Проверяем работоспособность магазина: создаем книги, заказы и т.п.
-        //testMyManager(myManager);
+        testMyManager(myManager);
 
         // Получаем списки книг с разной сортировкой
         //testBooksGetters(myManager);
@@ -39,7 +39,7 @@ public class Main {
 
     public static void testGetRequestsByBooks(MainManagerImpl myManager){
         System.out.println("Получаем список запросов на книгу (сортировка по количеству запросов)");
-        SortedMap<Book, Long> results = myManager.getRequestsByCount();
+        LinkedHashMap<Book, Long> results = myManager.getRequestsByCount();
         results.forEach((key, value) -> {
             System.out.println(key.getInfoAbout());
             System.out.println("Количество запросов: " + value);

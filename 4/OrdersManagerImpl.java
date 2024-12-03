@@ -37,6 +37,7 @@ public class OrdersManagerImpl implements OrdersManager{
         requests.add(new Request(new Book("Гарри Поттер и узник Азкабана", "Дж.К.Роулинг", 450, 1999)));
         requests.add(new Request(new Book("Введение в алгебру", "А.И.Кострикин", 450, 2001)));
         requests.add(new Request(new Book("Мёртвые души", "Н.В.Гоголь", 350, 1842)));
+        requests.add(new Request(new Book("Мёртвые души", "Н.В.Гоголь", 350, 1842)));
     }
 
     // Закрыть запросы по книге

@@ -1,4 +1,5 @@
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -23,8 +24,9 @@ public interface MainManager{
     List<Order> getOrdersByPrice();
     List<Order> getOrdersByStatus();
 
-    SortedMap<Book, Long> getRequestsByCount();
-    SortedMap<Book, Long> getRequestsByPrice();
+
+    LinkedHashMap<Book, Long> getRequestsByCount();
+    LinkedHashMap<Book, Long> getRequestsByPrice();
 
     List<Order> getCompletedOrdersByDate(LocalDate begin, LocalDate end);
     List<Order> getCompletedOrdersByPrice(LocalDate begin, LocalDate end);
