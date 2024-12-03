@@ -199,7 +199,7 @@ public class MainManagerImpl implements MainManager{
                 .stream()
                 .filter(book -> book.getAmount() > 0)
                 .filter(book -> book.getLastSaleDate() != null)
-                .filter(book -> Period.between(book.getLastSaleDate(), LocalDate.now()).getMonths() >= 6)
+                .filter(book -> Period.between(book.getLastSaleDate(), LocalDate.now()).getMonths() >= 6);
     }
     @Override
     public List<Book> getStaleBooksByDate(){
