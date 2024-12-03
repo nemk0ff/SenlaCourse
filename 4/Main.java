@@ -7,34 +7,34 @@ public class Main {
         MainManagerImpl myManager = new MainManagerImpl();
 
         // Проверяем работоспособность магазина: создаем книги, заказы и т.п.
-        testMyManager(myManager);
+        //testMyManager(myManager);
 
         // Получаем списки книг с разной сортировкой
-        testBooksGetters(myManager);
+        //testBooksGetters(myManager);
 
         // Получаем списки заказов с разной сортировкой
-        testOrdersGetters(myManager);
+        //testOrdersGetters(myManager);
 
         // Получаем список запросов на книгу (сортировка по количеству запросов, по цене)
-        testGetRequestsByBooks(myManager);
+        //testGetRequestsByBooks(myManager);
 
         // Получаем список выполненных заказов за период времени (сортировка по дате, цене)
-        testCompletedOrders(myManager);
+        //testCompletedOrders(myManager);
 
         // Получаем сумму заработанных средств за период времени
-        testGetSum(myManager);
+        //testGetSum(myManager);
 
         // Количество выполненных заказов за период времени
-        testGetCountCompletedOrders(myManager);
+        //testGetCountCompletedOrders(myManager);
 
         // Список залежавшихся книг, не проданных более чем 6 месяцев (по дате поступления, цене)
         testGetStaleBooks(myManager);
 
         // Посмотреть детали заказа
-        testShowOrderDetails(myManager);
+        //testShowOrderDetails(myManager);
 
         // Посмотреть описание книги
-        testShowBookDetails(myManager);
+        //testShowBookDetails(myManager);
     }
 
     public static void testGetRequestsByBooks(MainManagerImpl myManager){

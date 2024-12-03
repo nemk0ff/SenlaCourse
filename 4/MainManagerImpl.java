@@ -198,13 +198,14 @@ public class MainManagerImpl implements MainManager{
         return libraryManager.getBooks()
                 .stream()
                 .filter(book -> book.getAmount() > 0)
-                .filter(book -> book.getLastSaleDate() != null)
-                .filter(book -> Period.between(book.getLastSaleDate(), LocalDate.now()).getMonths() >= 6);
+                .filter(book -> (book.getLastSaleDate() == null
+                            && Period.between(book.getLastDeliveredDate(), LocalDate.now()).getMonths() >= 6) ||
+                        (book.getLastSaleDate() != null
+                            && Period.between(book.getLastSaleDate(), LocalDate.now()).getMonths() >= 6));
     }
     @Override
     public List<Book> getStaleBooksByDate(){
         return getStaleBooks()
-                .filter(book -> book.getLastDeliveredDate() != null)
                 .sorted(Comparator.comparing(Book::getLastDeliveredDate))
                 .toList();
     }

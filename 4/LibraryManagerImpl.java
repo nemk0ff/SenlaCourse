@@ -15,7 +15,7 @@ public class LibraryManagerImpl implements LibraryManager{
                 1836, LocalDate.of(2024, 4, 21), LocalDate.of(2024, 3, 19)));
         books.add(new Book("Мёртвые души", "Н.В.Гоголь", 0, 350,
                 1842, LocalDate.of(2024, 1, 11), null));
-        books.add(new Book("Ревизор", "Н.В.Гоголь", 0, 200,
+        books.add(new Book("Ревизор", "Н.В.Гоголь", 2, 200,
                 1835, LocalDate.of(2024, 1, 11), null));
         books.add(new Book("Дубровский", "А.С.Пушкин", 2, 450,
                 1833, LocalDate.of(2024, 10, 20), LocalDate.of(2024, 5, 1)));
