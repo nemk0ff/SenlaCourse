@@ -2,6 +2,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.stream.Stream;
 
 public interface MainManager{
     void addBook(Book book, Integer amount);
@@ -32,6 +33,7 @@ public interface MainManager{
 
     Long getCountCompletedOrders(LocalDate begin, LocalDate end);
 
+    Stream<Book> getStaleBooks();
     List<Book> getStaleBooksByDate();
     List<Book> getStaleBooksByPrice();
 

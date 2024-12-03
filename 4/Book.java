@@ -72,6 +72,10 @@ public class Book implements Comparable<Book>{
         }
     }
 
+    public Integer getAmount(){
+        return amount;
+    }
+
     public Integer getPrice(){
         return price;
     }

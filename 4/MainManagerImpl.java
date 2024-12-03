@@ -2,6 +2,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MainManagerImpl implements MainManager{
     private final LibraryManager libraryManager;
@@ -193,21 +194,23 @@ public class MainManagerImpl implements MainManager{
     }
 
     @Override
-    public List<Book> getStaleBooksByDate(){
+    public Stream<Book> getStaleBooks(){
         return libraryManager.getBooks()
                 .stream()
+                .filter(book -> book.getAmount() > 0)
                 .filter(book -> book.getLastSaleDate() != null)
-                .filter(book -> book.getLastDeliveredDate() != null)
                 .filter(book -> Period.between(book.getLastSaleDate(), LocalDate.now()).getMonths() >= 6)
+    }
+    @Override
+    public List<Book> getStaleBooksByDate(){
+        return getStaleBooks()
+                .filter(book -> book.getLastDeliveredDate() != null)
                 .sorted(Comparator.comparing(Book::getLastDeliveredDate))
                 .toList();
     }
     @Override
     public List<Book> getStaleBooksByPrice(){
-        return libraryManager.getBooks()
-                .stream()
-                .filter(book -> book.getLastSaleDate() != null)
-                .filter(book -> Period.between(book.getLastSaleDate(), LocalDate.now()).getMonths() >= 6)
+        return getStaleBooks()
                 .sorted(Comparator.comparing(Book::getPrice))
                 .toList();
     }
