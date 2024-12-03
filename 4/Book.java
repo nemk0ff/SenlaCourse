@@ -8,7 +8,7 @@ public class Book implements Comparable<Book>{
     private LocalDate lastDeliveredDate;
     private LocalDate lastSaleDate;
     private final Integer price;
-    private BookStatus status = BookStatus.NotAvailable;
+    private BookStatus status = BookStatus.NOTAVAILABLE;
     private Integer amount;
 
     // Конструктор для создания книги, которая лежит в магазине
@@ -23,7 +23,7 @@ public class Book implements Comparable<Book>{
         this.lastSaleDate = lastSaleDate;
 
         if(this.amount > 0){
-            this.status = BookStatus.Available;
+            this.status = BookStatus.AVAILABLE;
         } else{
             this.amount = 0;
         }
@@ -57,6 +57,10 @@ public class Book implements Comparable<Book>{
         this.lastSaleDate = lastSaleDate;
     }
 
+    public void setLastDeliveredDate(LocalDate lastSaleDate) {
+        this.lastSaleDate = lastSaleDate;
+    }
+
     public LocalDate getLastDeliveredDate() {
         return lastDeliveredDate;
     }
@@ -64,11 +68,11 @@ public class Book implements Comparable<Book>{
     public void setAmount(Integer amount){
         this.amount += amount;
         if(this.amount > 0){
-            status = BookStatus.Available;
+            status = BookStatus.AVAILABLE;
         }
         else{
             this.amount = 0;
-            status = BookStatus.NotAvailable;
+            status = BookStatus.NOTAVAILABLE;
         }
     }
 

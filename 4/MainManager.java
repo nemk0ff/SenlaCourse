@@ -6,7 +6,7 @@ import java.util.SortedMap;
 import java.util.stream.Stream;
 
 public interface MainManager{
-    void addBook(Book book, Integer amount);
+    void addBook(Book book, Integer amount, LocalDate addDate);
     void writeOff(Book book, Integer amount, LocalDate saleDate);
     void cancelOrder(Order order);
     void setOrderStatus(Order order, OrderStatus status);

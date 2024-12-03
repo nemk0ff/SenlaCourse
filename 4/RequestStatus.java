@@ -1,4 +1,4 @@
 public enum RequestStatus {
-    Open,
-    Closed
+    OPEN,
+    CLOSED
 }

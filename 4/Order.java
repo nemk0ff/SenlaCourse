@@ -59,7 +59,7 @@ public class Order {
     }
 
     Boolean isCompleted(){
-        return (status == OrderStatus.Completed);
+        return (status == OrderStatus.COMPLETED);
     }
 
     @Override

@@ -4,7 +4,7 @@ public class Request {
 
     public Request(Book book) {
         this.book = book;
-        status = RequestStatus.Open;
+        status = RequestStatus.OPEN;
     }
 
     public Book getBook() {
@@ -16,6 +16,6 @@ public class Request {
     }
 
     void closeRequest(){
-        status = RequestStatus.Closed;
+        status = RequestStatus.CLOSED;
     }
 }

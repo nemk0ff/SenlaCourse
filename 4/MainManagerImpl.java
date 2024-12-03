@@ -25,12 +25,12 @@ public class MainManagerImpl implements MainManager{
         Order newOrder;
 
         if(libraryManager.isAvailable(book)){
-            newOrder = new Order(book, OrderStatus.Completed, LocalDate.of(1998, 12, 12), clientName);
+            newOrder = new Order(book, OrderStatus.COMPLETED, saleDate, clientName);
             writeOff(book, 1, saleDate);
         }
         // Оставить запрос на книгу(в addOrder)
         else{
-            newOrder = new Order(book, OrderStatus.NotCompleted, LocalDate.of(1998, 12, 12), clientName);
+            newOrder = new Order(book, OrderStatus.NOTCOMPLETED, saleDate, clientName);
         }
         ordersManager.addOrder(newOrder);
     }
@@ -49,8 +49,8 @@ public class MainManagerImpl implements MainManager{
 
     // Добавить книгу
     @Override
-    public void addBook(Book book, Integer amount){
-        libraryManager.addBook(book, amount);
+    public void addBook(Book book, Integer amount, LocalDate addDate){
+        libraryManager.addBook(book, amount, addDate);
         ordersManager.closeRequests(book);
     }
 

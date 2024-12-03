@@ -10,31 +10,31 @@ public class Main {
         testMyManager(myManager);
 
         // Получаем списки книг с разной сортировкой
-        //testBooksGetters(myManager);
+        testBooksGetters(myManager);
 
         // Получаем списки заказов с разной сортировкой
-        //testOrdersGetters(myManager);
+        testOrdersGetters(myManager);
 
         // Получаем список запросов на книгу (сортировка по количеству запросов, по цене)
         testGetRequestsByBooks(myManager);
 
         // Получаем список выполненных заказов за период времени (сортировка по дате, цене)
-        //testCompletedOrders(myManager);
+        testCompletedOrders(myManager);
 
         // Получаем сумму заработанных средств за период времени
-        //testGetSum(myManager);
+        testGetSum(myManager);
 
         // Количество выполненных заказов за период времени
-        //testGetCountCompletedOrders(myManager);
+        testGetCountCompletedOrders(myManager);
 
         // Список залежавшихся книг, не проданных более чем 6 месяцев (по дате поступления, цене)
-        //testGetStaleBooks(myManager);
+        testGetStaleBooks(myManager);
 
         // Посмотреть детали заказа
-        //testShowOrderDetails(myManager);
+        testShowOrderDetails(myManager);
 
         // Посмотреть описание книги
-        //testShowBookDetails(myManager);
+        testShowBookDetails(myManager);
     }
 
     public static void testGetRequestsByBooks(MainManagerImpl myManager){
@@ -225,7 +225,7 @@ public class Main {
         // Изменить статус заказа
         System.out.println("Изменить статус заказа: Капитанская дочка");
         Order testOrder1 = new Order(testBook1, "Дарья Иванова");
-        myManager.setOrderStatus(testOrder1, OrderStatus.NotCompleted);
+        myManager.setOrderStatus(testOrder1, OrderStatus.NOTCOMPLETED);
         printAbout(myManager);
 
         // Отменить заказ
@@ -236,7 +236,7 @@ public class Main {
 
         // Добавить книгу на склад
         System.out.println("Добавить книгу на склад: Капитанская дочка");
-        myManager.addBook(testBook1, 1);
+        myManager.addBook(testBook1, 1, LocalDate.of(2024, 12, 3));
         printAbout(myManager);
     }
 
