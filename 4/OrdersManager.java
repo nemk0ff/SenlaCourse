@@ -6,4 +6,5 @@ public interface OrdersManager {
     void closeRequests(Book book);
     void addOrder(Order order);
     List<Order> getOrders();
+    List<Request> getRequests();
 }

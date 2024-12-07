@@ -1,4 +1,4 @@
 public enum BookStatus{
-    Available,
-    NotAvailable
+    AVAILABLE,
+    NOTAVAILABLE
 }
