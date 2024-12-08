@@ -36,8 +36,16 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public Action checkInput() {
-        int answer = scanner.nextInt();
-        scanner.nextLine();
+        int answer;
+        while (true) {
+            String input = scanner.nextLine();
+            try {
+                answer = Integer.parseInt(input);
+                break;
+            } catch (NumberFormatException e) {
+                ordersMenu.showError("Неверный формат, попробуйте еще раз");
+            }
+        }
 
         return switch (answer) {
             case 1:
