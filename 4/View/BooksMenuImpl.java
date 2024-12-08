@@ -3,7 +3,7 @@ package View;
 import Model.Book;
 import java.util.List;
 
-public class BooksMenuImpl implements Menu, BooksMenu{
+public class BooksMenuImpl implements BooksMenu{
 
     @Override
     public void showMenu() {
@@ -25,25 +25,10 @@ public class BooksMenuImpl implements Menu, BooksMenu{
     }
 
     @Override
-    public void showInputError() { System.out.println("Вы ввели неизвестную команду"); }
-
-    @Override
     public void showBooks(List<Book> books) { books.forEach(book -> System.out.println(book.getInfoAbout())); }
 
     @Override
     public void showBook(Book book) { System.out.println(book.getInfoAbout()); }
-
-    @Override
-    public void showGetName() { System.out.print("Введите название книги: "); }
-
-    @Override
-    public void showGetAuthor() { System.out.print("Введите автора книги (В формате \"И.О.Фамилия\"): "); }
-
-    @Override
-    public void showGetPrice() { System.out.print("Введите цену книги: "); }
-
-    @Override
-    public void showGetPublicationDate() { System.out.print("Введите дату публикации книги: "); }
 
     @Override
     public void showGetAmountAdd() { System.out.print("Сколько книг добавить? "); }

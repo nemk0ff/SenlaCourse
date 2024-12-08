@@ -21,6 +21,12 @@ public class MainManagerImpl implements MainManager{
         libraryManager.writeOff(book, amount, saleDate);
     }
 
+    // Создать запрос на книгу
+    @Override
+    public void addRequest(Book book){
+        ordersManager.addRequest(book);
+    }
+
     // Создать заказ
     @Override
     public void createOrder(Book book, String clientName, LocalDate saleDate){
@@ -182,17 +188,15 @@ public class MainManagerImpl implements MainManager{
     }
 
     @Override
-    public void showOrderDetails(String client, Book book){
+    public Optional<Order> getOrderDetails(String client, Book book){
         List<Order> orders = ordersManager.getOrders();
         Order order = new Order(book, client);
         for (Order value : orders) {
             if (value.equals(order)) {
-                System.out.println(value.getInfoAbout());
-                System.out.println(value.getBook().getInfoAbout());
-                return;
+                return Optional.of(value);
             }
         }
-        System.out.println("Этого заказа нет в магазине");
+        return Optional.empty();
     }
 
     @Override

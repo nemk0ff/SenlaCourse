@@ -1,10 +1,6 @@
 package Controllers;
 
-import Model.Book;
-
-public interface BooksController {
-    Book getBookFromConsole();
-
+public interface BooksController extends Controller{
     void addBook();
     void writeOff();
     void showBookDetails();

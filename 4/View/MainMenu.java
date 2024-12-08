@@ -8,11 +8,13 @@ public class MainMenu implements Menu{
         System.out.println("##############################");
         System.out.println("    Выберите действие:");
         System.out.println("1. Действие с книгами");
+        System.out.println("2. Действие с заказами");
+        System.out.println("3. Действие с запросами");
         System.out.println("4. Выйти из программы");
     }
 
     @Override
     public void showInputError(){
-        System.out.println("Вы ввели неизвестную команду");
+
     }
 }

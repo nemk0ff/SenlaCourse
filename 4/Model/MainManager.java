@@ -12,6 +12,7 @@ public interface MainManager{
     void cancelOrder(Order order);
     void setOrderStatus(Order order, OrderStatus status);
     void createOrder(Book book, String clientName, LocalDate createDate);
+    void addRequest(Book book);
 
     List<Book> getBooks();
     List<Book> getBooksByAlphabet();
@@ -40,6 +41,6 @@ public interface MainManager{
     List<Book> getStaleBooksByDate();
     List<Book> getStaleBooksByPrice();
 
-    void showOrderDetails(String client, Book book);
+    Optional<Order> getOrderDetails(String client, Book book);
     Optional<Book> getBookDetails(Book book);
 }

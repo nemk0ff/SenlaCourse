@@ -57,6 +57,11 @@ public class OrdersManagerImpl implements OrdersManager{
         }
     }
 
+    @Override
+    public void addRequest(Book book){
+        requests.add(new Request(book));
+    }
+
     // Добавить заказ
     @Override
     public void addOrder(Order order){

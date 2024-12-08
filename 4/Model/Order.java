@@ -52,6 +52,8 @@ public class Order {
         return book;
     }
 
+    public String getClientName() { return this.clientName; }
+
     public String getInfoAbout(){
         return clientName + ",  " + price + ",  " + status + ",  " + (completeDate == null ? "null" : completeDate.toString());
     }

@@ -9,4 +9,5 @@ public interface OrdersManager {
     void addOrder(Order order);
     List<Order> getOrders();
     List<Request> getRequests();
+    void addRequest(Book book);
 }

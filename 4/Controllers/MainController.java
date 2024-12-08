@@ -4,42 +4,47 @@ import Model.MainManager;
 import Model.MainManagerImpl;
 import View.MainMenu;
 
-import java.util.Scanner;
-
 public class MainController implements Controller{
     private final MainMenu mainMenu;
-    private final Scanner scanner;
     private final BooksControllerImpl booksController;
+    private final OrdersControllerImpl ordersController;
+    private final RequestsController requestsController;
+
 
     public MainController() {
         MainManager mainManager = new MainManagerImpl();
         this.mainMenu = new MainMenu();
-        this.scanner = new Scanner(System.in);
         this.booksController = new BooksControllerImpl(mainManager);
+        this.ordersController = new OrdersControllerImpl(mainManager);
+        this.requestsController = new RequestsControllerImpl(mainManager);
     };
 
     @Override
-    public boolean run(){
+    public Action run(){
         mainMenu.showMenu();
+        Action action = checkInput();
 
-        while(!checkInput()){
+        while(action == Action.CONTINUE || action == Action.MAIN_MENU){
             mainMenu.showMenu();
-            checkInput();
+            action = checkInput();
         }
-        return true;
+
+        return Action.EXIT;
     }
 
     @Override
-    public boolean checkInput(){
+    public Action checkInput(){
         int answer = scanner.nextInt();
         scanner.nextLine();
 
         return switch (answer) {
             case 1 -> booksController.run();
-            case 4 -> true;
+            case 2 -> ordersController.run();
+            case 3 -> requestsController.run();
+            case 4 -> Action.EXIT;
             default -> {
                 mainMenu.showInputError();
-                yield false;
+                yield Action.CONTINUE;
             }
         };
     }

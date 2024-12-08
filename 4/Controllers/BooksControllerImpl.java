@@ -6,94 +6,73 @@ import View.BooksMenuImpl;
 
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.Scanner;
 
-public class BooksControllerImpl implements Controller, BooksController{
+public class BooksControllerImpl implements BooksController{
     private final MainManager mainManager;
     private final BooksMenuImpl booksMenu;
-    private final Scanner scanner;
-
 
     public BooksControllerImpl(MainManager mainManager){
         this.mainManager = mainManager;
         this.booksMenu = new BooksMenuImpl();
-        this.scanner = new Scanner(System.in);
     }
 
     @Override
-    public boolean run() {
+    public Action run() {
         booksMenu.showMenu();
+        Action action = checkInput();
 
-        while(!checkInput()){
+        while(action == Action.CONTINUE){
             booksMenu.showMenu();
-            checkInput();
+            action = checkInput();
         }
-        return true;
+
+        return action;
     }
 
     @Override
-    public boolean checkInput() {
+    public Action checkInput() {
         int answer = scanner.nextInt();
         scanner.nextLine();
 
         return switch (answer) {
             case 1:
                 addBook();
-                yield false;
+                yield Action.CONTINUE;
             case 2 :
                 writeOff();
-                yield false;
+                yield Action.CONTINUE;
             case 3 :
                 showBookDetails();
-                yield false;
+                yield Action.CONTINUE;
             case 4 :
                 getBooksByAlphabet();
-                yield false;
+                yield Action.CONTINUE;
             case 5 :
                 getBooksByDate();
-                yield false;
+                yield Action.CONTINUE;
             case 6 :
                 getBooksByPrice();
-                yield false;
+                yield Action.CONTINUE;
             case 7 :
                 getBooksByAvailable();
-                yield false;
+                yield Action.CONTINUE;
             case 8 :
                 getStaleBooksByDate();
-                yield false;
+                yield Action.CONTINUE;
             case 9 :
                 getStaleBooksByPrice();
-                yield false;
-            case 10 : yield true;
+                yield Action.CONTINUE;
+            case 10 : yield Action.MAIN_MENU;
+            case 11 : yield Action.EXIT;
             default :
                 booksMenu.showInputError();
-                yield false;
+                yield Action.CONTINUE;
         };
     };
 
     @Override
-    public Book getBookFromConsole(){
-        // TODO: добавить проверки на ввод некорректных данных, обернуть в Optional
-        booksMenu.showGetName();
-        String name = scanner.nextLine();
-
-        booksMenu.showGetAuthor();
-        String author = scanner.nextLine();
-
-        booksMenu.showGetPublicationDate();
-        Integer publicationDate = scanner.nextInt();
-        scanner.nextLine();
-
-        booksMenu.showGetPrice();
-        Integer price = scanner.nextInt();
-        scanner.nextLine();
-
-        return new Book(name, author, price, publicationDate);
-    }
-
-    @Override
     public void addBook() {
-        Book book = getBookFromConsole();
+        Book book = getBookFromConsole(booksMenu);
 
         booksMenu.showGetAmountAdd();
         Integer amount = scanner.nextInt();
@@ -104,7 +83,7 @@ public class BooksControllerImpl implements Controller, BooksController{
 
     @Override
     public void writeOff() {
-        Optional<Book> maybeBook = mainManager.getBookDetails(getBookFromConsole());
+        Optional<Book> maybeBook = mainManager.getBookDetails(getBookFromConsole(booksMenu));
 
         if(maybeBook.isEmpty()) {
             booksMenu.showError("Книга не найдена");
@@ -126,7 +105,7 @@ public class BooksControllerImpl implements Controller, BooksController{
 
     @Override
     public void showBookDetails() {
-        Optional<Book> maybeBook = mainManager.getBookDetails(getBookFromConsole());
+        Optional<Book> maybeBook = mainManager.getBookDetails(getBookFromConsole(booksMenu));
         if(maybeBook.isEmpty()){
             booksMenu.showError("Книга не найдена");
         }
