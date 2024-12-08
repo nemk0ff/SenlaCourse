@@ -12,34 +12,34 @@ public class OrdersManagerImpl implements OrdersManager{
         orders = new ArrayList<>();
         requests = new ArrayList<>();
 
-        orders.add(new Order(new Book("Война и Мир", "Л.Н.Толстой", 100, 1869),
+        orders.add(new Order(new Book("Война и Мир", "Л.Н.Толстой", 100.0, 1869),
                 OrderStatus.COMPLETED, LocalDate.of(2024, 5, 12), "Максим Иванов"));
-        orders.add(new Order(new Book("Анна Каренина", "Л.Н.Толстой", 150, 1877),
+        orders.add(new Order(new Book("Анна Каренина", "Л.Н.Толстой", 150.0, 1877),
                 OrderStatus.COMPLETED, LocalDate.of(2024, 5, 9), "Илья Петров"));
-        orders.add(new Order(new Book("Капитанская почка", "А.С.Пупкин", 200, 2024),
+        orders.add(new Order(new Book("Капитанская почка", "А.С.Пупкин", 200.0, 2024),
                 OrderStatus.NOT_COMPLETED, null, "Игорь Дроздов"));
-        orders.add(new Order(new Book("Мёртвые души", "Н.В.Гоголь", 350, 1842),
+        orders.add(new Order(new Book("Мёртвые души", "Н.В.Гоголь", 350.0, 1842),
                 OrderStatus.NOT_COMPLETED, null, "Екатерина Смирнова"));
-        orders.add(new Order(new Book("Гарри Поттер и узник Азкабана", "Дж.К.Роулинг", 450, 1999),
+        orders.add(new Order(new Book("Гарри Поттер и узник Азкабана", "Дж.К.Роулинг", 450.0, 1999),
                 OrderStatus.NOT_COMPLETED, null, "Дмитрий Розанов"));
 
-        orders.add(new Order(new Book("Введение в алгебру", "А.И.Кострикин", 450, 2001),
+        orders.add(new Order(new Book("Введение в алгебру", "А.И.Кострикин", 450.0, 2001),
                 OrderStatus.NOT_COMPLETED, null, "Алина Петрова"));
-        orders.add(new Order(new Book("Преступление и наказание", "Ф.М.Достоевский", 200, 1866),
+        orders.add(new Order(new Book("Преступление и наказание", "Ф.М.Достоевский", 200.0, 1866),
                 OrderStatus.COMPLETED, LocalDate.of(2024, 11, 23), "Александр Бессонов"));
-        orders.add(new Order(new Book("Дубровский", "А.С.Пушкин", 450, 1833),
+        orders.add(new Order(new Book("Дубровский", "А.С.Пушкин", 450.0, 1833),
                 OrderStatus.COMPLETED, LocalDate.of(2024, 11, 1), "Степан Краснов"));
-        orders.add(new Order(new Book("Мёртвые души", "Н.В.Гоголь", 350, 1842),
+        orders.add(new Order(new Book("Мёртвые души", "Н.В.Гоголь", 350.0, 1842),
                 OrderStatus.NOT_COMPLETED, null, "Григорий Лепс"));
-        orders.add(new Order(new Book("Идиот", "Ф.М.Достоевский", 350, 1868),
+        orders.add(new Order(new Book("Идиот", "Ф.М.Достоевский", 350.0, 1868),
                 OrderStatus.COMPLETED, LocalDate.of(2024, 11, 30), "Игорь Некрасов"));
 
-        requests.add(new Request(new Book("Капитанская почка", "А.С.Пупкин", 200, 2024)));
-        requests.add(new Request(new Book("Мёртвые души", "Н.В.Гоголь", 350, 1842)));
-        requests.add(new Request(new Book("Гарри Поттер и узник Азкабана", "Дж.К.Роулинг", 450, 1999)));
-        requests.add(new Request(new Book("Введение в алгебру", "А.И.Кострикин", 450, 2001)));
-        requests.add(new Request(new Book("Мёртвые души", "Н.В.Гоголь", 350, 1842)));
-        requests.add(new Request(new Book("Мёртвые души", "Н.В.Гоголь", 350, 1842)));
+        requests.add(new Request(new Book("Капитанская почка", "А.С.Пупкин", 200.0, 2024)));
+        requests.add(new Request(new Book("Мёртвые души", "Н.В.Гоголь", 350.0, 1842)));
+        requests.add(new Request(new Book("Гарри Поттер и узник Азкабана", "Дж.К.Роулинг", 450.0, 1999)));
+        requests.add(new Request(new Book("Введение в алгебру", "А.И.Кострикин", 450.0, 2001)));
+        requests.add(new Request(new Book("Мёртвые души", "Н.В.Гоголь", 335.0, 1842)));
+        requests.add(new Request(new Book("Мёртвые души", "Н.В.Гоголь", 340.0, 1842)));
     }
 
     // Закрыть запросы по книге

@@ -3,18 +3,18 @@ package Model;
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class Book implements Comparable<Book>{
+public class Book{
     private final String name;
     private final String author;
     private final Integer publicationDate;
     private LocalDate lastDeliveredDate;
     private LocalDate lastSaleDate;
-    private final Integer price;
+    private final Double price;
     private BookStatus status = BookStatus.NOT_AVAILABLE;
     private Integer amount;
 
     // Конструктор для создания книги, которая лежит в магазине
-    public Book(String name, String author, Integer amount, Integer price,
+    public Book(String name, String author, Integer amount, Double price,
                 Integer publicationDate, LocalDate lastDeliveredDate, LocalDate lastSaleDate) {
         this.name = name;
         this.author = author;
@@ -32,7 +32,7 @@ public class Book implements Comparable<Book>{
     }
 
     // Конструктор для книги, по которой создают заказ
-    public Book(String name, String author, Integer price, Integer publicationDate) {
+    public Book(String name, String author, Double price, Integer publicationDate) {
         this.name = name;
         this.author = author;
         this.price = price;
@@ -82,7 +82,7 @@ public class Book implements Comparable<Book>{
         return amount;
     }
 
-    public Integer getPrice(){
+    public Double getPrice(){
         return price;
     }
 
@@ -110,10 +110,5 @@ public class Book implements Comparable<Book>{
     @Override
     public int hashCode() {
         return Objects.hash(name, author, publicationDate, price);
-    }
-
-    @Override
-    public int compareTo(Book other) {
-        return this.name.compareTo(other.name);
     }
 }

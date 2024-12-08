@@ -9,17 +9,17 @@ public class LibraryManagerImpl implements LibraryManager{
     
     LibraryManagerImpl(){
         books = new ArrayList<>();
-        books.add(new Book("Война и Мир", "Л.Н.Толстой", 1, 100,
+        books.add(new Book("Война и Мир", "Л.Н.Толстой", 1, 100.0,
                 1869, LocalDate.of(2024, 2, 12), LocalDate.of(2024, 1, 11)));
-        books.add(new Book("Анна Каренина", "Л.Н.Толстой", 1, 150,
+        books.add(new Book("Анна Каренина", "Л.Н.Толстой", 1, 150.0,
                 1877, LocalDate.of(2024, 4, 5), LocalDate.of(2024, 2, 23)));
-        books.add(new Book("Капитанская дочка", "А.С.Пушкин", 1, 200,
+        books.add(new Book("Капитанская дочка", "А.С.Пушкин", 1, 200.0,
                 1836, LocalDate.of(2024, 4, 21), LocalDate.of(2024, 3, 19)));
-        books.add(new Book("Мёртвые души", "Н.В.Гоголь", 0, 350,
+        books.add(new Book("Мёртвые души", "Н.В.Гоголь", 0, 350.0,
                 1842, LocalDate.of(2024, 1, 11), null));
-        books.add(new Book("Ревизор", "Н.В.Гоголь", 2, 200,
+        books.add(new Book("Ревизор", "Н.В.Гоголь", 2, 200.0,
                 1835, LocalDate.of(2024, 1, 11), null));
-        books.add(new Book("Дубровский", "А.С.Пушкин", 2, 450,
+        books.add(new Book("Дубровский", "А.С.Пушкин", 2, 450.0,
                 1833, LocalDate.of(2024, 10, 20), LocalDate.of(2024, 5, 1)));
     }
 

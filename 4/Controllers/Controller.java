@@ -11,20 +11,35 @@ public interface Controller {
     Action checkInput();
 
     default Book getBookFromConsole(Menu menu){
-        // TODO: добавить проверки на ввод некорректных данных, обернуть в Optional
         menu.showGetName();
         String name = scanner.nextLine();
 
         menu.showGetAuthor();
         String author = scanner.nextLine();
 
-        menu.showGetPublicationDate();
-        Integer publicationDate = scanner.nextInt();
-        scanner.nextLine();
+        int publicationDate;
+        while (true) {
+            menu.showGetPublicationDate();
+            String input = scanner.nextLine();
+            try {
+                publicationDate = Integer.parseInt(input);
+                break;
+            } catch (NumberFormatException e) {
+                menu.showError("Неверный формат даты публикации, попробуйте еще раз");
+            }
+        }
 
-        menu.showGetPrice();
-        Integer price = scanner.nextInt();
-        scanner.nextLine();
+        double price;
+        while (true) {
+            menu.showGetPrice();
+            String input = scanner.nextLine();
+            try {
+                price = Double.parseDouble(input);
+                break;
+            } catch (NumberFormatException e) {
+                menu.showError("Неверный формат цены, попробуйте еще раз");
+            }
+        }
 
         return new Book(name, author, price, publicationDate);
     }

@@ -72,5 +72,5 @@ public class OrdersMenuImpl implements OrdersMenu{
     }
 
     @Override
-    public void showEarnedSum(int sum){ System.out.println("Сумма заработанных средств : " + sum); }
+    public void showEarnedSum(Double sum){ System.out.println("Сумма заработанных средств : " + sum); }
 }

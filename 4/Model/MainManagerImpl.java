@@ -76,92 +76,80 @@ public class MainManagerImpl implements MainManager{
     }
 
     @Override
-    public List<Book> getBooksByAlphabet(){
-       List<Book> sortedBooks = libraryManager.getBooks();
-       sortedBooks.sort(Comparator.comparing(Book::getName));
-       return sortedBooks;
-    }
-    @Override
-    public List<Book> getBooksByDate(){
-        List<Book> sortedBooks = libraryManager.getBooks();
-        sortedBooks.sort(Comparator.comparing(Book::getPublicationDate));
-        return sortedBooks;
-    }
-    @Override
-    public List<Book> getBooksByPrice(){
-        List<Book> sortedBooks = libraryManager.getBooks();
-        sortedBooks.sort(Comparator.comparing(Book::getPrice));
-        return sortedBooks;
-    }
-    @Override
-    public List<Book> getBooksByAvailable(){
-        List<Book> sortedBooks = libraryManager.getBooks();
-        sortedBooks.sort(Comparator.comparing(Book::getStatus));
-        return sortedBooks;
-    }
+    public List<Book> getBooksByAlphabet(){  return sortBooks(getBooks(), Comparator.comparing(Book::getName)); }
 
+    @Override
+    public List<Book> getBooksByDate() { return sortBooks(getBooks(), Comparator.comparing(Book::getPublicationDate)); }
+
+    @Override
+    public List<Book> getBooksByPrice() { return sortBooks(getBooks(), Comparator.comparing(Book::getPrice)); }
+
+    @Override
+    public List<Book> getBooksByAvailable() { return sortBooks(getBooks(), Comparator.comparing(Book::getStatus)); }
+
+    @Override
+    public List<Book> sortBooks(List<Book> books, Comparator<Book> comparator){
+        books.sort(comparator);
+        return books;
+    }
 
     @Override
     public List<Order> getOrders(){
         return ordersManager.getOrders();
     }
+
+    @Override
+    public List<Order> getOrdersByDate(){
+        return sortOrders(getOrders(), Comparator.comparing(Order::getCompleteDate,
+                Comparator.nullsFirst(Comparator.naturalOrder())));
+    }
+    @Override
+    public List<Order> getOrdersByPrice(){
+        return sortOrders(getOrders(), Comparator.comparing(Order::getPrice));
+    }
+    @Override
+    public List<Order> getOrdersByStatus(){
+        return sortOrders(getOrders(), Comparator.comparing(Order::getStatus));
+    }
+    @Override
+    public List<Order> sortOrders(List<Order> orders, Comparator<Order> comparator){
+        orders.sort(comparator);
+        return orders;
+    }
+
     @Override
     public List<Request> getRequests(){
         return ordersManager.getRequests();
     }
-
     @Override
-    public List<Order> getOrdersByDate(){
-        List<Order> sortedOrders = ordersManager.getOrders();
-        sortedOrders.sort(Comparator.comparing(Order::getCompleteDate, Comparator.nullsFirst(Comparator.naturalOrder())));
-        return sortedOrders;
+    public Map<Book, Long> groupRequestsByBook(List<Request> requests) {
+        return requests.stream()
+                .collect(Collectors.groupingBy(Request::getBook, Collectors.counting()));
     }
-    @Override
-    public List<Order> getOrdersByPrice(){
-        List<Order> sortedOrders = ordersManager.getOrders();
-        sortedOrders.sort(Comparator.comparing(Order::getPrice));
-        return sortedOrders;
-    }
-    @Override
-    public List<Order> getOrdersByStatus(){
-        List<Order> sortedOrders = ordersManager.getOrders();
-        sortedOrders.sort(Comparator.comparing(Order::getStatus));
-        return sortedOrders;
-    }
-
     @Override
     public LinkedHashMap<Book, Long> getRequestsByCount(){
-        return ordersManager.getRequests()
-                .stream()
-                .collect(Collectors.groupingBy(Request::getBook, Collectors.counting()))
-                .entrySet().stream()
+        return groupRequestsByBook(getRequests()).entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
     @Override
     public LinkedHashMap<Book, Long> getRequestsByPrice(){
-        return ordersManager.getRequests()
-                .stream()
-                .collect(Collectors.groupingBy(Request::getBook, Collectors.counting()))
-                .entrySet().stream()
-                .sorted(Comparator.comparingInt(entry -> entry.getKey().getPrice()))
+        return groupRequestsByBook(getRequests()).entrySet().stream()
+                .sorted(Comparator.comparingDouble(entry -> entry.getKey().getPrice()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
     @Override
     public List<Order> getCompletedOrdersByDate(LocalDate begin, LocalDate end){
-        return ordersManager.getOrders()
-                .stream()
+        return getOrders().stream()
                 .filter(Order::isCompleted)
                 .filter(order -> order.getCompleteDate().isAfter(begin) && order.getCompleteDate().isBefore(end))
                 .sorted(Comparator.comparing(Order::getCompleteDate))
                 .toList();
     }
-
     @Override
     public List<Order> getCompletedOrdersByPrice(LocalDate begin, LocalDate end){
-        return ordersManager.getOrders()
-                .stream()
+        return getOrders().stream()
                 .filter(Order::isCompleted)
                 .filter(order -> order.getCompleteDate().isAfter(begin) && order.getCompleteDate().isBefore(end))
                 .sorted(Comparator.comparing(Order::getPrice))
@@ -169,40 +157,25 @@ public class MainManagerImpl implements MainManager{
     }
 
     @Override
-    public Integer getEarnedSum(LocalDate begin, LocalDate end){
-        return ordersManager.getOrders()
-                .stream()
+    public Double getEarnedSum(LocalDate begin, LocalDate end){
+        return getOrders().stream()
                 .filter(Order::isCompleted)
                 .filter(order -> order.getCompleteDate().isAfter(begin) && order.getCompleteDate().isBefore(end))
-                .mapToInt(Order::getPrice)
+                .mapToDouble(Order::getPrice)
                 .sum();
     }
 
     @Override
     public Long getCountCompletedOrders(LocalDate begin, LocalDate end){
-        return ordersManager.getOrders()
-                .stream()
+        return getOrders().stream()
                 .filter(Order::isCompleted)
                 .filter(order -> order.getCompleteDate().isAfter(begin) && order.getCompleteDate().isBefore(end))
                 .count();
     }
 
     @Override
-    public Optional<Order> getOrderDetails(String client, Book book){
-        List<Order> orders = ordersManager.getOrders();
-        Order order = new Order(book, client);
-        for (Order value : orders) {
-            if (value.equals(order)) {
-                return Optional.of(value);
-            }
-        }
-        return Optional.empty();
-    }
-
-    @Override
     public Stream<Book> getStaleBooks(){
-        return libraryManager.getBooks()
-                .stream()
+        return getBooks().stream()
                 .filter(book -> book.getAmount() > 0)
                 .filter(book -> (book.getLastSaleDate() == null
                             && Period.between(book.getLastDeliveredDate(), LocalDate.now()).getMonths() >= 6) ||
@@ -222,10 +195,21 @@ public class MainManagerImpl implements MainManager{
                 .toList();
     }
 
+    @Override
+    public Optional<Order> getOrderDetails(String client, Book book){
+        List<Order> orders = getOrders();
+        Order order = new Order(book, client);
+        for (Order value : orders) {
+            if (value.equals(order)) {
+                return Optional.of(value);
+            }
+        }
+        return Optional.empty();
+    }
 
     @Override
     public Optional<Book> getBookDetails(Book book){
-        List<Book> books = libraryManager.getBooks();
+        List<Book> books = getBooks();
         for (Book value : books) {
             if (value.equals(book)) {
                 return Optional.of(value);

@@ -22,5 +22,5 @@ public interface OrdersMenu extends Menu{
     void showErrorInputStatus();
 
     void showCountCompletedOrders(Long count);
-    void showEarnedSum(int sum);
+    void showEarnedSum(Double sum);
 }
