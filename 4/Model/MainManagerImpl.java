@@ -70,8 +70,7 @@ public class MainManagerImpl implements MainManager {
         return ordersManager;
     }
 
-    @Override
-    public List<Book> getBooks() {
+    private List<Book> getBooks() {
         return libraryManager.getBooks();
     }
 
@@ -95,14 +94,12 @@ public class MainManagerImpl implements MainManager {
         return sortBooks(getBooks(), Comparator.comparing(Book::getStatus));
     }
 
-    @Override
-    public List<Book> sortBooks(List<Book> books, Comparator<Book> comparator) {
+    private List<Book> sortBooks(List<Book> books, Comparator<Book> comparator) {
         books.sort(comparator);
         return books;
     }
 
-    @Override
-    public List<Order> getOrders() {
+    private List<Order> getOrders() {
         return ordersManager.getOrders();
     }
 
@@ -122,19 +119,16 @@ public class MainManagerImpl implements MainManager {
         return sortOrders(getOrders(), Comparator.comparing(Order::getStatus));
     }
 
-    @Override
-    public List<Order> sortOrders(List<Order> orders, Comparator<Order> comparator) {
+    private List<Order> sortOrders(List<Order> orders, Comparator<Order> comparator) {
         orders.sort(comparator);
         return orders;
     }
 
-    @Override
-    public List<Request> getRequests() {
+    private List<Request> getRequests() {
         return ordersManager.getRequests();
     }
 
-    @Override
-    public Map<Book, Long> groupRequestsByBook(List<Request> requests) {
+    private Map<Book, Long> groupRequestsByBook(List<Request> requests) {
         return requests.stream()
                 .collect(Collectors.groupingBy(Request::getBook, Collectors.counting()));
     }
@@ -155,41 +149,38 @@ public class MainManagerImpl implements MainManager {
 
     @Override
     public List<Order> getCompletedOrdersByDate(LocalDate begin, LocalDate end) {
-        return getOrders().stream()
-                .filter(Order::isCompleted)
-                .filter(order -> order.getCompleteDate().isAfter(begin) && order.getCompleteDate().isBefore(end))
+        return filterCompletedOrdersInRange(begin, end)
                 .sorted(Comparator.comparing(Order::getCompleteDate))
                 .toList();
     }
 
     @Override
     public List<Order> getCompletedOrdersByPrice(LocalDate begin, LocalDate end) {
-        return getOrders().stream()
-                .filter(Order::isCompleted)
-                .filter(order -> order.getCompleteDate().isAfter(begin) && order.getCompleteDate().isBefore(end))
+        return filterCompletedOrdersInRange(begin, end)
                 .sorted(Comparator.comparing(Order::getPrice))
                 .toList();
     }
 
     @Override
     public Double getEarnedSum(LocalDate begin, LocalDate end) {
-        return getOrders().stream()
-                .filter(Order::isCompleted)
-                .filter(order -> order.getCompleteDate().isAfter(begin) && order.getCompleteDate().isBefore(end))
+        return filterCompletedOrdersInRange(begin, end)
                 .mapToDouble(Order::getPrice)
                 .sum();
     }
 
     @Override
     public Long getCountCompletedOrders(LocalDate begin, LocalDate end) {
-        return getOrders().stream()
-                .filter(Order::isCompleted)
-                .filter(order -> order.getCompleteDate().isAfter(begin) && order.getCompleteDate().isBefore(end))
+        return filterCompletedOrdersInRange(begin, end)
                 .count();
     }
 
-    @Override
-    public Stream<Book> getStaleBooks() {
+    private Stream<Order> filterCompletedOrdersInRange(LocalDate begin, LocalDate end) {
+        return getOrders().stream()
+                .filter(Order::isCompleted)
+                .filter(order -> !order.getCompleteDate().isBefore(begin) && !order.getCompleteDate().isAfter(end));
+    }
+
+    private Stream<Book> getStaleBooks() {
         return getBooks().stream()
                 .filter(book -> book.getAmount() > 0)
                 .filter(book -> (book.getLastSaleDate() == null

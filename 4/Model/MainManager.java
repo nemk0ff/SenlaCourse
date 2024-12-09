@@ -1,8 +1,9 @@
 package Model;
 
 import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Optional;
 
 public interface MainManager {
     void addBook(Book book, Integer amount, LocalDate addDate);
@@ -17,8 +18,6 @@ public interface MainManager {
 
     void addRequest(Book book);
 
-    List<Book> getBooks();
-
     List<Book> getBooksByAlphabet();
 
     List<Book> getBooksByDate();
@@ -27,21 +26,11 @@ public interface MainManager {
 
     List<Book> getBooksByAvailable();
 
-    List<Book> sortBooks(List<Book> books, Comparator<Book> comparator);
-
-    List<Order> getOrders();
-
     List<Order> getOrdersByDate();
 
     List<Order> getOrdersByPrice();
 
     List<Order> getOrdersByStatus();
-
-    List<Order> sortOrders(List<Order> orders, Comparator<Order> comparator);
-
-    List<Request> getRequests();
-
-    Map<Book, Long> groupRequestsByBook(List<Request> requests);
 
     LinkedHashMap<Book, Long> getRequestsByCount();
 
@@ -54,8 +43,6 @@ public interface MainManager {
     Double getEarnedSum(LocalDate begin, LocalDate end);
 
     Long getCountCompletedOrders(LocalDate begin, LocalDate end);
-
-    Stream<Book> getStaleBooks();
 
     List<Book> getStaleBooksByDate();
 
