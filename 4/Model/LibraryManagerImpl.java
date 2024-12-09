@@ -4,10 +4,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LibraryManagerImpl implements LibraryManager{
+public class LibraryManagerImpl implements LibraryManager {
     private final List<Book> books;
-    
-    LibraryManagerImpl(){
+
+    LibraryManagerImpl() {
         books = new ArrayList<>();
         books.add(new Book("Война и Мир", "Л.Н.Толстой", 1, 100.0,
                 1869, LocalDate.of(2024, 2, 12), LocalDate.of(2024, 1, 11)));
@@ -25,7 +25,7 @@ public class LibraryManagerImpl implements LibraryManager{
 
     // Списать со склада
     @Override
-    public void writeOff(Book book, Integer amount, LocalDate saleDate){
+    public void writeOff(Book book, Integer amount, LocalDate saleDate) {
         for (Book value : books) {
             if (value.equals(book)) {
                 value.setAmount(-amount);
@@ -37,7 +37,7 @@ public class LibraryManagerImpl implements LibraryManager{
 
     // Добавить книгу
     @Override
-    public void addBook(Book book, Integer amount, LocalDate addDate){
+    public void addBook(Book book, Integer amount, LocalDate addDate) {
         for (Book value : books) {
             if (value.equals(book)) {
                 value.setAmount(amount);
@@ -50,9 +50,9 @@ public class LibraryManagerImpl implements LibraryManager{
 
     // Проверить, доступна ли книга
     @Override
-    public Boolean isAvailable(Book book){
+    public Boolean isAvailable(Book book) {
         for (Book value : books) {
-            if (value.equals(book) && value.getStatus() == BookStatus.AVAILABLE){
+            if (value.equals(book) && value.getStatus() == BookStatus.AVAILABLE) {
                 return true;
             }
         }

@@ -20,7 +20,7 @@ public class RequestsMenuImpl implements RequestsMenu {
     }
 
     @Override
-    public void showRequests(LinkedHashMap<Book, Long> requests){
+    public void showRequests(LinkedHashMap<Book, Long> requests) {
         requests.forEach((key, value) -> {
             System.out.println(key.getInfoAbout());
             System.out.println("Количество запросов: " + value);

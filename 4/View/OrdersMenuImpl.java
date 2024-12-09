@@ -1,11 +1,10 @@
 package View;
 
-import Model.Book;
 import Model.Order;
 
 import java.util.List;
 
-public class OrdersMenuImpl implements OrdersMenu{
+public class OrdersMenuImpl implements OrdersMenu {
 
     @Override
     public void showMenu() {
@@ -30,33 +29,50 @@ public class OrdersMenuImpl implements OrdersMenu{
 
     @Override
     public void showOrders(List<Order> orders) {
-        orders.forEach(order -> System.out.println(order.getBook().getName() + ", " + order.getBook().getAuthor()
-                + ", " + order.getBook().getPublicationDate() + ", " + order.getInfoAbout()));
+        orders.forEach(this::showOrder);
     }
 
     @Override
-    public void showOrder(Order order) { System.out.println(order.getInfoAbout()); }
+    public void showOrder(Order order) {
+        System.out.println(order.getBook().getName() + ", " + order.getBook().getAuthor()
+                + ", " + order.getBook().getPublicationDate() + ", " + order.getInfoAbout());
+        System.out.println();
+    }
 
     @Override
-    public void showGetBeginDate() { System.out.println("Введите дату начала периода"); }
+    public void showGetBeginDate() {
+        System.out.println("Введите дату начала периода");
+    }
 
     @Override
-    public void showGetEndDate() { System.out.println("Введите дату конца периода"); }
+    public void showGetEndDate() {
+        System.out.println("Введите дату конца периода");
+    }
 
     @Override
-    public void showGetYear() { System.out.print("Введите год: "); }
+    public void showGetYear() {
+        System.out.print("Введите год: ");
+    }
 
     @Override
-    public void showGetMonth() { System.out.print("Введите месяц: "); }
+    public void showGetMonth() {
+        System.out.print("Введите месяц: ");
+    }
 
     @Override
-    public void showGetDay() { System.out.print("Введите день: "); }
+    public void showGetDay() {
+        System.out.print("Введите день: ");
+    }
 
     @Override
-    public void showErrorInputDate() { System.out.println("Вы ввели неверную дату. Попробуйте заново."); }
+    public void showErrorInputDate() {
+        System.out.println("Вы ввели неверную дату. Попробуйте заново.");
+    }
 
     @Override
-    public void showGetClientName() { System.out.print("Введите имя клиента: "); }
+    public void showGetClientName() {
+        System.out.print("Введите имя клиента: ");
+    }
 
     @Override
     public void showGetNewStatus() {
@@ -64,7 +80,9 @@ public class OrdersMenuImpl implements OrdersMenu{
     }
 
     @Override
-    public void showErrorInputStatus() { System.out.println("Вы ввели неверный статус. Попробуйте ещё раз"); }
+    public void showErrorInputStatus() {
+        System.out.println("Вы ввели неверный статус. Попробуйте ещё раз");
+    }
 
     @Override
     public void showCountCompletedOrders(Long count) {
@@ -72,5 +90,7 @@ public class OrdersMenuImpl implements OrdersMenu{
     }
 
     @Override
-    public void showEarnedSum(Double sum){ System.out.println("Сумма заработанных средств : " + sum); }
+    public void showEarnedSum(Double sum) {
+        System.out.println("Сумма заработанных средств : " + sum);
+    }
 }

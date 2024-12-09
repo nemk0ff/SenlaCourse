@@ -5,7 +5,7 @@ import Model.MainManager;
 import View.RequestsMenu;
 import View.RequestsMenuImpl;
 
-public class RequestsControllerImpl implements RequestsController{
+public class RequestsControllerImpl implements RequestsController {
     private final MainManager mainManager;
     private final RequestsMenu requestsMenu;
 
@@ -19,7 +19,7 @@ public class RequestsControllerImpl implements RequestsController{
         requestsMenu.showMenu();
         Action action = checkInput();
 
-        while(action == Action.CONTINUE){
+        while (action == Action.CONTINUE) {
             requestsMenu.showMenu();
             action = checkInput();
         }
@@ -67,8 +67,12 @@ public class RequestsControllerImpl implements RequestsController{
     }
 
     @Override
-    public void getRequestsByCount() { requestsMenu.showRequests(mainManager.getRequestsByCount()); }
+    public void getRequestsByCount() {
+        requestsMenu.showRequests(mainManager.getRequestsByCount());
+    }
 
     @Override
-    public void getRequestsByPrice() { requestsMenu.showRequests(mainManager.getRequestsByPrice()); }
+    public void getRequestsByPrice() {
+        requestsMenu.showRequests(mainManager.getRequestsByPrice());
+    }
 }

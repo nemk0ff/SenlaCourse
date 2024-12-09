@@ -10,7 +10,7 @@ public class Order {
     private LocalDate completeDate;
     private final String clientName;
 
-    public Order(Book book, OrderStatus status, LocalDate completeDate, String clientName){
+    public Order(Book book, OrderStatus status, LocalDate completeDate, String clientName) {
         this.book = book;
         this.status = status;
         this.price = book.getPrice();
@@ -18,7 +18,7 @@ public class Order {
         this.clientName = clientName;
     }
 
-    public Order(Book book, String clientName){
+    public Order(Book book, String clientName) {
         this.book = book;
         this.price = book.getPrice();
         this.clientName = clientName;
@@ -48,21 +48,23 @@ public class Order {
         this.status = status;
     }
 
-    public Book getBook(){
+    public Book getBook() {
         return book;
     }
 
-    public String getClientName() { return this.clientName; }
+    public String getClientName() {
+        return this.clientName;
+    }
 
-    public String getInfoAbout(){
+    public String getInfoAbout() {
         return clientName + ",  " + price + ",  " + status + ",  " + (completeDate == null ? "null" : completeDate.toString());
     }
 
-    public String getInfoAboutBook(){
+    public String getInfoAboutBook() {
         return book.getName() + ",  " + book.getAuthor() + ",  " + book.getPublicationDate();
     }
 
-    Boolean isCompleted(){
+    Boolean isCompleted() {
         return (status == OrderStatus.COMPLETED);
     }
 

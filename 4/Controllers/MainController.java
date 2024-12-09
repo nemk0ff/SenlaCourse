@@ -4,7 +4,7 @@ import Model.MainManager;
 import Model.MainManagerImpl;
 import View.MainMenu;
 
-public class MainController implements Controller{
+public class MainController implements Controller {
     private final MainMenu mainMenu;
     private final BooksControllerImpl booksController;
     private final OrdersControllerImpl ordersController;
@@ -17,14 +17,14 @@ public class MainController implements Controller{
         this.booksController = new BooksControllerImpl(mainManager);
         this.ordersController = new OrdersControllerImpl(mainManager);
         this.requestsController = new RequestsControllerImpl(mainManager);
-    };
+    }
 
     @Override
-    public Action run(){
+    public Action run() {
         mainMenu.showMenu();
         Action action = checkInput();
 
-        while(action == Action.CONTINUE || action == Action.MAIN_MENU){
+        while (action == Action.CONTINUE || action == Action.MAIN_MENU) {
             mainMenu.showMenu();
             action = checkInput();
         }
@@ -33,7 +33,7 @@ public class MainController implements Controller{
     }
 
     @Override
-    public Action checkInput(){
+    public Action checkInput() {
         int answer;
         while (true) {
             String input = scanner.nextLine();

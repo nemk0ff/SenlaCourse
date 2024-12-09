@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrdersManagerImpl implements OrdersManager{
+public class OrdersManagerImpl implements OrdersManager {
     private final List<Order> orders;
     private final List<Request> requests;
 
@@ -44,7 +44,7 @@ public class OrdersManagerImpl implements OrdersManager{
 
     // Закрыть запросы по книге
     @Override
-    public void closeRequests(Book book){
+    public void closeRequests(Book book) {
         for (Request request : requests) {
             if (request.getBook().equals(book) && request.getStatus() == RequestStatus.OPEN) {
                 request.closeRequest();
@@ -58,23 +58,23 @@ public class OrdersManagerImpl implements OrdersManager{
     }
 
     @Override
-    public void addRequest(Book book){
+    public void addRequest(Book book) {
         requests.add(new Request(book));
     }
 
     // Добавить заказ
     @Override
-    public void addOrder(Order order){
+    public void addOrder(Order order) {
         orders.add(order);
         // Если статус заказа "NotCompleted", то нужно создать запрос на книгу
-        if(!order.isCompleted()){
+        if (!order.isCompleted()) {
             requests.add(new Request(order.getBook()));
         }
     }
 
     // Отменить заказ
     @Override
-    public void cancelOrder(Order order){
+    public void cancelOrder(Order order) {
         orders.remove(order);
         // Если на данную книгу есть еще заказы, то ничего не делаем
         for (Order it : orders) {
@@ -92,19 +92,19 @@ public class OrdersManagerImpl implements OrdersManager{
 
     // Изменить статус заказа
     @Override
-    public void setOrderStatus(Order order, OrderStatus status){
+    public void setOrderStatus(Order order, OrderStatus status) {
         // Если статус заказа изменился с NotCompleted на Completed
         // И больше нет заказов на данную книгу
         // То нужно закрыть все запросы на эту книгу
-        if(order.getStatus() == OrderStatus.NOT_COMPLETED && status == OrderStatus.COMPLETED){
+        if (order.getStatus() == OrderStatus.NOT_COMPLETED && status == OrderStatus.COMPLETED) {
             boolean flag = true;
             for (Order it : orders) {
-                if(it.getBook().equals(order.getBook()) && it.getStatus() == OrderStatus.NOT_COMPLETED) {
+                if (it.getBook().equals(order.getBook()) && it.getStatus() == OrderStatus.NOT_COMPLETED) {
                     flag = false;
                     break;
                 }
             }
-            if(flag){
+            if (flag) {
                 for (Request request : requests) {
                     if (request.getBook().equals(order.getBook()) && request.getStatus() == RequestStatus.OPEN) {
                         request.closeRequest();
@@ -122,12 +122,12 @@ public class OrdersManagerImpl implements OrdersManager{
     }
 
     @Override
-    public List<Order> getOrders(){
+    public List<Order> getOrders() {
         return orders;
     }
 
     @Override
-    public List<Request> getRequests(){
+    public List<Request> getRequests() {
         return requests;
     }
 }

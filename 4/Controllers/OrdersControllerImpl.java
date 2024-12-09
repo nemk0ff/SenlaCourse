@@ -26,7 +26,7 @@ public class OrdersControllerImpl implements OrdersController {
         ordersMenu.showMenu();
         Action action = checkInput();
 
-        while(action == Action.CONTINUE){
+        while (action == Action.CONTINUE) {
             ordersMenu.showMenu();
             action = checkInput();
         }
@@ -81,8 +81,10 @@ public class OrdersControllerImpl implements OrdersController {
             case 11:
                 getEarnedSum();
                 yield Action.CONTINUE;
-            case 12 : yield Action.MAIN_MENU;
-            case 13 : yield Action.EXIT;
+            case 12:
+                yield Action.MAIN_MENU;
+            case 13:
+                yield Action.EXIT;
             default:
                 ordersMenu.showInputError();
                 yield Action.CONTINUE;
@@ -96,17 +98,18 @@ public class OrdersControllerImpl implements OrdersController {
     }
 
     @Override
-    public void cancelOrder() { mainManager.cancelOrder(getOrderFromConsole()); }
+    public void cancelOrder() {
+        mainManager.cancelOrder(getOrderFromConsole());
+    }
 
     @Override
     public void showOrderDetails() {
         Order inputOrder = getOrderFromConsole();
 
         Optional<Order> maybeOrder = mainManager.getOrderDetails(inputOrder.getClientName(), inputOrder.getBook());
-        if(maybeOrder.isEmpty()){
-            ordersMenu.showError("Книга не найдена");
-        }
-        else{
+        if (maybeOrder.isEmpty()) {
+            ordersMenu.showError("Заказ не найден");
+        } else {
             ordersMenu.showOrder(maybeOrder.get());
         }
     }
@@ -121,11 +124,11 @@ public class OrdersControllerImpl implements OrdersController {
     }
 
     @Override
-    public OrderStatus getStatusFromConsole(){
+    public OrderStatus getStatusFromConsole() {
         ordersMenu.showGetNewStatus();
         String new_status = scanner.nextLine();
 
-        while(!Objects.equals(new_status, OrderStatus.COMPLETED.toString())
+        while (!Objects.equals(new_status, OrderStatus.COMPLETED.toString())
                 && !Objects.equals(new_status, OrderStatus.NOT_COMPLETED.toString())) {
             ordersMenu.showErrorInputStatus();
             new_status = scanner.nextLine();
@@ -135,7 +138,7 @@ public class OrdersControllerImpl implements OrdersController {
     }
 
     @Override
-    public Order getOrderFromConsole(){
+    public Order getOrderFromConsole() {
         ordersMenu.showGetClientName();
         String clientName = scanner.nextLine();
 
@@ -145,60 +148,54 @@ public class OrdersControllerImpl implements OrdersController {
     }
 
     @Override
-    public void getOrdersByDate() { ordersMenu.showOrders(mainManager.getOrdersByDate()); }
-
-    @Override
-    public void getOrdersByPrice() { ordersMenu.showOrders(mainManager.getOrdersByPrice()); }
-
-    @Override
-    public void getOrdersByStatus() { ordersMenu.showOrders(mainManager.getOrdersByStatus()); }
-
-    @Override
-    public void getCountCompletedOrders(){
-        ordersMenu.showGetBeginDate();
-        LocalDate begin = getDateFromConsole();
-
-        ordersMenu.showGetEndDate();
-        LocalDate end = getDateFromConsole();
-
-        ordersMenu.showCountCompletedOrders(mainManager.getCountCompletedOrders(begin, end));
+    public void getOrdersByDate() {
+        ordersMenu.showOrders(mainManager.getOrdersByDate());
     }
 
     @Override
-    public void getEarnedSum(){
-        ordersMenu.showGetBeginDate();
-        LocalDate begin = getDateFromConsole();
+    public void getOrdersByPrice() {
+        ordersMenu.showOrders(mainManager.getOrdersByPrice());
+    }
 
-        ordersMenu.showGetEndDate();
-        LocalDate end = getDateFromConsole();
+    @Override
+    public void getOrdersByStatus() {
+        ordersMenu.showOrders(mainManager.getOrdersByStatus());
+    }
 
-        ordersMenu.showEarnedSum(mainManager.getEarnedSum(begin, end));
+    @Override
+    public void getCountCompletedOrders() {
+        ordersMenu.showCountCompletedOrders(mainManager.getCountCompletedOrders(getBeginDate(), getEndDate()));
+    }
+
+    @Override
+    public void getEarnedSum() {
+        ordersMenu.showEarnedSum(mainManager.getEarnedSum(getBeginDate(), getEndDate()));
     }
 
     @Override
     public void getCompletedOrdersByDate() {
-        ordersMenu.showGetBeginDate();
-        LocalDate begin = getDateFromConsole();
-
-        ordersMenu.showGetEndDate();
-        LocalDate end = getDateFromConsole();
-
-        ordersMenu.showOrders(mainManager.getCompletedOrdersByDate(begin, end));
+        ordersMenu.showOrders(mainManager.getCompletedOrdersByDate(getBeginDate(), getEndDate()));
     }
 
     @Override
     public void getCompletedOrdersByPrice() {
-        ordersMenu.showGetBeginDate();
-        LocalDate begin = getDateFromConsole();
-
-        ordersMenu.showGetEndDate();
-        LocalDate end = getDateFromConsole();
-
-        ordersMenu.showOrders(mainManager.getCompletedOrdersByPrice(begin, end));
+        ordersMenu.showOrders(mainManager.getCompletedOrdersByPrice(getBeginDate(), getEndDate()));
     }
 
     @Override
-    public LocalDate getDateFromConsole(){
+    public LocalDate getBeginDate() {
+        ordersMenu.showGetBeginDate();
+        return getDateFromConsole();
+    }
+
+    @Override
+    public LocalDate getEndDate() {
+        ordersMenu.showGetEndDate();
+        return getDateFromConsole();
+    }
+
+    @Override
+    public LocalDate getDateFromConsole() {
         ordersMenu.showGetYear();
         int year = scanner.nextInt();
 

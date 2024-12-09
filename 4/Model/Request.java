@@ -17,7 +17,7 @@ public class Request {
         return status;
     }
 
-    void closeRequest(){
+    void closeRequest() {
         status = RequestStatus.CLOSED;
     }
 }

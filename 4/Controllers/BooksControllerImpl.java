@@ -7,11 +7,11 @@ import View.BooksMenuImpl;
 import java.time.LocalDate;
 import java.util.Optional;
 
-public class BooksControllerImpl implements BooksController{
+public class BooksControllerImpl implements BooksController {
     private final MainManager mainManager;
     private final BooksMenuImpl booksMenu;
 
-    public BooksControllerImpl(MainManager mainManager){
+    public BooksControllerImpl(MainManager mainManager) {
         this.mainManager = mainManager;
         this.booksMenu = new BooksMenuImpl();
     }
@@ -21,7 +21,7 @@ public class BooksControllerImpl implements BooksController{
         booksMenu.showMenu();
         Action action = checkInput();
 
-        while(action == Action.CONTINUE){
+        while (action == Action.CONTINUE) {
             booksMenu.showMenu();
             action = checkInput();
         }
@@ -46,37 +46,41 @@ public class BooksControllerImpl implements BooksController{
             case 1:
                 addBook();
                 yield Action.CONTINUE;
-            case 2 :
+            case 2:
                 writeOff();
                 yield Action.CONTINUE;
-            case 3 :
+            case 3:
                 showBookDetails();
                 yield Action.CONTINUE;
-            case 4 :
+            case 4:
                 getBooksByAlphabet();
                 yield Action.CONTINUE;
-            case 5 :
+            case 5:
                 getBooksByDate();
                 yield Action.CONTINUE;
-            case 6 :
+            case 6:
                 getBooksByPrice();
                 yield Action.CONTINUE;
-            case 7 :
+            case 7:
                 getBooksByAvailable();
                 yield Action.CONTINUE;
-            case 8 :
+            case 8:
                 getStaleBooksByDate();
                 yield Action.CONTINUE;
-            case 9 :
+            case 9:
                 getStaleBooksByPrice();
                 yield Action.CONTINUE;
-            case 10 : yield Action.MAIN_MENU;
-            case 11 : yield Action.EXIT;
-            default :
+            case 10:
+                yield Action.MAIN_MENU;
+            case 11:
+                yield Action.EXIT;
+            default:
                 booksMenu.showInputError();
                 yield Action.CONTINUE;
         };
-    };
+    }
+
+    ;
 
     @Override
     public void addBook() {
@@ -93,7 +97,7 @@ public class BooksControllerImpl implements BooksController{
     public void writeOff() {
         Optional<Book> maybeBook = mainManager.getBookDetails(getBookFromConsole(booksMenu));
 
-        if(maybeBook.isEmpty()) {
+        if (maybeBook.isEmpty()) {
             booksMenu.showError("Книга не найдена");
             return;
         }
@@ -102,7 +106,7 @@ public class BooksControllerImpl implements BooksController{
         Integer amount = scanner.nextInt();
         scanner.nextLine();
 
-        if(maybeBook.get().getAmount() < amount){
+        if (maybeBook.get().getAmount() < amount) {
             booksMenu.showError("Количество книг на складе меньше количества, которое вы хотите списать");
             return;
         }
@@ -114,29 +118,40 @@ public class BooksControllerImpl implements BooksController{
     @Override
     public void showBookDetails() {
         Optional<Book> maybeBook = mainManager.getBookDetails(getBookFromConsole(booksMenu));
-        if(maybeBook.isEmpty()){
+        if (maybeBook.isEmpty()) {
             booksMenu.showError("Книга не найдена");
-        }
-        else{
+        } else {
             booksMenu.showBook(maybeBook.get());
         }
     }
 
     @Override
-    public void getBooksByAlphabet() { booksMenu.showBooks(mainManager.getBooksByAlphabet()); }
+    public void getBooksByAlphabet() {
+        booksMenu.showBooks(mainManager.getBooksByAlphabet());
+    }
 
     @Override
-    public void getBooksByDate() { booksMenu.showBooks(mainManager.getBooksByDate()); }
+    public void getBooksByDate() {
+        booksMenu.showBooks(mainManager.getBooksByDate());
+    }
 
     @Override
-    public void getBooksByPrice() { booksMenu.showBooks(mainManager.getBooksByPrice()); }
+    public void getBooksByPrice() {
+        booksMenu.showBooks(mainManager.getBooksByPrice());
+    }
 
     @Override
-    public void getBooksByAvailable() { booksMenu.showBooks(mainManager.getBooksByAvailable()); }
+    public void getBooksByAvailable() {
+        booksMenu.showBooks(mainManager.getBooksByAvailable());
+    }
 
     @Override
-    public void getStaleBooksByDate() { booksMenu.showBooks(mainManager.getStaleBooksByDate()); }
+    public void getStaleBooksByDate() {
+        booksMenu.showBooks(mainManager.getStaleBooksByDate());
+    }
 
     @Override
-    public void getStaleBooksByPrice() { booksMenu.showBooks(mainManager.getStaleBooksByPrice()); }
+    public void getStaleBooksByPrice() {
+        booksMenu.showBooks(mainManager.getStaleBooksByPrice());
+    }
 }

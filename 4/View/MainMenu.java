@@ -1,8 +1,8 @@
 package View;
 
-public class MainMenu implements Menu{
+public class MainMenu implements Menu {
     @Override
-    public void showMenu(){
+    public void showMenu() {
         System.out.println("##############################");
         System.out.println("#######  ГЛАВНОЕ МЕНЮ  #######");
         System.out.println("##############################");
@@ -14,7 +14,7 @@ public class MainMenu implements Menu{
     }
 
     @Override
-    public void showInputError(){
+    public void showInputError() {
 
     }
 }

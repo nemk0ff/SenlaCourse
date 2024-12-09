@@ -3,7 +3,7 @@ package Model;
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class Book{
+public class Book {
     private final String name;
     private final String author;
     private final Integer publicationDate;
@@ -24,9 +24,9 @@ public class Book{
         this.lastDeliveredDate = lastDeliveredDate;
         this.lastSaleDate = lastSaleDate;
 
-        if(this.amount > 0){
+        if (this.amount > 0) {
             this.status = BookStatus.AVAILABLE;
-        } else{
+        } else {
             this.amount = 0;
         }
     }
@@ -43,7 +43,7 @@ public class Book{
         return name;
     }
 
-    public String getAuthor(){
+    public String getAuthor() {
         return author;
     }
 
@@ -67,30 +67,29 @@ public class Book{
         return lastDeliveredDate;
     }
 
-    public void setAmount(Integer amount){
+    public void setAmount(Integer amount) {
         this.amount += amount;
-        if(this.amount > 0){
+        if (this.amount > 0) {
             status = BookStatus.AVAILABLE;
-        }
-        else{
+        } else {
             this.amount = 0;
             status = BookStatus.NOT_AVAILABLE;
         }
     }
 
-    public Integer getAmount(){
+    public Integer getAmount() {
         return amount;
     }
 
-    public Double getPrice(){
+    public Double getPrice() {
         return price;
     }
 
-    public Integer getPublicationDate(){
+    public Integer getPublicationDate() {
         return publicationDate;
     }
 
-    public String getInfoAbout(){
+    public String getInfoAbout() {
         return name + ",  " + author + ",  " + publicationDate
                 + ",  " + price + ",  " + amount + ",  " + status.toString()
                 + ",  " + (lastDeliveredDate == null ? "null" : lastDeliveredDate.toString())

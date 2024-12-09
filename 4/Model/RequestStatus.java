@@ -1,6 +1,5 @@
 package Model;
 
 public enum RequestStatus {
-    OPEN,
-    CLOSED
+    OPEN, CLOSED
 }
