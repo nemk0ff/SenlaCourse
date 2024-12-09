@@ -37,6 +37,7 @@ public class Book {
         this.author = author;
         this.price = price;
         this.publicationDate = publicationDate;
+        this.amount = 0;
     }
 
     public String getName() {

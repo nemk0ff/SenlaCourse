@@ -45,6 +45,8 @@ public class LibraryManagerImpl implements LibraryManager {
                 return;
             }
         }
+        book.setAmount(amount);
+        book.setLastDeliveredDate(addDate);
         books.add(book);
     }
 
