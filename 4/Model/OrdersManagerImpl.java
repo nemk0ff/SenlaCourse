@@ -17,20 +17,20 @@ public class OrdersManagerImpl implements OrdersManager {
         orders.add(new Order(new Book("Анна Каренина", "Л.Н.Толстой", 150.0, 1877),
                 OrderStatus.COMPLETED, LocalDate.of(2024, 5, 9), "Илья Петров"));
         orders.add(new Order(new Book("Капитанская почка", "А.С.Пупкин", 200.0, 2024),
-                OrderStatus.NOT_COMPLETED, null, "Игорь Дроздов"));
+                OrderStatus.NEW, null, "Игорь Дроздов"));
         orders.add(new Order(new Book("Мёртвые души", "Н.В.Гоголь", 350.0, 1842),
-                OrderStatus.NOT_COMPLETED, null, "Екатерина Смирнова"));
+                OrderStatus.NEW, null, "Екатерина Смирнова"));
         orders.add(new Order(new Book("Гарри Поттер и узник Азкабана", "Дж.К.Роулинг", 450.0, 1999),
-                OrderStatus.NOT_COMPLETED, null, "Дмитрий Розанов"));
+                OrderStatus.NEW, null, "Дмитрий Розанов"));
 
         orders.add(new Order(new Book("Введение в алгебру", "А.И.Кострикин", 450.0, 2001),
-                OrderStatus.NOT_COMPLETED, null, "Алина Петрова"));
+                OrderStatus.NEW, null, "Алина Петрова"));
         orders.add(new Order(new Book("Преступление и наказание", "Ф.М.Достоевский", 200.0, 1866),
                 OrderStatus.COMPLETED, LocalDate.of(2024, 11, 23), "Александр Бессонов"));
         orders.add(new Order(new Book("Дубровский", "А.С.Пушкин", 450.0, 1833),
                 OrderStatus.COMPLETED, LocalDate.of(2024, 11, 1), "Степан Краснов"));
         orders.add(new Order(new Book("Мёртвые души", "Н.В.Гоголь", 350.0, 1842),
-                OrderStatus.NOT_COMPLETED, null, "Григорий Лепс"));
+                OrderStatus.NEW, null, "Григорий Лепс"));
         orders.add(new Order(new Book("Идиот", "Ф.М.Достоевский", 350.0, 1868),
                 OrderStatus.COMPLETED, LocalDate.of(2024, 11, 30), "Игорь Некрасов"));
 
@@ -51,7 +51,7 @@ public class OrdersManagerImpl implements OrdersManager {
             }
         }
         for (Order order : orders) {
-            if (order.getBook().equals(book) && order.getStatus() == OrderStatus.NOT_COMPLETED) {
+            if (order.getBook().equals(book) && order.getStatus() == OrderStatus.NEW) {
                 order.setStatus(OrderStatus.COMPLETED);
             }
         }
@@ -75,10 +75,15 @@ public class OrdersManagerImpl implements OrdersManager {
     // Отменить заказ
     @Override
     public void cancelOrder(Order order) {
-        orders.remove(order);
+        // Если заказ не выполнен, то отменяем его
+        for (Order it : orders) {
+            if (it.getBook().equals(order.getBook()) && it.getStatus() == OrderStatus.NEW) {
+                it.setStatus(OrderStatus.NOT_COMPLETED);
+            }
+        }
         // Если на данную книгу есть еще заказы, то ничего не делаем
         for (Order it : orders) {
-            if (it.getBook().equals(order.getBook()) && it.getStatus() == OrderStatus.NOT_COMPLETED) {
+            if (it.getBook().equals(order.getBook()) && it.getStatus() == OrderStatus.NEW) {
                 return;
             }
         }
@@ -93,32 +98,37 @@ public class OrdersManagerImpl implements OrdersManager {
     // Изменить статус заказа
     @Override
     public void setOrderStatus(Order order, OrderStatus status) {
-        // Если статус заказа изменился с NotCompleted на Completed
+        if (!getOrders().contains(order)) {
+            return;
+        }
+        Order curOrder = null;
+        for (int i = 0; i < getOrders().size(); i++) {
+            if (getOrders().get(i).equals(order)) {
+                curOrder = getOrders().get(i);
+                break;
+            }
+        }
+        // Если статус заказа изменился с NEW на не NEW
         // И больше нет заказов на данную книгу
         // То нужно закрыть все запросы на эту книгу
-        if (order.getStatus() == OrderStatus.NOT_COMPLETED && status == OrderStatus.COMPLETED) {
+        if (curOrder.getStatus() == OrderStatus.NEW && status != OrderStatus.NEW) {
             boolean flag = true;
             for (Order it : orders) {
-                if (it.getBook().equals(order.getBook()) && it.getStatus() == OrderStatus.NOT_COMPLETED) {
+                if (it.getBook().equals(curOrder.getBook()) && it.getStatus() == OrderStatus.NEW) {
                     flag = false;
                     break;
                 }
             }
             if (flag) {
                 for (Request request : requests) {
-                    if (request.getBook().equals(order.getBook()) && request.getStatus() == RequestStatus.OPEN) {
+                    if (request.getBook().equals(curOrder.getBook()) && request.getStatus() == RequestStatus.OPEN) {
                         request.closeRequest();
                     }
                 }
             }
         }
 
-        // Меняем статус заказа
-        for (Order value : orders) {
-            if (value.equals(order)) {
-                value.setStatus(status);
-            }
-        }
+        curOrder.setStatus(status);
     }
 
     @Override

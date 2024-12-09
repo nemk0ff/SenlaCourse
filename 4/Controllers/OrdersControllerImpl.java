@@ -129,8 +129,10 @@ public class OrdersControllerImpl implements OrdersController {
         String new_status = scanner.nextLine();
 
         while (!Objects.equals(new_status, OrderStatus.COMPLETED.toString())
-                && !Objects.equals(new_status, OrderStatus.NOT_COMPLETED.toString())) {
+                && !Objects.equals(new_status, OrderStatus.NOT_COMPLETED.toString())
+                && !Objects.equals(new_status, OrderStatus.NEW.toString())) {
             ordersMenu.showErrorInputStatus();
+            ordersMenu.showGetNewStatus();
             new_status = scanner.nextLine();
         }
 

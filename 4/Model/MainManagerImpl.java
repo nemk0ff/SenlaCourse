@@ -38,7 +38,7 @@ public class MainManagerImpl implements MainManager {
         }
         // Оставить запрос на книгу(в addOrder)
         else {
-            newOrder = new Order(book, OrderStatus.NOT_COMPLETED, saleDate, clientName);
+            newOrder = new Order(book, OrderStatus.NEW, saleDate, clientName);
         }
         ordersManager.addOrder(newOrder);
     }

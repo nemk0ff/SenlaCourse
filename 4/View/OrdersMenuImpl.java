@@ -76,7 +76,7 @@ public class OrdersMenuImpl implements OrdersMenu {
 
     @Override
     public void showGetNewStatus() {
-        System.out.print("Введите новый статус заказа (COMPLETED или NOT_COMPLETED): ");
+        System.out.print("Введите новый статус заказа (NEW, COMPLETED или NOT_COMPLETED): ");
     }
 
     @Override
