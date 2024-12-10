@@ -9,6 +9,8 @@ import View.OrdersMenuImpl;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -38,7 +40,7 @@ public class OrdersControllerImpl implements OrdersController {
     public Action checkInput() {
         int answer;
         while (true) {
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().trim();
             try {
                 answer = Integer.parseInt(input);
                 break;
@@ -92,21 +94,56 @@ public class OrdersControllerImpl implements OrdersController {
     }
 
     @Override
+    public String getClientNameFromConsole() {
+        ordersMenu.showGetClientName();
+        return scanner.nextLine().trim();
+    }
+
+    @Override
+    public List<Book> getBooksFromConsole() {
+        ordersMenu.showGetBooks(mainManager.getBooks());
+        int count;
+        while (true) {
+            String input = scanner.nextLine().trim();
+            try {
+                count = Integer.parseInt(input);
+                break;
+            } catch (NumberFormatException e) {
+                ordersMenu.showError("Неверный формат, попробуйте еще раз");
+            }
+        }
+
+        Book tempBook;
+        List<Book> books = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            ordersMenu.showGetBook(i);
+            tempBook = getBookFromConsole(ordersMenu);
+            while (!mainManager.getBooks().contains(tempBook)) {
+                ordersMenu.showError("Такой книги нет в магазине");
+                tempBook = getBookFromConsole(ordersMenu);
+            }
+            for (Book book : mainManager.getBooks()) {
+                if (book.equals(tempBook)) {
+                    books.add(book);
+                }
+            }
+        }
+        return books;
+    }
+
+    @Override
     public void createOrder() {
-        Order inputOrder = getOrderFromConsole();
-        mainManager.createOrder(inputOrder.getBook(), inputOrder.getClientName(), LocalDate.now());
+        mainManager.createOrder(getBooksFromConsole(), getClientNameFromConsole(), LocalDate.now());
     }
 
     @Override
     public void cancelOrder() {
-        mainManager.cancelOrder(getOrderFromConsole());
+        mainManager.cancelOrder(new Order(getBooksFromConsole(), getClientNameFromConsole()));
     }
 
     @Override
     public void showOrderDetails() {
-        Order inputOrder = getOrderFromConsole();
-
-        Optional<Order> maybeOrder = mainManager.getOrderDetails(inputOrder.getClientName(), inputOrder.getBook());
+        Optional<Order> maybeOrder = mainManager.getOrderDetails(getClientNameFromConsole(), getBooksFromConsole());
         if (maybeOrder.isEmpty()) {
             ordersMenu.showError("Заказ не найден");
         } else {
@@ -116,37 +153,25 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public void setOrderStatus() {
-        Order order = getOrderFromConsole();
-
         OrderStatus newStatus = getStatusFromConsole();
 
-        mainManager.setOrderStatus(order, newStatus);
+        mainManager.setOrderStatus(new Order(getBooksFromConsole(), getClientNameFromConsole()), newStatus);
     }
 
     @Override
     public OrderStatus getStatusFromConsole() {
         ordersMenu.showGetNewStatus();
-        String new_status = scanner.nextLine();
+        String new_status = scanner.nextLine().trim();
 
         while (!Objects.equals(new_status, OrderStatus.COMPLETED.toString())
-                && !Objects.equals(new_status, OrderStatus.NOT_COMPLETED.toString())
+                && !Objects.equals(new_status, OrderStatus.CANCELED.toString())
                 && !Objects.equals(new_status, OrderStatus.NEW.toString())) {
             ordersMenu.showErrorInputStatus();
             ordersMenu.showGetNewStatus();
-            new_status = scanner.nextLine();
+            new_status = scanner.nextLine().trim();
         }
 
         return OrderStatus.valueOf(new_status);
-    }
-
-    @Override
-    public Order getOrderFromConsole() {
-        ordersMenu.showGetClientName();
-        String clientName = scanner.nextLine();
-
-        Book book = getBookFromConsole(ordersMenu);
-
-        return new Order(book, clientName);
     }
 
     @Override

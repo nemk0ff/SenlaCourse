@@ -5,4 +5,7 @@ public class Main {
         MainController myController = new MainController();
         myController.run();
     }
+    // TODO: добавить возможность создавать заказы с несколькими одинаковыми книгами
+    // TODO: перенести классы, реализующие интерфейсы в подпакеты Impl
+    // TODO:
 }

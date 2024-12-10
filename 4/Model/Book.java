@@ -31,13 +31,13 @@ public class Book {
         }
     }
 
-    // Конструктор для книги, по которой создают заказ
-    public Book(String name, String author, Double price, Integer publicationDate) {
+    // Конструктор для книги, по которой делают какой-либо запрос
+    public Book(String name, String author, Integer amount) {
         this.name = name;
         this.author = author;
-        this.price = price;
-        this.publicationDate = publicationDate;
-        this.amount = 0;
+        this.amount = amount;
+        this.publicationDate = 0;
+        this.price = 0.0;
     }
 
     public String getName() {
@@ -91,10 +91,17 @@ public class Book {
     }
 
     public String getInfoAbout() {
-        return name + ",  " + author + ",  " + publicationDate
-                + ",  " + price + ",  " + amount + ",  " + status.toString()
-                + ",  " + (lastDeliveredDate == null ? "null" : lastDeliveredDate.toString())
-                + ",  " + (lastSaleDate == null ? "null" : lastSaleDate.toString());
+        return name + ",  " + author
+                + ",  " + publicationDate
+                + ",  " + price
+                + ",  " + amount
+                + ",  " + status.toString()
+                + ",  " + (lastDeliveredDate == null ? "Not delivered yet" : lastDeliveredDate.toString())
+                + ",  " + (lastSaleDate == null ? "Not sailed yet" : lastSaleDate.toString());
+    }
+
+    public boolean isAvailable() {
+        return status == BookStatus.AVAILABLE;
     }
 
     @Override
@@ -102,9 +109,7 @@ public class Book {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Book book = (Book) o;
-        return Objects.equals(name, book.name) && Objects.equals(author, book.author)
-                && Objects.equals(publicationDate, book.publicationDate)
-                && Objects.equals(price, book.price);
+        return Objects.equals(name, book.name) && Objects.equals(author, book.author);
     }
 
     @Override

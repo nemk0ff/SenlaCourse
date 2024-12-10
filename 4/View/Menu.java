@@ -23,11 +23,7 @@ public interface Menu {
         System.out.print("Введите автора книги: ");
     }
 
-    default void showGetPrice() {
-        System.out.print("Введите цену книги: ");
-    }
-
-    default void showGetPublicationDate() {
-        System.out.print("Введите дату публикации книги: ");
+    default void showGetAmount() {
+        System.out.print("Сколько книг добавить?  ");
     }
 }

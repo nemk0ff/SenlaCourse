@@ -36,7 +36,7 @@ public class MainController implements Controller {
     public Action checkInput() {
         int answer;
         while (true) {
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().trim();
             try {
                 answer = Integer.parseInt(input);
                 break;

@@ -9,7 +9,7 @@ public class RequestsMenuImpl implements RequestsMenu {
     @Override
     public void showMenu() {
         System.out.println("##############################");
-        System.out.println("########  МЕНЮ ЗАПРОСОВ  ######");
+        System.out.println("########  МЕНЮ ЗАПРОСОВ  #####");
         System.out.println("##############################");
         System.out.println("    Выберите действие:");
         System.out.println("1. Оставить запрос на книгу");

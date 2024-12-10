@@ -4,11 +4,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface LibraryManager {
-    void addBook(Book book, Integer amount, LocalDate addDate);
+    boolean addBook(Book book, Integer amount, LocalDate addDate);
 
-    void writeOff(Book book, Integer amount, LocalDate saleDate);
+    boolean writeOff(Book book, Integer amount, LocalDate saleDate);
 
-    Boolean isAvailable(Book book);
+    boolean isAvailable(Book book);
 
     List<Book> getBooks();
 }

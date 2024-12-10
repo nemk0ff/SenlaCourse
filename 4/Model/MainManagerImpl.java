@@ -17,8 +17,39 @@ public class MainManagerImpl implements MainManager {
 
     // Списать книгу со склада
     @Override
-    public void writeOff(Book book, Integer amount, LocalDate saleDate) {
-        libraryManager.writeOff(book, amount, saleDate);
+    public void writeOff(Book book, Integer amount, LocalDate writeOffDate) {
+        libraryManager.writeOff(book, amount, writeOffDate);
+        updateOrders(writeOffDate);
+    }
+
+    // Добавить книгу
+    @Override
+    public void addBook(Book book, Integer amount, LocalDate deliveredDate) {
+        libraryManager.addBook(book, amount, deliveredDate);
+        updateOrders(deliveredDate);
+    }
+
+    private void updateOrders(LocalDate updateDate) {
+        for (Order order : getOrders()) {
+            updateOrder(order, updateDate);
+        }
+    }
+
+    private void updateOrder(Order order, LocalDate updateDate) {
+        if (order.getStatus() == OrderStatus.NEW && order.getBooks().stream().allMatch(Book::isAvailable)) {
+            completeOrder(order, updateDate);
+        }
+    }
+
+    private void completeOrder(Order order, LocalDate completeDate) {
+        order.setStatus(OrderStatus.COMPLETED);
+        order.setCompleteDate(completeDate);
+
+        ordersManager.closeRequests(order.getBooks());
+
+        for (Book book : order.getBooks()) {
+            libraryManager.writeOff(book, 1, completeDate);
+        }
     }
 
     // Создать запрос на книгу
@@ -29,21 +60,24 @@ public class MainManagerImpl implements MainManager {
 
     // Создать заказ
     @Override
-    public void createOrder(Book book, String clientName, LocalDate saleDate) {
-        Order newOrder;
+    public void createOrder(List<Book> books, String clientName, LocalDate orderDate) {
+        Order newOrder = new Order(books, OrderStatus.NEW, orderDate, clientName);
+        boolean completed = true;
+        for (Book book : books) {
+            // Если книги нет, то создаём запрос на неё
+            if (!libraryManager.isAvailable(book)) {
+                addRequest(book);
+                completed = false;
+            }
+        }
+        // Если все книги есть, то мы их списываем и закрываем заказ
+        if (completed) {
+            completeOrder(newOrder, orderDate);
+        }
 
-        if (libraryManager.isAvailable(book)) {
-            newOrder = new Order(book, OrderStatus.COMPLETED, saleDate, clientName);
-            writeOff(book, 1, saleDate);
-        }
-        // Оставить запрос на книгу(в addOrder)
-        else {
-            newOrder = new Order(book, OrderStatus.NEW, saleDate, clientName);
-        }
         ordersManager.addOrder(newOrder);
     }
 
-    // Отменить заказ
     @Override
     public void cancelOrder(Order order) {
         ordersManager.cancelOrder(order);
@@ -55,22 +89,8 @@ public class MainManagerImpl implements MainManager {
         ordersManager.setOrderStatus(order, status);
     }
 
-    // Добавить книгу
     @Override
-    public void addBook(Book book, Integer amount, LocalDate addDate) {
-        libraryManager.addBook(book, amount, addDate);
-        ordersManager.closeRequests(book);
-    }
-
-    public LibraryManager getLibraryManager() {
-        return libraryManager;
-    }
-
-    public OrdersManager getOrdersManager() {
-        return ordersManager;
-    }
-
-    private List<Book> getBooks() {
+    public List<Book> getBooks() {
         return libraryManager.getBooks();
     }
 
@@ -125,7 +145,10 @@ public class MainManagerImpl implements MainManager {
     }
 
     private List<Request> getRequests() {
-        return ordersManager.getRequests();
+        return ordersManager.getRequests()
+                .stream()
+                .filter(request -> request.getStatus() == RequestStatus.OPEN)
+                .toList();
     }
 
     private Map<Book, Long> groupRequestsByBook(List<Request> requests) {
@@ -204,9 +227,9 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public Optional<Order> getOrderDetails(String client, Book book) {
+    public Optional<Order> getOrderDetails(String client, List<Book> books) {
         List<Order> orders = getOrders();
-        Order order = new Order(book, client);
+        Order order = new Order(books, client);
         for (Order value : orders) {
             if (value.equals(order)) {
                 return Optional.of(value);

@@ -1,13 +1,12 @@
 package Controllers;
 
-import Model.Order;
+import Model.Book;
 import Model.OrderStatus;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface OrdersController extends Controller {
-    Order getOrderFromConsole();
-
     LocalDate getDateFromConsole();
 
     OrderStatus getStatusFromConsole();
@@ -37,4 +36,8 @@ public interface OrdersController extends Controller {
     LocalDate getBeginDate();
 
     LocalDate getEndDate();
+
+    String getClientNameFromConsole();
+
+    List<Book> getBooksFromConsole();
 }

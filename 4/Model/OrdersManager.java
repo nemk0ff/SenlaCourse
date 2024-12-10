@@ -7,7 +7,9 @@ public interface OrdersManager {
 
     void setOrderStatus(Order order, OrderStatus status);
 
-    void closeRequests(Book book);
+    void closeRequests(List<Book> book);
+
+    void closeRequest(Book book);
 
     void addOrder(Order order);
 

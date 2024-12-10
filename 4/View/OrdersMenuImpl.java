@@ -1,5 +1,6 @@
 package View;
 
+import Model.Book;
 import Model.Order;
 
 import java.util.List;
@@ -34,8 +35,10 @@ public class OrdersMenuImpl implements OrdersMenu {
 
     @Override
     public void showOrder(Order order) {
-        System.out.println(order.getBook().getName() + ", " + order.getBook().getAuthor()
-                + ", " + order.getBook().getPublicationDate() + ", " + order.getInfoAbout());
+        System.out.println(order.getInfoAbout());
+        for (Book book : order.getBooks()) {
+            System.out.println(book.getInfoAbout());
+        }
         System.out.println();
     }
 
@@ -75,8 +78,22 @@ public class OrdersMenuImpl implements OrdersMenu {
     }
 
     @Override
+    public void showGetBooks(List<Book> books) {
+        System.out.println("В магазине есть такие книги:");
+        for (Book book : books) {
+            System.out.println(book.getInfoAbout());
+        }
+        System.out.println("Сколько книг вы хотите заказать?");
+    }
+
+    @Override
+    public void showGetBook(int index) {
+        System.out.println("Введите книгу №" + index);
+    }
+
+    @Override
     public void showGetNewStatus() {
-        System.out.print("Введите новый статус заказа (NEW, COMPLETED или NOT_COMPLETED): ");
+        System.out.print("Введите новый статус заказа (NEW, COMPLETED или CANCELED): ");
     }
 
     @Override

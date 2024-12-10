@@ -33,7 +33,7 @@ public class BooksControllerImpl implements BooksController {
     public Action checkInput() {
         int answer;
         while (true) {
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().trim();
             try {
                 answer = Integer.parseInt(input);
                 break;
@@ -85,10 +85,22 @@ public class BooksControllerImpl implements BooksController {
     @Override
     public void addBook() {
         Book book = getBookFromConsole(booksMenu);
+        while (!mainManager.getBooks().contains(book)) {
+            booksMenu.showError("Такой книги нет в магазине");
+            book = getBookFromConsole(booksMenu);
+        }
 
-        booksMenu.showGetAmountAdd();
-        Integer amount = scanner.nextInt();
-        scanner.nextLine();
+        int amount;
+        while (true) {
+            booksMenu.showGetAmount();
+            String input = scanner.nextLine().trim();
+            try {
+                amount = Integer.parseInt(input);
+                break;
+            } catch (NumberFormatException e) {
+                booksMenu.showError("Неверный формат количества, попробуйте еще раз");
+            }
+        }
 
         mainManager.addBook(book, amount, LocalDate.now());
     }
@@ -100,11 +112,20 @@ public class BooksControllerImpl implements BooksController {
         if (maybeBook.isEmpty()) {
             booksMenu.showError("Книга не найдена");
             return;
+        } else if (maybeBook.get().getAmount() == 0) {
+            booksMenu.showError("Книги нет на складе");
+            return;
         }
 
         booksMenu.showGetAmountWriteOff();
         Integer amount = scanner.nextInt();
         scanner.nextLine();
+
+        while (amount < 0) {
+            amount = scanner.nextInt();
+            scanner.nextLine();
+            booksMenu.showError("Количество книг должно быть положительным числом");
+        }
 
         if (maybeBook.get().getAmount() < amount) {
             booksMenu.showError("Количество книг на складе меньше количества, которое вы хотите списать");

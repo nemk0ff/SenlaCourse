@@ -14,35 +14,11 @@ public interface Controller {
 
     default Book getBookFromConsole(Menu menu) {
         menu.showGetName();
-        String name = scanner.nextLine();
+        String name = scanner.nextLine().trim();
 
         menu.showGetAuthor();
-        String author = scanner.nextLine();
+        String author = scanner.nextLine().trim();
 
-        int publicationDate;
-        while (true) {
-            menu.showGetPublicationDate();
-            String input = scanner.nextLine();
-            try {
-                publicationDate = Integer.parseInt(input);
-                break;
-            } catch (NumberFormatException e) {
-                menu.showError("Неверный формат даты публикации, попробуйте еще раз");
-            }
-        }
-
-        double price;
-        while (true) {
-            menu.showGetPrice();
-            String input = scanner.nextLine();
-            try {
-                price = Double.parseDouble(input);
-                break;
-            } catch (NumberFormatException e) {
-                menu.showError("Неверный формат цены, попробуйте еще раз");
-            }
-        }
-
-        return new Book(name, author, price, publicationDate);
+        return new Book(name, author, 0);
     }
 }
