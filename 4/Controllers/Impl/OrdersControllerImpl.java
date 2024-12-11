@@ -1,11 +1,13 @@
-package Controllers;
+package Controllers.Impl;
 
+import Controllers.Action;
+import Controllers.OrdersController;
 import Model.Book;
 import Model.MainManager;
 import Model.Order;
 import Model.OrderStatus;
+import View.Impl.OrdersMenuImpl;
 import View.OrdersMenu;
-import View.OrdersMenuImpl;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -88,20 +90,20 @@ public class OrdersControllerImpl implements OrdersController {
             case 13:
                 yield Action.EXIT;
             default:
-                ordersMenu.showInputError();
+                ordersMenu.showError("Неизвестная команда");
                 yield Action.CONTINUE;
         };
     }
 
     @Override
-    public String getClientNameFromConsole() {
+    public String getClientNameFromConsole(){
         ordersMenu.showGetClientName();
         return scanner.nextLine().trim();
     }
 
     @Override
-    public List<Book> getBooksFromConsole() {
-        ordersMenu.showGetBooks(mainManager.getBooks());
+    public List<Book> getBooksFromConsole(){
+        ordersMenu.showBooks(mainManager.getBooks());
         int count;
         while (true) {
             String input = scanner.nextLine().trim();
@@ -118,12 +120,12 @@ public class OrdersControllerImpl implements OrdersController {
         for (int i = 0; i < count; i++) {
             ordersMenu.showGetBook(i);
             tempBook = getBookFromConsole(ordersMenu);
-            while (!mainManager.getBooks().contains(tempBook)) {
+            while(!mainManager.containsBook(tempBook)){
                 ordersMenu.showError("Такой книги нет в магазине");
                 tempBook = getBookFromConsole(ordersMenu);
             }
-            for (Book book : mainManager.getBooks()) {
-                if (book.equals(tempBook)) {
+            for (Book book: mainManager.getBooks()) {
+                if(book.equals(tempBook)){
                     books.add(book);
                 }
             }
@@ -166,7 +168,7 @@ public class OrdersControllerImpl implements OrdersController {
         while (!Objects.equals(new_status, OrderStatus.COMPLETED.toString())
                 && !Objects.equals(new_status, OrderStatus.CANCELED.toString())
                 && !Objects.equals(new_status, OrderStatus.NEW.toString())) {
-            ordersMenu.showErrorInputStatus();
+            ordersMenu.showError("Вы ввели некорректный статус. Попробуйте ещё раз");
             ordersMenu.showGetNewStatus();
             new_status = scanner.nextLine().trim();
         }
@@ -235,7 +237,7 @@ public class OrdersControllerImpl implements OrdersController {
         try {
             return LocalDate.of(year, month, day);
         } catch (DateTimeException e) {
-            ordersMenu.showErrorInputDate();
+            ordersMenu.showError("Некорректный формат даты. Попробуйте ещё раз");
             return getDateFromConsole();
         }
     }

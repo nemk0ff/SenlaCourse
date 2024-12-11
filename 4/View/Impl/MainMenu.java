@@ -1,4 +1,6 @@
-package View;
+package View.Impl;
+
+import View.Menu;
 
 public class MainMenu implements Menu {
     @Override
@@ -11,10 +13,5 @@ public class MainMenu implements Menu {
         System.out.println("2. Действие с заказами");
         System.out.println("3. Действие с запросами");
         System.out.println("4. Выйти из программы");
-    }
-
-    @Override
-    public void showInputError() {
-
     }
 }

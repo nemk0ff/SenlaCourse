@@ -53,4 +53,6 @@ public interface MainManager {
     Optional<Order> getOrderDetails(String client, List<Book> book);
 
     Optional<Book> getBookDetails(Book book);
+
+    boolean containsBook(Book book);
 }

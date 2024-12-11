@@ -28,7 +28,7 @@ public class Order {
         this.clientName = clientName;
     }
 
-    public Double getPrice(List<Book> books) {
+    public Double getPrice(List<Book> books){
         return books.stream()
                 .mapToDouble(Book::getPrice)
                 .sum();
@@ -64,7 +64,7 @@ public class Order {
 
     public String getInfoAbout() {
         return clientName + ",  " + price + ",  " + status + ",  " +
-                (completeDate == null ? "Not completed yet" : completeDate.toString());
+                (completeDate == null ? "not been completed yet" : completeDate.toString());
     }
 
     public List<String> getInfoAboutBooks() {

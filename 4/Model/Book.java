@@ -96,13 +96,11 @@ public class Book {
                 + ",  " + price
                 + ",  " + amount
                 + ",  " + status.toString()
-                + ",  " + (lastDeliveredDate == null ? "Not delivered yet" : lastDeliveredDate.toString())
-                + ",  " + (lastSaleDate == null ? "Not sailed yet" : lastSaleDate.toString());
+                + ",  " + (lastDeliveredDate == null ? "not been delivered yet" : lastDeliveredDate.toString())
+                + ",  " + (lastSaleDate == null ? "not been sold yet" : lastSaleDate.toString());
     }
 
-    public boolean isAvailable() {
-        return status == BookStatus.AVAILABLE;
-    }
+    public boolean isAvailable(){ return status == BookStatus.AVAILABLE; }
 
     @Override
     public boolean equals(Object o) {

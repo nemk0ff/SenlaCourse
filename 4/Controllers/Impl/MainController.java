@@ -1,8 +1,11 @@
-package Controllers;
+package Controllers.Impl;
 
+import Controllers.Action;
+import Controllers.Controller;
+import Controllers.RequestsController;
 import Model.MainManager;
 import Model.MainManagerImpl;
-import View.MainMenu;
+import View.Impl.MainMenu;
 
 public class MainController implements Controller {
     private final MainMenu mainMenu;
@@ -51,7 +54,7 @@ public class MainController implements Controller {
             case 3 -> requestsController.run();
             case 4 -> Action.EXIT;
             default -> {
-                mainMenu.showInputError();
+                mainMenu.showError("Неизвестная команда");
                 yield Action.CONTINUE;
             }
         };

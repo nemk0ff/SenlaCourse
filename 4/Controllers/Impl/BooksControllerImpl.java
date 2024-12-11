@@ -1,8 +1,10 @@
-package Controllers;
+package Controllers.Impl;
 
+import Controllers.Action;
+import Controllers.BooksController;
 import Model.Book;
 import Model.MainManager;
-import View.BooksMenuImpl;
+import View.Impl.BooksMenuImpl;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -75,24 +77,22 @@ public class BooksControllerImpl implements BooksController {
             case 11:
                 yield Action.EXIT;
             default:
-                booksMenu.showInputError();
+                booksMenu.showError("Неизвестная команда");
                 yield Action.CONTINUE;
         };
     }
 
-    ;
-
     @Override
     public void addBook() {
         Book book = getBookFromConsole(booksMenu);
-        while (!mainManager.getBooks().contains(book)) {
+        while(!mainManager.containsBook(book)){
             booksMenu.showError("Такой книги нет в магазине");
             book = getBookFromConsole(booksMenu);
         }
 
         int amount;
         while (true) {
-            booksMenu.showGetAmount();
+            booksMenu.showGetAmountBooks();
             String input = scanner.nextLine().trim();
             try {
                 amount = Integer.parseInt(input);
@@ -112,12 +112,12 @@ public class BooksControllerImpl implements BooksController {
         if (maybeBook.isEmpty()) {
             booksMenu.showError("Книга не найдена");
             return;
-        } else if (maybeBook.get().getAmount() == 0) {
+        } else if(maybeBook.get().getAmount() == 0){
             booksMenu.showError("Книги нет на складе");
             return;
         }
 
-        booksMenu.showGetAmountWriteOff();
+        booksMenu.showGetAmountBooks();
         Integer amount = scanner.nextInt();
         scanner.nextLine();
 

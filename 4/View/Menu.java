@@ -1,11 +1,11 @@
 package View;
 
+import Model.Book;
+
+import java.util.List;
+
 public interface Menu {
     void showMenu();
-
-    default void showInputError() {
-        System.out.println("Вы ввели неизвестную команду");
-    }
 
     default void showError(String error) {
         System.out.println("Ошибка: " + error);
@@ -23,7 +23,17 @@ public interface Menu {
         System.out.print("Введите автора книги: ");
     }
 
-    default void showGetAmount() {
-        System.out.print("Сколько книг добавить?  ");
+    default void showGetAmountBooks() {
+        System.out.print("Введите количество книг: ");
+    }
+
+    default void showBooks(List<Book> books) {
+        System.out.println("========== КНИГИ МАГАЗИНА ==========");
+        books.forEach(this::showBook);
+        System.out.println("====================================");
+    }
+
+    default void showBook(Book book) {
+        System.out.println(book.getInfoAbout());
     }
 }

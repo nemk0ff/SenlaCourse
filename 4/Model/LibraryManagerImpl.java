@@ -9,20 +9,35 @@ public class LibraryManagerImpl implements LibraryManager {
 
     LibraryManagerImpl() {
         books = new ArrayList<>(List.of(
-                new Book("Анна Каренина", "Л.Н.Толстой", 1, 150.0, 1877,
+                new Book("Анна Каренина", "Л.Н.Толстой", 1, 1150.0, 1877,
                         LocalDate.of(2024, 4, 5), LocalDate.of(2024, 2, 23)),
 
                 new Book("Капитанская дочка", "А.С.Пушкин", 1, 200.0, 1836,
                         LocalDate.of(2024, 4, 21), LocalDate.of(2024, 3, 19)),
 
+                new Book("Дубровский", "А.С.Пушкин", 2, 450.0, 1833,
+                        LocalDate.of(2024, 10, 20), LocalDate.of(2024, 5, 1)),
+
+                new Book("Пиковая дама", "А.С.Пушкин", 1, 975.0, 1833,
+                        LocalDate.of(2024, 4, 5), LocalDate.of(2024, 2, 23)),
+
+                new Book("Обломов", "И.А.Гончаров", 1, 1000.0, 1859,
+                        LocalDate.of(2024, 4, 21), LocalDate.of(2024, 3, 19)),
+
+                new Book("Дубровский", "А.С.Пушкин", 2, 450.0, 1833,
+                        LocalDate.of(2024, 10, 20), LocalDate.of(2024, 5, 1)),
+
+                new Book("Муму", "И.С.Тургенев", 0, 475.0,
+                        1852, LocalDate.of(2024, 1, 11), null),
+
+                new Book("Отцы и дети", "И.С.Тургенев", 0, 925.0,
+                        1861, LocalDate.of(2024, 1, 11), null),
+
                 new Book("Мёртвые души", "Н.В.Гоголь", 0, 350.0,
                         1842, LocalDate.of(2024, 1, 11), null),
 
-                new Book("Ревизор", "Н.В.Гоголь", 2, 200.0,
-                        1835, LocalDate.of(2024, 1, 11), null),
-
-                new Book("Дубровский", "А.С.Пушкин", 2, 450.0, 1833,
-                        LocalDate.of(2024, 10, 20), LocalDate.of(2024, 5, 1))
+                new Book("Ревизор", "Н.В.Гоголь", 0, 875.0,
+                        1835, LocalDate.of(2024, 1, 11), null)
         ));
     }
 

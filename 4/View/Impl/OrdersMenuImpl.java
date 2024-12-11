@@ -1,7 +1,8 @@
-package View;
+package View.Impl;
 
 import Model.Book;
 import Model.Order;
+import View.OrdersMenu;
 
 import java.util.List;
 
@@ -30,13 +31,20 @@ public class OrdersMenuImpl implements OrdersMenu {
 
     @Override
     public void showOrders(List<Order> orders) {
+        if(orders.isEmpty()){
+            System.out.println("У магазина пока не было заказов");
+            return;
+        }
+
+        System.out.println("============ ЗАКАЗЫ ============");
         orders.forEach(this::showOrder);
+        System.out.println("================================");
     }
 
     @Override
     public void showOrder(Order order) {
         System.out.println(order.getInfoAbout());
-        for (Book book : order.getBooks()) {
+        for (Book book: order.getBooks()) {
             System.out.println(book.getInfoAbout());
         }
         System.out.println();
@@ -68,37 +76,18 @@ public class OrdersMenuImpl implements OrdersMenu {
     }
 
     @Override
-    public void showErrorInputDate() {
-        System.out.println("Вы ввели неверную дату. Попробуйте заново.");
-    }
-
-    @Override
     public void showGetClientName() {
         System.out.print("Введите имя клиента: ");
     }
 
     @Override
-    public void showGetBooks(List<Book> books) {
-        System.out.println("В магазине есть такие книги:");
-        for (Book book : books) {
-            System.out.println(book.getInfoAbout());
-        }
-        System.out.println("Сколько книг вы хотите заказать?");
-    }
-
-    @Override
-    public void showGetBook(int index) {
+    public void showGetBook(int index){
         System.out.println("Введите книгу №" + index);
     }
 
     @Override
     public void showGetNewStatus() {
         System.out.print("Введите новый статус заказа (NEW, COMPLETED или CANCELED): ");
-    }
-
-    @Override
-    public void showErrorInputStatus() {
-        System.out.println("Вы ввели неверный статус. Попробуйте ещё раз");
     }
 
     @Override

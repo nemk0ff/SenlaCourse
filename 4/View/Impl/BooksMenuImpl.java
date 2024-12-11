@@ -1,11 +1,8 @@
-package View;
+package View.Impl;
 
-import Model.Book;
-
-import java.util.List;
+import View.BooksMenu;
 
 public class BooksMenuImpl implements BooksMenu {
-
     @Override
     public void showMenu() {
         System.out.println("##############################");
@@ -25,23 +22,4 @@ public class BooksMenuImpl implements BooksMenu {
         System.out.println("11. Выйти из программы");
     }
 
-    @Override
-    public void showBooks(List<Book> books) {
-        books.forEach(this::showBook);
-    }
-
-    @Override
-    public void showBook(Book book) {
-        System.out.println(book.getInfoAbout());
-    }
-
-    @Override
-    public void showGetAmountAdd() {
-        System.out.print("Сколько книг добавить? ");
-    }
-
-    @Override
-    public void showGetAmountWriteOff() {
-        System.out.print("Сколько книг списать? ");
-    }
 }

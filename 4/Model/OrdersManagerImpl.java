@@ -15,10 +15,10 @@ public class OrdersManagerImpl implements OrdersManager {
     // Закрыть запросы по книге
     @Override
     public void closeRequests(List<Book> books) {
-        for (Book book : books) {
+        for (Book book: books) {
             // Если книга доступна, то на неё не может быть запросов
             // Мы их закрыли, когда добавляли книгу
-            if (book.isAvailable()) {
+            if(book.isAvailable()) {
                 continue;
             }
             closeRequest(book);
@@ -26,8 +26,8 @@ public class OrdersManagerImpl implements OrdersManager {
     }
 
     @Override
-    public void closeRequest(Book book) {
-        for (Request request : requests) {
+    public void closeRequest(Book book){
+        for(Request request : requests){
             if (request.getBook().equals(book) && request.getStatus() == RequestStatus.OPEN) {
                 request.closeRequest();
                 break; // выходим из цикла, чтобы списать 1 запрос на книгу, а не все
@@ -42,9 +42,7 @@ public class OrdersManagerImpl implements OrdersManager {
 
     // Добавить заказ
     @Override
-    public void addOrder(Order order) {
-        orders.add(order);
-    }
+    public void addOrder(Order order) { orders.add(order); }
 
     // Отменить заказ
     @Override
@@ -64,7 +62,7 @@ public class OrdersManagerImpl implements OrdersManager {
     // Изменить статус заказа
     @Override
     public void setOrderStatus(Order order, OrderStatus status) {
-        for (Order orderIt : getOrders()) {
+        for (Order orderIt: getOrders()) {
             if (orderIt.equals(order)) {
                 // Если статус заказа изменился с NEW на не NEW
                 // То нужно закрыть запросы на книги этого заказа

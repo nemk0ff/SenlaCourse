@@ -1,9 +1,11 @@
-package Controllers;
+package Controllers.Impl;
 
+import Controllers.Action;
+import Controllers.RequestsController;
 import Model.Book;
 import Model.MainManager;
+import View.Impl.RequestsMenuImpl;
 import View.RequestsMenu;
-import View.RequestsMenuImpl;
 
 public class RequestsControllerImpl implements RequestsController {
     private final MainManager mainManager;
@@ -55,7 +57,7 @@ public class RequestsControllerImpl implements RequestsController {
             case 5:
                 yield Action.EXIT;
             default:
-                requestsMenu.showInputError();
+                requestsMenu.showError("Неизвестная команда");
                 yield Action.CONTINUE;
         };
     }

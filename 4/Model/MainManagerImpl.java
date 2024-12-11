@@ -13,6 +13,17 @@ public class MainManagerImpl implements MainManager {
     public MainManagerImpl() {
         libraryManager = new LibraryManagerImpl();
         ordersManager = new OrdersManagerImpl();
+
+        List<Book> books = getBooks();
+
+        Book book1 = books.get(books.size() - 1);
+        Book book2 = books.get(books.size() - 2);
+        Book book3 = books.get(books.size() - 3);
+        Book book4 = books.get(books.size() - 5);
+
+        createOrder(List.of(book1, book2), "Сергей Юртаев", LocalDate.now());
+        createOrder(List.of(book1, book4), "Екатерина Нуякшева", LocalDate.now());
+        createOrder(List.of(book2, book3), "Антон Некрасов", LocalDate.now());
     }
 
     // Списать книгу со склада
@@ -29,25 +40,25 @@ public class MainManagerImpl implements MainManager {
         updateOrders(deliveredDate);
     }
 
-    private void updateOrders(LocalDate updateDate) {
-        for (Order order : getOrders()) {
+    private void updateOrders(LocalDate updateDate){
+        for(Order order : getOrders()){
             updateOrder(order, updateDate);
         }
     }
 
-    private void updateOrder(Order order, LocalDate updateDate) {
-        if (order.getStatus() == OrderStatus.NEW && order.getBooks().stream().allMatch(Book::isAvailable)) {
+    private void updateOrder(Order order, LocalDate updateDate){
+        if(order.getStatus() == OrderStatus.NEW && order.getBooks().stream().allMatch(Book::isAvailable)){
             completeOrder(order, updateDate);
         }
     }
 
-    private void completeOrder(Order order, LocalDate completeDate) {
+    private void completeOrder(Order order, LocalDate completeDate){
         order.setStatus(OrderStatus.COMPLETED);
         order.setCompleteDate(completeDate);
 
         ordersManager.closeRequests(order.getBooks());
 
-        for (Book book : order.getBooks()) {
+        for(Book book: order.getBooks()){
             libraryManager.writeOff(book, 1, completeDate);
         }
     }
@@ -71,7 +82,7 @@ public class MainManagerImpl implements MainManager {
             }
         }
         // Если все книги есть, то мы их списываем и закрываем заказ
-        if (completed) {
+        if(completed){
             completeOrder(newOrder, orderDate);
         }
 
@@ -247,5 +258,10 @@ public class MainManagerImpl implements MainManager {
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public boolean containsBook(Book book){
+        return getBooks().contains(book);
     }
 }
