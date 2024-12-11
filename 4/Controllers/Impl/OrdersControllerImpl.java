@@ -104,6 +104,7 @@ public class OrdersControllerImpl implements OrdersController {
     @Override
     public List<Book> getBooksFromConsole(){
         ordersMenu.showBooks(mainManager.getBooks());
+        ordersMenu.showGetAmountBooks();
         int count;
         while (true) {
             String input = scanner.nextLine().trim();

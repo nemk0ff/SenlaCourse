@@ -84,6 +84,7 @@ public class BooksControllerImpl implements BooksController {
 
     @Override
     public void addBook() {
+        booksMenu.showBooks(mainManager.getBooks());
         Book book = getBookFromConsole(booksMenu);
         while(!mainManager.containsBook(book)){
             booksMenu.showError("Такой книги нет в магазине");
@@ -107,6 +108,7 @@ public class BooksControllerImpl implements BooksController {
 
     @Override
     public void writeOff() {
+        booksMenu.showBooks(mainManager.getBooks());
         Optional<Book> maybeBook = mainManager.getBookDetails(getBookFromConsole(booksMenu));
 
         if (maybeBook.isEmpty()) {
@@ -138,6 +140,7 @@ public class BooksControllerImpl implements BooksController {
 
     @Override
     public void showBookDetails() {
+        booksMenu.showBooks(mainManager.getBooks());
         Optional<Book> maybeBook = mainManager.getBookDetails(getBookFromConsole(booksMenu));
         if (maybeBook.isEmpty()) {
             booksMenu.showError("Книга не найдена");

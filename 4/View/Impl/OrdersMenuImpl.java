@@ -82,7 +82,7 @@ public class OrdersMenuImpl implements OrdersMenu {
 
     @Override
     public void showGetBook(int index){
-        System.out.println("Введите книгу №" + index);
+        System.out.println("Введите книгу №" + (index+1));
     }
 
     @Override

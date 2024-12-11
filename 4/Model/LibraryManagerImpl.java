@@ -24,7 +24,7 @@ public class LibraryManagerImpl implements LibraryManager {
                 new Book("Обломов", "И.А.Гончаров", 1, 1000.0, 1859,
                         LocalDate.of(2024, 4, 21), LocalDate.of(2024, 3, 19)),
 
-                new Book("Дубровский", "А.С.Пушкин", 2, 450.0, 1833,
+                new Book("Детство", "Л.Н.Толстой", 2, 1100.0, 1852,
                         LocalDate.of(2024, 10, 20), LocalDate.of(2024, 5, 1)),
 
                 new Book("Муму", "И.С.Тургенев", 0, 475.0,

@@ -16,12 +16,9 @@ public class OrdersManagerImpl implements OrdersManager {
     @Override
     public void closeRequests(List<Book> books) {
         for (Book book: books) {
-            // Если книга доступна, то на неё не может быть запросов
-            // Мы их закрыли, когда добавляли книгу
-            if(book.isAvailable()) {
-                continue;
+            for (int i = 0; i < book.getAmount(); i++) {
+                closeRequest(book);
             }
-            closeRequest(book);
         }
     }
 
