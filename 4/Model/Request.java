@@ -1,23 +1,37 @@
 package Model;
 
 public class Request {
-    private final Book book;
+    static long counter = 0L;
+
+    private final long id;
+    private final long bookId;
     private RequestStatus status;
 
-    public Request(Book book) {
-        this.book = book;
+    public Request(long bookId) {
+        this.bookId = bookId;
         status = RequestStatus.OPEN;
+
+        counter++;
+        id = counter;
     }
 
-    public Book getBook() {
-        return book;
+    public long getId() {
+        return id;
+    }
+
+    public long getBook() {
+        return bookId;
     }
 
     public RequestStatus getStatus() {
         return status;
     }
 
-    void closeRequest() {
+    public void closeRequest() {
         status = RequestStatus.CLOSED;
+    }
+
+    public String getInfoAbout(){
+        return "id запроса: [" + id + "], статус: " + status.toString();
     }
 }

@@ -1,22 +1,21 @@
 package Model;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Stream;
 
 public interface MainManager {
-    void addBook(Book book, Integer amount, LocalDate addDate);
+    void addBook(long bookId, Integer amount, LocalDate addDate);
 
-    void writeOff(Book book, Integer amount, LocalDate saleDate);
+    void writeOff(long bookId, Integer amount, LocalDate saleDate);
 
-    void cancelOrder(Order order);
+    boolean cancelOrder(long orderId);
 
-    void setOrderStatus(Order order, OrderStatus status);
+    boolean setOrderStatus(long orderId, OrderStatus status);
 
-    void createOrder(List<Book> books, String clientName, LocalDate createDate);
+    void createOrder(Map<Long, Integer> booksIds, String clientName, LocalDate createDate);
 
-    void addRequest(Book book);
+    void addRequest(long bookId);
 
     List<Book> getBooks();
 
@@ -27,6 +26,8 @@ public interface MainManager {
     List<Book> getBooksByPrice();
 
     List<Book> getBooksByAvailable();
+
+    List<Order> getOrders();
 
     List<Order> getOrdersByDate();
 
@@ -50,9 +51,13 @@ public interface MainManager {
 
     List<Book> getStaleBooksByPrice();
 
-    Optional<Order> getOrderDetails(String client, List<Book> book);
+    Optional<Order> getOrderDetails(Long orderId);
 
-    Optional<Book> getBookDetails(Book book);
+    Optional<Book> getMaybeBook(long bookId);
 
-    boolean containsBook(Book book);
+    Book getBook(long bookId);
+
+    boolean containsBook(long bookId);
+
+    void importBook(Book importBook);
 }

@@ -1,6 +1,9 @@
 package View.Impl;
 
+import Model.Book;
 import View.BooksMenu;
+
+import java.util.List;
 
 public class BooksMenuImpl implements BooksMenu {
     @Override
@@ -18,8 +21,9 @@ public class BooksMenuImpl implements BooksMenu {
         System.out.println("7. Вывести список книг библиотеки (сортировка по наличию на складе)");
         System.out.println("8. Вывести список залежавшихся книг (сортировка по дате поступления)");
         System.out.println("9. Вывести список залежавшихся книг (сортировка по цене)");
-        System.out.println("10. Вернуться в главное меню");
-        System.out.println("11. Выйти из программы");
+        System.out.println("10. Импортировать книгу");
+        System.out.println("11. Экспортировать книгу");
+        System.out.println("12. Вернуться в главное меню");
+        System.out.println("13. Выйти из программы");
     }
-
 }
