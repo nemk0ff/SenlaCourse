@@ -1,16 +1,15 @@
 package Model;
 
 import java.util.List;
-import java.util.Map;
 
 public interface OrdersManager {
-    boolean cancelOrder(long orderId);
+    void cancelOrder(Order order);
 
-    boolean setOrderStatus(long orderId, OrderStatus status);
+    void setOrderStatus(Order order, OrderStatus status);
 
-    void closeRequests(Map<Long, Integer> book);
+    void closeRequests(List<Book> book);
 
-    void closeRequest(long bookId, int count);
+    void closeRequest(Book book);
 
     void addOrder(Order order);
 
@@ -18,5 +17,5 @@ public interface OrdersManager {
 
     List<Request> getRequests();
 
-    void addRequest(long bookId);
+    void addRequest(Book book);
 }

@@ -2,6 +2,7 @@ package Controllers.Impl;
 
 import Controllers.Action;
 import Controllers.OrdersController;
+import Model.Book;
 import Model.MainManager;
 import Model.Order;
 import Model.OrderStatus;
@@ -10,8 +11,9 @@ import View.OrdersMenu;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class OrdersControllerImpl implements OrdersController {
@@ -38,7 +40,16 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public Action checkInput() {
-        int answer = (int) getNumberFromConsole(ordersMenu);
+        int answer;
+        while (true) {
+            String input = scanner.nextLine().trim();
+            try {
+                answer = Integer.parseInt(input);
+                break;
+            } catch (NumberFormatException e) {
+                ordersMenu.showError("Неверный формат, попробуйте еще раз");
+            }
+        }
 
         return switch (answer) {
             case 1:
@@ -85,39 +96,42 @@ public class OrdersControllerImpl implements OrdersController {
     }
 
     @Override
-    public String getClientNameFromConsole() {
+    public String getClientNameFromConsole(){
         ordersMenu.showGetClientName();
         return scanner.nextLine().trim();
     }
 
     @Override
-    public Map<Long, Integer> getBooksFromConsole() {
+    public List<Book> getBooksFromConsole(){
         ordersMenu.showBooks(mainManager.getBooks());
-        ordersMenu.showGetAmountBooks("Сколько уникальных книг вы хотите заказать? Введите число: ");
-        int count = (int) getNumberFromConsole(ordersMenu);
+        ordersMenu.showGetAmountBooks();
+        int count;
+        while (true) {
+            String input = scanner.nextLine().trim();
+            try {
+                count = Integer.parseInt(input);
+                break;
+            } catch (NumberFormatException e) {
+                ordersMenu.showError("Неверный формат, попробуйте еще раз");
+            }
+        }
 
-        long tempId;
-        int tempAmount;
-        Map<Long, Integer> booksIds = new HashMap<>();
-
+        Book tempBook;
+        List<Book> books = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            tempId = getBookFromConsole(ordersMenu, i);
-            while (!mainManager.containsBook(tempId) || booksIds.containsKey(tempId)) {
-                if (!mainManager.containsBook(tempId)) {
-                    ordersMenu.showError("Такой книги нет в магазине");
-                    tempId = getBookFromConsole(ordersMenu);
-                }
-                if (booksIds.containsKey(tempId)) {
-                    ordersMenu.showError("Вы уже выбрали эту книгу");
-                    tempId = getBookFromConsole(ordersMenu);
+            ordersMenu.showGetBook(i);
+            tempBook = getBookFromConsole(ordersMenu);
+            while(!mainManager.containsBook(tempBook)){
+                ordersMenu.showError("Такой книги нет в магазине");
+                tempBook = getBookFromConsole(ordersMenu);
+            }
+            for (Book book: mainManager.getBooks()) {
+                if(book.equals(tempBook)){
+                    books.add(book);
                 }
             }
-
-            ordersMenu.showGetAmountBooks("Сколько книг [" + tempId + "] вам нужно? Введите число: ");
-            tempAmount = (int) getNumberFromConsole(ordersMenu);
-            booksIds.put(tempId, tempAmount);
         }
-        return booksIds;
+        return books;
     }
 
     @Override
@@ -127,19 +141,12 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public void cancelOrder() {
-        ordersMenu.showOrders(mainManager.getOrders());
-        ordersMenu.showGetId("Введите id заказа, который хотите отменить: ");
-        if (mainManager.cancelOrder(getNumberFromConsole(ordersMenu))) {
-            ordersMenu.showSuccess("Заказ отменен");
-        } else {
-            ordersMenu.showError("С таким id нет заказа, который можно отменить");
-        }
+        mainManager.cancelOrder(new Order(getBooksFromConsole(), getClientNameFromConsole()));
     }
 
     @Override
     public void showOrderDetails() {
-        ordersMenu.showGetId("Введите Id заказа: ");
-        Optional<Order> maybeOrder = mainManager.getOrderDetails(getNumberFromConsole(ordersMenu));
+        Optional<Order> maybeOrder = mainManager.getOrderDetails(getClientNameFromConsole(), getBooksFromConsole());
         if (maybeOrder.isEmpty()) {
             ordersMenu.showError("Заказ не найден");
         } else {
@@ -149,16 +156,9 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public void setOrderStatus() {
-        ordersMenu.showGetId("Введите Id заказа: ");
-        long orderId = getNumberFromConsole(ordersMenu);
-
         OrderStatus newStatus = getStatusFromConsole();
 
-        if (mainManager.setOrderStatus(orderId, newStatus)) {
-            ordersMenu.showSuccess("Статус заказа изменен");
-        } else {
-            ordersMenu.showError("Статус заказа не изменен. Статус можно менять только с NEW на не NEW");
-        }
+        mainManager.setOrderStatus(new Order(getBooksFromConsole(), getClientNameFromConsole()), newStatus);
     }
 
     @Override
@@ -166,15 +166,15 @@ public class OrdersControllerImpl implements OrdersController {
         ordersMenu.showGetNewStatus();
         String new_status = scanner.nextLine().trim();
 
-        while (!new_status.equalsIgnoreCase(OrderStatus.COMPLETED.toString())
-                && !new_status.equalsIgnoreCase(OrderStatus.NEW.toString())
-                && !new_status.equalsIgnoreCase(OrderStatus.CANCELED.toString())) {
+        while (!Objects.equals(new_status, OrderStatus.COMPLETED.toString())
+                && !Objects.equals(new_status, OrderStatus.CANCELED.toString())
+                && !Objects.equals(new_status, OrderStatus.NEW.toString())) {
             ordersMenu.showError("Вы ввели некорректный статус. Попробуйте ещё раз");
             ordersMenu.showGetNewStatus();
             new_status = scanner.nextLine().trim();
         }
 
-        return OrderStatus.valueOf(new_status.toUpperCase());
+        return OrderStatus.valueOf(new_status);
     }
 
     @Override

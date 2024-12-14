@@ -1,5 +1,6 @@
 package Controllers;
 
+import Model.Book;
 import View.Menu;
 
 import java.util.Scanner;
@@ -11,27 +12,13 @@ public interface Controller {
 
     Action checkInput();
 
-    default long getBookFromConsole(Menu menu, int index) {
-        menu.showGetBookId(index);
-        return getNumberFromConsole(menu);
-    }
+    default Book getBookFromConsole(Menu menu) {
+        menu.showGetName();
+        String name = scanner.nextLine().trim();
 
-    default long getBookFromConsole(Menu menu) {
-        menu.showGetId("Введите id книги: ");
-        return getNumberFromConsole(menu);
-    }
+        menu.showGetAuthor();
+        String author = scanner.nextLine().trim();
 
-    default long getNumberFromConsole(Menu menu) {
-        long answer;
-        while (true) {
-            String input = scanner.nextLine().trim();
-            try {
-                answer = Long.parseLong(input);
-                break;
-            } catch (NumberFormatException e) {
-                menu.showError("Неверный формат, попробуйте еще раз");
-            }
-        }
-        return answer;
+        return new Book(name, author, 0);
     }
 }

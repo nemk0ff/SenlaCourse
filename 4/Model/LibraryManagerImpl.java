@@ -3,7 +3,6 @@ package Model;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class LibraryManagerImpl implements LibraryManager {
     private final List<Book> books;
@@ -43,11 +42,11 @@ public class LibraryManagerImpl implements LibraryManager {
     }
 
     @Override
-    public boolean writeOff(long id, Integer amount, LocalDate saleDate) {
+    public boolean writeOff(Book book, Integer amount, LocalDate saleDate) {
         for (Book value : books) {
-            if (value.getId() == id) {
+            if (value.equals(book)) {
                 value.setAmount(-amount);
-                value.setLastSaleDate(saleDate);
+                book.setLastSaleDate(saleDate);
                 return true;
             }
         }
@@ -55,9 +54,9 @@ public class LibraryManagerImpl implements LibraryManager {
     }
 
     @Override
-    public boolean addBook(long id, Integer amount, LocalDate addDate) {
+    public boolean addBook(Book book, Integer amount, LocalDate addDate) {
         for (Book value : books) {
-            if (value.getId() == id) {
+            if (value.equals(book)) {
                 value.setAmount(amount);
                 value.setLastDeliveredDate(addDate);
                 return true;
@@ -79,41 +78,5 @@ public class LibraryManagerImpl implements LibraryManager {
     @Override
     public List<Book> getBooks() {
         return books;
-    }
-
-    @Override
-    public List<Book> getBooks(List<Long> booksIds) {
-        List<Book> result = new ArrayList<>();
-        for (Book book : books) {
-            if (booksIds.contains(book.getId())) {
-                result.add(book);
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public Optional<Book> getMaybeBook(Long bookId) {
-        for (Book book : books) {
-            if (book.getId() == bookId) {
-                return Optional.of(book);
-            }
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Book getBook(Long bookId) {
-        for (Book book : books) {
-            if (book.getId() == bookId) {
-                return book;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public void importBook(Book importBook){
-        books.add(importBook);
     }
 }

@@ -15,16 +15,16 @@ public interface Menu {
         System.out.println("Выполнено: " + success);
     }
 
-    default void showGetId(String message) {
-        System.out.print(message);
+    default void showGetName() {
+        System.out.print("Введите название книги: ");
     }
 
-    default void showGetBookId(int index) {
-        System.out.print("Введите id книги №" + (index + 1) + ": ");
+    default void showGetAuthor() {
+        System.out.print("Введите автора книги: ");
     }
 
-    default void showGetAmountBooks(String message) {
-        System.out.print(message);
+    default void showGetAmountBooks() {
+        System.out.print("Введите количество книг: ");
     }
 
     default void showBooks(List<Book> books) {
@@ -35,9 +35,5 @@ public interface Menu {
 
     default void showBook(Book book) {
         System.out.println(book.getInfoAbout());
-    }
-
-    default void showMessage(String message){
-        System.out.println(message);
     }
 }

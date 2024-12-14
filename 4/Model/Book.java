@@ -4,24 +4,18 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public class Book {
-    static Long counter = 0L;
-
-    private final Long id;
-    private String name;
-    private String author;
-    private Integer publicationDate;
+    private final String name;
+    private final String author;
+    private final Integer publicationDate;
     private LocalDate lastDeliveredDate;
     private LocalDate lastSaleDate;
-    private Double price;
+    private final Double price;
     private BookStatus status = BookStatus.NOT_AVAILABLE;
     private Integer amount;
 
     // Конструктор для создания книги, которая лежит в магазине
     public Book(String name, String author, Integer amount, Double price,
                 Integer publicationDate, LocalDate lastDeliveredDate, LocalDate lastSaleDate) {
-        counter++;
-        id = counter;
-
         this.name = name;
         this.author = author;
         this.amount = amount;
@@ -30,25 +24,28 @@ public class Book {
         this.lastDeliveredDate = lastDeliveredDate;
         this.lastSaleDate = lastSaleDate;
 
-        this.status = amount > 0 ? BookStatus.AVAILABLE : BookStatus.NOT_AVAILABLE;
+        if (this.amount > 0) {
+            this.status = BookStatus.AVAILABLE;
+        } else {
+            this.amount = 0;
+        }
     }
 
-    // Конструктор для книг, которые импортируются
-    public Book(long id, String name, String author, int amount, double price, int publicationDate,
-                LocalDate lastDeliveredDate, LocalDate lastSaleDate){
-        this.id = id;
+    // Конструктор для книги, по которой делают какой-либо запрос
+    public Book(String name, String author, Integer amount) {
         this.name = name;
         this.author = author;
         this.amount = amount;
-        this.price = price;
-        this.publicationDate = publicationDate;
-        this.lastDeliveredDate = lastDeliveredDate;
-        this.lastSaleDate = lastSaleDate;
-        this.status = amount > 0 ? BookStatus.AVAILABLE : BookStatus.NOT_AVAILABLE;
+        this.publicationDate = 0;
+        this.price = 0.0;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getAuthor() {
+        return author;
     }
 
     public BookStatus getStatus() {
@@ -63,8 +60,8 @@ public class Book {
         this.lastSaleDate = lastSaleDate;
     }
 
-    public void setLastDeliveredDate(LocalDate lastDeliveredDate) {
-        this.lastDeliveredDate = lastDeliveredDate;
+    public void setLastDeliveredDate(LocalDate lastSaleDate) {
+        this.lastSaleDate = lastSaleDate;
     }
 
     public LocalDate getLastDeliveredDate() {
@@ -94,47 +91,27 @@ public class Book {
     }
 
     public String getInfoAbout() {
-        return "[" + id + "]   " + name + ",  " + author + ",  " + publicationDate
-                + ",  " + price + ",  " + amount + ",  " + status.toString()
+        return name + ",  " + author
+                + ",  " + publicationDate
+                + ",  " + price
+                + ",  " + amount
+                + ",  " + status.toString()
                 + ",  " + (lastDeliveredDate == null ? "not been delivered yet" : lastDeliveredDate.toString())
                 + ",  " + (lastSaleDate == null ? "not been sold yet" : lastSaleDate.toString());
     }
 
-    public boolean isAvailable() {
-        return status == BookStatus.AVAILABLE;
-    }
-
-    public long getId() {
-        return id;
-    }
+    public boolean isAvailable(){ return status == BookStatus.AVAILABLE; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Book book = (Book) o;
-        return Objects.equals(id, book.id);
+        return Objects.equals(name, book.name) && Objects.equals(author, book.author);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    public void copyOf(Book book){
-        this.name = book.name;
-        this.author = book.author;
-        this.amount = book.amount;
-        this.price = book.price;
-        this.publicationDate = book.publicationDate;
-        this.lastDeliveredDate = book.lastDeliveredDate;
-        this.lastSaleDate = book.lastSaleDate;
-        this.status = amount > 0 ? BookStatus.AVAILABLE : BookStatus.NOT_AVAILABLE;
-    }
-
-    @Override
-    public String toString(){
-        return id + ";" + name + ";" + author + ";" + publicationDate + ";" + amount + ";" + price
-                + ";" + lastDeliveredDate + ";" + lastSaleDate;
+        return Objects.hash(name, author, publicationDate, price);
     }
 }

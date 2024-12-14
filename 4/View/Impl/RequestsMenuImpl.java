@@ -24,7 +24,7 @@ public class RequestsMenuImpl implements RequestsMenu {
     public void showRequests(LinkedHashMap<Book, Long> requests) {
         System.out.println("======= ОТКРЫТЫЕ ЗАПРОСЫ НА КНИГИ =======");
         requests.forEach((key, value) -> {
-            System.out.println("Книга: " + key.getInfoAbout());
+            System.out.println(key.getInfoAbout());
             System.out.println("Количество запросов: " + value);
             System.out.println();
         });

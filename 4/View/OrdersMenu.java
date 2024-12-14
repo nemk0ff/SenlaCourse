@@ -21,6 +21,8 @@ public interface OrdersMenu extends Menu {
 
     void showGetClientName();
 
+    void showGetBook(int index);
+
     void showGetNewStatus();
 
     void showCountCompletedOrders(Long count);

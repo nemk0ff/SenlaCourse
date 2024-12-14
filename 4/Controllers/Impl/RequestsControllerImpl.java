@@ -2,6 +2,7 @@ package Controllers.Impl;
 
 import Controllers.Action;
 import Controllers.RequestsController;
+import Model.Book;
 import Model.MainManager;
 import View.Impl.RequestsMenuImpl;
 import View.RequestsMenu;
@@ -30,7 +31,16 @@ public class RequestsControllerImpl implements RequestsController {
 
     @Override
     public Action checkInput() {
-        int answer = (int) getNumberFromConsole(requestsMenu);
+        int answer;
+        while (true) {
+            String input = scanner.nextLine();
+            try {
+                answer = Integer.parseInt(input);
+                break;
+            } catch (NumberFormatException e) {
+                requestsMenu.showError("Неверный формат, попробуйте еще раз");
+            }
+        }
 
         return switch (answer) {
             case 1:
@@ -54,9 +64,8 @@ public class RequestsControllerImpl implements RequestsController {
 
     @Override
     public void createRequest() {
-        requestsMenu.showBooks(mainManager.getBooks());
-        long bookId = getBookFromConsole(requestsMenu);
-        mainManager.addRequest(bookId);
+        Book book = getBookFromConsole(requestsMenu);
+        mainManager.addRequest(book);
     }
 
     @Override

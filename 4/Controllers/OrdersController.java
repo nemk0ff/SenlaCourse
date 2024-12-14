@@ -1,9 +1,10 @@
 package Controllers;
 
+import Model.Book;
 import Model.OrderStatus;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
 
 public interface OrdersController extends Controller {
     LocalDate getDateFromConsole();
@@ -38,5 +39,5 @@ public interface OrdersController extends Controller {
 
     String getClientNameFromConsole();
 
-    Map<Long, Integer> getBooksFromConsole();
+    List<Book> getBooksFromConsole();
 }
