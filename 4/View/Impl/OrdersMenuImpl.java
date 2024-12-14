@@ -1,10 +1,10 @@
 package View.Impl;
 
-import Model.Book;
 import Model.Order;
 import View.OrdersMenu;
 
 import java.util.List;
+import java.util.Map;
 
 public class OrdersMenuImpl implements OrdersMenu {
 
@@ -31,8 +31,8 @@ public class OrdersMenuImpl implements OrdersMenu {
 
     @Override
     public void showOrders(List<Order> orders) {
-        if(orders.isEmpty()){
-            System.out.println("У магазина пока не было заказов");
+        if (orders.isEmpty()) {
+            System.out.println("У магазина не было заказов");
             return;
         }
 
@@ -44,8 +44,8 @@ public class OrdersMenuImpl implements OrdersMenu {
     @Override
     public void showOrder(Order order) {
         System.out.println(order.getInfoAbout());
-        for (Book book: order.getBooks()) {
-            System.out.println(book.getInfoAbout());
+        for (Map.Entry<Long, Integer> s : order.getBooks().entrySet()) {
+            System.out.println("Книга: " + s.getKey() + " количество: " + s.getValue());
         }
         System.out.println();
     }
@@ -77,12 +77,7 @@ public class OrdersMenuImpl implements OrdersMenu {
 
     @Override
     public void showGetClientName() {
-        System.out.print("Введите имя клиента: ");
-    }
-
-    @Override
-    public void showGetBook(int index){
-        System.out.println("Введите книгу №" + (index+1));
+        System.out.println("Введите имя клиента: ");
     }
 
     @Override

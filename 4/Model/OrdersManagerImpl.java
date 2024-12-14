@@ -2,6 +2,7 @@ package Model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class OrdersManagerImpl implements OrdersManager {
     private final List<Order> orders;
@@ -14,62 +15,66 @@ public class OrdersManagerImpl implements OrdersManager {
 
     // Закрыть запросы по книге
     @Override
-    public void closeRequests(List<Book> books) {
-        for (Book book: books) {
-            for (int i = 0; i < book.getAmount(); i++) {
-                closeRequest(book);
-            }
+    public void closeRequests(Map<Long, Integer> books) {
+        for (Map.Entry<Long, Integer> book : books.entrySet()) {
+            closeRequest(book.getKey(), book.getValue());
         }
     }
 
     @Override
-    public void closeRequest(Book book){
-        for(Request request : requests){
-            if (request.getBook().equals(book) && request.getStatus() == RequestStatus.OPEN) {
+    public void closeRequest(long bookId, int count) {
+        int counter = 0;
+        for (Request request : requests) {
+            if (request.getBook() == bookId && request.getStatus() == RequestStatus.OPEN) {
                 request.closeRequest();
-                break; // выходим из цикла, чтобы списать 1 запрос на книгу, а не все
+                counter++;
+                if (counter == count) {
+                    break;
+                }
             }
         }
     }
 
     @Override
-    public void addRequest(Book book) {
-        requests.add(new Request(book));
+    public void addRequest(long bookId) {
+        requests.add(new Request(bookId));
     }
 
     // Добавить заказ
     @Override
-    public void addOrder(Order order) { orders.add(order); }
+    public void addOrder(Order order) {
+        orders.add(order);
+    }
 
     // Отменить заказ
     @Override
-    public void cancelOrder(Order order) {
-        // Если заказ не выполнен, то отменяем его
-        for (Order it : orders) {
-            if (it.getBooks().equals(order.getBooks())
-                    && it.getStatus() == OrderStatus.NEW
-                    && it.getClientName().equals((order.getClientName()))) {
-                it.setStatus(OrderStatus.CANCELED);
+    public boolean cancelOrder(long orderId) {
+        for (Order order : orders) {
+            if (order.getId() == orderId && order.getStatus() == OrderStatus.NEW) {
+                order.setStatus(OrderStatus.CANCELED);
+                closeRequests(order.getBooks());
+                return true;
             }
         }
-        // При отмене заказа нужно закрыть запросы на книги этого заказа
-        closeRequests(order.getBooks());
+        return false;
     }
 
     // Изменить статус заказа
     @Override
-    public void setOrderStatus(Order order, OrderStatus status) {
-        for (Order orderIt: getOrders()) {
-            if (orderIt.equals(order)) {
+    public boolean setOrderStatus(long orderId, OrderStatus status) {
+        for (Order orderIt : getOrders()) {
+            if (orderIt.getId() == orderId) {
                 // Если статус заказа изменился с NEW на не NEW
                 // То нужно закрыть запросы на книги этого заказа
                 if (orderIt.getStatus() == OrderStatus.NEW && status != OrderStatus.NEW) {
                     closeRequests(orderIt.getBooks());
                     orderIt.setStatus(status);
+                    return true;
                 }
-                return;
+                return false;
             }
         }
+        return false;
     }
 
     @Override

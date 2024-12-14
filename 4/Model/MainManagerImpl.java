@@ -16,73 +16,76 @@ public class MainManagerImpl implements MainManager {
 
         List<Book> books = getBooks();
 
-        Book book1 = books.get(books.size() - 1);
+        Book book1 = books.getLast();
         Book book2 = books.get(books.size() - 2);
         Book book3 = books.get(books.size() - 3);
         Book book4 = books.get(books.size() - 5);
 
-        createOrder(List.of(book1, book2), "Сергей Юртаев", LocalDate.now());
-        createOrder(List.of(book1, book4), "Екатерина Нуякшева", LocalDate.now());
-        createOrder(List.of(book2, book3), "Антон Некрасов", LocalDate.now());
+        createOrder(Map.of(book1.getId(), 2, book2.getId(), 1), "Сергей Юртаев", LocalDate.now());
+        createOrder(Map.of(book1.getId(), 1, book4.getId(), 2), "Екатерина Нуякшева", LocalDate.now());
+        createOrder(Map.of(book2.getId(), 1, book3.getId(), 2), "Антон Некрасов", LocalDate.now());
     }
 
-    // Списать книгу со склада
     @Override
-    public void writeOff(Book book, Integer amount, LocalDate writeOffDate) {
-        libraryManager.writeOff(book, amount, writeOffDate);
+    public void writeOff(long id, Integer amount, LocalDate writeOffDate) {
+        libraryManager.writeOff(id, amount, writeOffDate);
         updateOrders(writeOffDate);
     }
 
-    // Добавить книгу
     @Override
-    public void addBook(Book book, Integer amount, LocalDate deliveredDate) {
-        libraryManager.addBook(book, amount, deliveredDate);
+    public void addBook(long id, Integer amount, LocalDate deliveredDate) {
+        libraryManager.addBook(id, amount, deliveredDate);
         updateOrders(deliveredDate);
     }
 
-    private void updateOrders(LocalDate updateDate){
-        for(Order order : getOrders()){
+    private void updateOrders(LocalDate updateDate) {
+        for (Order order : getOrders()) {
             updateOrder(order, updateDate);
         }
     }
 
-    private void updateOrder(Order order, LocalDate updateDate){
-        if(order.getStatus() == OrderStatus.NEW && order.getBooks().stream().allMatch(Book::isAvailable)){
+    private void updateOrder(Order order, LocalDate updateDate) {
+        // Если все книги для заказа есть, то мы завершаем заказ
+        if (order.getStatus() == OrderStatus.NEW) {
+            for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
+                if (getBook(entry.getKey()).getAmount() < entry.getValue()) {
+                    return;
+                }
+            }
             completeOrder(order, updateDate);
         }
     }
 
-    private void completeOrder(Order order, LocalDate completeDate){
+    private void completeOrder(Order order, LocalDate completeDate) {
         order.setStatus(OrderStatus.COMPLETED);
         order.setCompleteDate(completeDate);
 
         ordersManager.closeRequests(order.getBooks());
 
-        for(Book book: order.getBooks()){
-            libraryManager.writeOff(book, 1, completeDate);
+        for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
+            libraryManager.writeOff(entry.getKey(), entry.getValue(), completeDate);
         }
     }
 
-    // Создать запрос на книгу
     @Override
-    public void addRequest(Book book) {
-        ordersManager.addRequest(book);
+    public void addRequest(long bookId) {
+        ordersManager.addRequest(bookId);
     }
 
-    // Создать заказ
     @Override
-    public void createOrder(List<Book> books, String clientName, LocalDate orderDate) {
-        Order newOrder = new Order(books, OrderStatus.NEW, orderDate, clientName);
+    public void createOrder(Map<Long, Integer> booksIds, String clientName, LocalDate orderDate) {
+        Order newOrder = new Order(booksIds, getPrice(booksIds.keySet().stream().toList()),
+                OrderStatus.NEW, orderDate, clientName);
         boolean completed = true;
-        for (Book book : books) {
+        for (Map.Entry<Long, Integer> entry : booksIds.entrySet()) {
             // Если книги нет, то создаём запрос на неё
-            if (!libraryManager.isAvailable(book)) {
-                addRequest(book);
+            if (!isAvailable(entry.getKey(), entry.getValue())) {
+                addRequest(entry.getKey());
                 completed = false;
             }
         }
         // Если все книги есть, то мы их списываем и закрываем заказ
-        if(completed){
+        if (completed) {
             completeOrder(newOrder, orderDate);
         }
 
@@ -90,19 +93,22 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public void cancelOrder(Order order) {
-        ordersManager.cancelOrder(order);
+    public boolean cancelOrder(long orderId) {
+        return ordersManager.cancelOrder(orderId);
     }
 
-    // Изменить статус заказа
     @Override
-    public void setOrderStatus(Order order, OrderStatus status) {
-        ordersManager.setOrderStatus(order, status);
+    public boolean setOrderStatus(long orderId, OrderStatus status) {
+        return ordersManager.setOrderStatus(orderId, status);
     }
 
     @Override
     public List<Book> getBooks() {
         return libraryManager.getBooks();
+    }
+
+    public List<Book> getBooks(List<Long> booksIds) {
+        return libraryManager.getBooks(booksIds);
     }
 
     @Override
@@ -130,7 +136,8 @@ public class MainManagerImpl implements MainManager {
         return books;
     }
 
-    private List<Order> getOrders() {
+    @Override
+    public List<Order> getOrders() {
         return ordersManager.getOrders();
     }
 
@@ -162,7 +169,7 @@ public class MainManagerImpl implements MainManager {
                 .toList();
     }
 
-    private Map<Book, Long> groupRequestsByBook(List<Request> requests) {
+    private Map<Long, Long> groupRequestsByBook(List<Request> requests) {
         return requests.stream()
                 .collect(Collectors.groupingBy(Request::getBook, Collectors.counting()));
     }
@@ -171,14 +178,22 @@ public class MainManagerImpl implements MainManager {
     public LinkedHashMap<Book, Long> getRequestsByCount() {
         return groupRequestsByBook(getRequests()).entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+                .collect(Collectors.toMap(
+                        entry -> getBook(entry.getKey()),
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new));
     }
 
     @Override
     public LinkedHashMap<Book, Long> getRequestsByPrice() {
         return groupRequestsByBook(getRequests()).entrySet().stream()
-                .sorted(Comparator.comparingDouble(entry -> entry.getKey().getPrice()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+                .sorted(Comparator.comparingDouble(entry -> getBook(entry.getKey()).getPrice()))
+                .collect(Collectors.toMap(
+                        entry -> getBook(entry.getKey()),
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new));
     }
 
     @Override
@@ -238,30 +253,56 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public Optional<Order> getOrderDetails(String client, List<Book> books) {
+    public Optional<Order> getOrderDetails(Long orderId) {
         List<Order> orders = getOrders();
-        Order order = new Order(books, client);
-        for (Order value : orders) {
-            if (value.equals(order)) {
-                return Optional.of(value);
+        for (Order order : orders) {
+            if (order.getId() == orderId) {
+                return Optional.of(order);
             }
         }
         return Optional.empty();
     }
 
     @Override
-    public Optional<Book> getBookDetails(Book book) {
-        List<Book> books = getBooks();
-        for (Book value : books) {
-            if (value.equals(book)) {
-                return Optional.of(value);
-            }
-        }
-        return Optional.empty();
+    public Optional<Book> getMaybeBook(long id) {
+        return libraryManager.getMaybeBook(id);
     }
 
     @Override
-    public boolean containsBook(Book book){
-        return getBooks().contains(book);
+    public Book getBook(long id) {
+        return libraryManager.getBook(id);
+    }
+
+    @Override
+    public boolean containsBook(long bookId) {
+        for (Book book : getBooks()) {
+            if (bookId == book.getId()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public double getPrice(List<Long> booksIds) {
+        return getBooks(booksIds).stream().mapToDouble(Book::getPrice).sum();
+    }
+
+    public boolean isAvailable(long bookId, int requestAmount) {
+        for (Book book : getBooks()) {
+            if (bookId == book.getId()) {
+                return book.getAmount() >= requestAmount;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void importBook(Book importBook) {
+        Optional<Book> findBook = getMaybeBook(importBook.getId());
+        if (findBook.isPresent()) {
+            findBook.get().copyOf(importBook);
+        } else {
+            libraryManager.importBook(importBook);
+        }
     }
 }

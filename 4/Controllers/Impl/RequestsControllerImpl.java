@@ -4,8 +4,8 @@ import Controllers.Action;
 import Controllers.RequestsController;
 import Model.Book;
 import Model.MainManager;
-import View.Impl.RequestsMenuImpl;
 import View.RequestsMenu;
+import View.Impl.RequestsMenuImpl;
 
 public class RequestsControllerImpl implements RequestsController {
     private final MainManager mainManager;
@@ -31,16 +31,7 @@ public class RequestsControllerImpl implements RequestsController {
 
     @Override
     public Action checkInput() {
-        int answer;
-        while (true) {
-            String input = scanner.nextLine();
-            try {
-                answer = Integer.parseInt(input);
-                break;
-            } catch (NumberFormatException e) {
-                requestsMenu.showError("Неверный формат, попробуйте еще раз");
-            }
-        }
+        int answer = (int) getNumberFromConsole(requestsMenu);
 
         return switch (answer) {
             case 1:
@@ -64,8 +55,9 @@ public class RequestsControllerImpl implements RequestsController {
 
     @Override
     public void createRequest() {
-        Book book = getBookFromConsole(requestsMenu);
-        mainManager.addRequest(book);
+        requestsMenu.showBooks(mainManager.getBooks());
+        long bookId = getBookFromConsole(requestsMenu);
+        mainManager.addRequest(bookId);
     }
 
     @Override

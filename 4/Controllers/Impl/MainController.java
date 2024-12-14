@@ -37,16 +37,7 @@ public class MainController implements Controller {
 
     @Override
     public Action checkInput() {
-        int answer;
-        while (true) {
-            String input = scanner.nextLine().trim();
-            try {
-                answer = Integer.parseInt(input);
-                break;
-            } catch (NumberFormatException e) {
-                mainMenu.showError("Неверный формат, попробуйте еще раз");
-            }
-        }
+        int answer = (int) getNumberFromConsole(mainMenu);
 
         return switch (answer) {
             case 1 -> booksController.run();
