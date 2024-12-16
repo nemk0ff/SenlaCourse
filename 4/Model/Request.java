@@ -4,15 +4,23 @@ public class Request {
     static long counter = 0L;
 
     private final long id;
-    private final long bookId;
+    private long bookId;
     private RequestStatus status;
 
+    // Конструктор для запросов, которые создаются в логике магазина
     public Request(long bookId) {
         this.bookId = bookId;
         status = RequestStatus.OPEN;
 
         counter++;
         id = counter;
+    }
+
+    // Конструктор для запросов, которые импортируются
+    public Request(long id, long bookId, RequestStatus status) {
+        this.id = id;
+        this.bookId = bookId;
+        this.status = status;
     }
 
     public long getId() {
@@ -31,7 +39,17 @@ public class Request {
         status = RequestStatus.CLOSED;
     }
 
-    public String getInfoAbout(){
-        return "id запроса: [" + id + "], статус: " + status.toString();
+    public String getInfoAbout() {
+        return "[" + id + "]   книга №" + bookId + ",  статус:" + status;
+    }
+
+    public void copyOf(Request other) {
+        this.bookId = other.bookId;
+        this.status = other.status;
+    }
+
+    @Override
+    public String toString() {
+        return id + "," + bookId + "," + status.toString();
     }
 }

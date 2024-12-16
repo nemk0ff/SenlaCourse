@@ -9,7 +9,6 @@ import View.Impl.BooksMenuImpl;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -180,9 +179,11 @@ public class BooksControllerImpl implements BooksController {
     public Optional<Book> findBookInFile(Long targetBookId) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
+            reader.readLine();
+
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(";");
+                String[] parts = line.split(",");
                 if (parts.length == 8) {
                     long id = Long.parseLong(parts[0].trim());
 
@@ -196,6 +197,7 @@ public class BooksControllerImpl implements BooksController {
                                 null : LocalDate.parse(parts[6].trim(), dateFormatter);
                         LocalDate lastSaleDate = parts[7].trim().equals("null") ?
                                 null : LocalDate.parse(parts[7].trim(), dateFormatter);
+
                         return Optional.of(new Book(id, name, author, amount, price, publicationYear,
                                 lastDeliveredDate, lastSaleDate));
                     }
@@ -227,11 +229,16 @@ public class BooksControllerImpl implements BooksController {
 
         List<String> newFileStrings = new ArrayList<>();
 
+        String firstString = "id;name;author;publicationYear;amount;price;lastDeliveredDate;lastSaleDate";
+        newFileStrings.add(firstString);
+
         boolean bookIsUpdated = false;
         try (BufferedReader reader = new BufferedReader(new FileReader(exportPath))) {
+            reader.readLine();
+
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(";", 2);
+                String[] parts = line.split(",", 2);
                 long id = Long.parseLong(parts[0].trim());
                 if (id == exportId) {
                     newFileStrings.add(exportString);
@@ -245,7 +252,7 @@ public class BooksControllerImpl implements BooksController {
             return;
         }
 
-        if(!bookIsUpdated){
+        if (!bookIsUpdated) {
             newFileStrings.add(exportString);
         }
 
@@ -257,5 +264,7 @@ public class BooksControllerImpl implements BooksController {
         } catch (IOException e) {
             booksMenu.showError("IOException: " + e.getMessage());
         }
+
+        booksMenu.showSuccess("Книга успешно экспортирована");
     }
 }

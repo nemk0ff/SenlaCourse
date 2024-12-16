@@ -83,7 +83,33 @@ public class OrdersManagerImpl implements OrdersManager {
     }
 
     @Override
+    public Order getOrder(long orderId) {
+        for (Order order : orders) {
+            if (order.getId() == orderId) {
+                return order;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public List<Request> getRequests() {
         return requests;
+    }
+
+    @Override
+    public Request getRequest(long requestId) {
+        for (Request request : requests) {
+            if (request.getId() == requestId) {
+                return request;
+            }
+        }
+        return null;
+    }
+
+
+    @Override
+    public void importRequest(Request request) {
+        requests.add(request);
     }
 }

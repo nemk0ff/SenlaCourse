@@ -35,7 +35,7 @@ public class Book {
 
     // Конструктор для книг, которые импортируются
     public Book(long id, String name, String author, int amount, double price, int publicationDate,
-                LocalDate lastDeliveredDate, LocalDate lastSaleDate){
+                LocalDate lastDeliveredDate, LocalDate lastSaleDate) {
         this.id = id;
         this.name = name;
         this.author = author;
@@ -121,7 +121,7 @@ public class Book {
         return Objects.hash(id);
     }
 
-    public void copyOf(Book book){
+    public void copyOf(Book book) {
         this.name = book.name;
         this.author = book.author;
         this.amount = book.amount;
@@ -133,8 +133,8 @@ public class Book {
     }
 
     @Override
-    public String toString(){
-        return id + ";" + name + ";" + author + ";" + publicationDate + ";" + amount + ";" + price
-                + ";" + lastDeliveredDate + ";" + lastSaleDate;
+    public String toString() {
+        return id + "," + name + "," + author + "," + publicationDate + "," + amount + "," + price
+                + "," + lastDeliveredDate + "," + lastSaleDate;
     }
 }

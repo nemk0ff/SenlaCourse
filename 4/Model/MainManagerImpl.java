@@ -76,18 +76,8 @@ public class MainManagerImpl implements MainManager {
     public void createOrder(Map<Long, Integer> booksIds, String clientName, LocalDate orderDate) {
         Order newOrder = new Order(booksIds, getPrice(booksIds.keySet().stream().toList()),
                 OrderStatus.NEW, orderDate, clientName);
-        boolean completed = true;
-        for (Map.Entry<Long, Integer> entry : booksIds.entrySet()) {
-            // Если книги нет, то создаём запрос на неё
-            if (!isAvailable(entry.getKey(), entry.getValue())) {
-                addRequest(entry.getKey());
-                completed = false;
-            }
-        }
-        // Если все книги есть, то мы их списываем и закрываем заказ
-        if (completed) {
-            completeOrder(newOrder, orderDate);
-        }
+
+        createRequests(newOrder);
 
         ordersManager.addOrder(newOrder);
     }
@@ -162,7 +152,8 @@ public class MainManagerImpl implements MainManager {
         return orders;
     }
 
-    private List<Request> getRequests() {
+    @Override
+    public List<Request> getRequests() {
         return ordersManager.getRequests()
                 .stream()
                 .filter(request -> request.getStatus() == RequestStatus.OPEN)
@@ -253,7 +244,12 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public Optional<Order> getOrderDetails(Long orderId) {
+    public Optional<Book> getMaybeBook(long id) {
+        return libraryManager.getMaybeBook(id);
+    }
+
+    @Override
+    public Optional<Order> getMaybeOrder(Long orderId) {
         List<Order> orders = getOrders();
         for (Order order : orders) {
             if (order.getId() == orderId) {
@@ -263,10 +259,10 @@ public class MainManagerImpl implements MainManager {
         return Optional.empty();
     }
 
-    @Override
-    public Optional<Book> getMaybeBook(long id) {
-        return libraryManager.getMaybeBook(id);
+    public Order getOrder(Long orderId) {
+        return ordersManager.getOrder(orderId);
     }
+
 
     @Override
     public Book getBook(long id) {
@@ -277,6 +273,26 @@ public class MainManagerImpl implements MainManager {
     public boolean containsBook(long bookId) {
         for (Book book : getBooks()) {
             if (bookId == book.getId()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean containsOrder(long orderId) {
+        for (Order order : getOrders()) {
+            if (orderId == order.getId()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean containsRequest(long requestId) {
+        for (Request request : getRequests()) {
+            if (requestId == request.getId()) {
                 return true;
             }
         }
@@ -303,6 +319,67 @@ public class MainManagerImpl implements MainManager {
             findBook.get().copyOf(importBook);
         } else {
             libraryManager.importBook(importBook);
+        }
+    }
+
+    @Override
+    public void importOrder(Order importOrder) {
+        Optional<Order> findOrder = getMaybeOrder(importOrder.getId());
+        if (findOrder.isPresent()) {
+            // При копировании меняется состав заказа, нужно закрыть старые запросы
+            ordersManager.closeRequests(findOrder.get().getBooks());
+            // Перезаписываем заказ
+            findOrder.get().copyOf(importOrder);
+        } else {
+            ordersManager.addOrder(importOrder);
+        }
+        // Открываем новые запросы, соответствующие составу импортируемого заказа
+        createRequests(importOrder);
+    }
+
+    @Override
+    public void createRequests(Order order) {
+        boolean completed = true;
+        for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
+            // Если книги нет, то создаём запрос на неё
+            if (!isAvailable(entry.getKey(), entry.getValue())) {
+                int missingBooks = entry.getValue() - getBook(entry.getKey()).getAmount();
+                // Если не хватает пяти одинаковых книг, то открываем на неё 5 запросов
+                for (int i = 0; i < missingBooks; i++) {
+                    addRequest(entry.getKey());
+                }
+                completed = false;
+            }
+        }
+        // Если все книги есть, то мы их списываем и закрываем заказ
+        if (completed) {
+            completeOrder(order, LocalDate.now());
+        }
+    }
+
+    @Override
+    public Optional<Request> getMaybeRequest(long requestId) {
+        List<Request> requests = getRequests();
+        for (Request request : requests) {
+            if (request.getId() == requestId) {
+                return Optional.of(request);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Request getRequest(long requestId) {
+        return ordersManager.getRequest(requestId);
+    }
+
+    @Override
+    public void importRequest(Request importRequest) {
+        Optional<Request> findRequest = getMaybeRequest(importRequest.getId());
+        if (findRequest.isPresent()) {
+            findRequest.get().copyOf(importRequest);
+        } else {
+            ordersManager.importRequest(importRequest);
         }
     }
 }

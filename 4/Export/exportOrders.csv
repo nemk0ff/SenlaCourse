@@ -1,0 +1,4 @@
+id;clientName;price;status;orderDate;completeDate;book1;amount1;book2;amount2;...;bookN;amountN
+1,Сергей Юртаев,1225.0,NEW,2024-12-15,null,10,2,9,1
+2,Екатерина Нуякшева,1975.0,NEW,2024-12-15,null,10,1,6,2
+3,Антон Некрасов,1275.0,NEW,2024-12-15,null,8,2,9,1

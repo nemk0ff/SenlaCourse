@@ -25,8 +25,10 @@ public class OrdersMenuImpl implements OrdersMenu {
         System.out.println("9. Вывести список выполненных заказов за период времени(сортировка по цене)");
         System.out.println("10. Вывести количество выполненных заказов за период времени");
         System.out.println("11. Вывести сумму заработанных средств за период времени");
-        System.out.println("12. Вернуться в главное меню");
-        System.out.println("13. Выйти из программы");
+        System.out.println("12. Импортировать заказ");
+        System.out.println("13. Экспортировать заказ");
+        System.out.println("14. Вернуться в главное меню");
+        System.out.println("15. Выйти из программы");
     }
 
     @Override

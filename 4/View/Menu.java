@@ -37,7 +37,7 @@ public interface Menu {
         System.out.println(book.getInfoAbout());
     }
 
-    default void showMessage(String message){
+    default void showMessage(String message) {
         System.out.println(message);
     }
 }

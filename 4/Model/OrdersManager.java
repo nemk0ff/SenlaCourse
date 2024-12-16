@@ -16,7 +16,13 @@ public interface OrdersManager {
 
     List<Order> getOrders();
 
+    Order getOrder(long orderId);
+
+    Request getRequest(long requestId);
+
     List<Request> getRequests();
 
     void addRequest(long bookId);
+
+    void importRequest(Request request);
 }

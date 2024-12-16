@@ -1,14 +1,15 @@
 package Controllers;
 
-import Model.Book;
-import Model.Order;
 import Model.OrderStatus;
+import View.Menu;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 
 public interface OrdersController extends Controller {
+    String importPath = "4/Import/importOrders.csv";
+    String exportPath = "4/Export/exportOrders.csv";
+
     LocalDate getDateFromConsole();
 
     OrderStatus getStatusFromConsole();
@@ -42,4 +43,10 @@ public interface OrdersController extends Controller {
     String getClientNameFromConsole();
 
     Map<Long, Integer> getBooksFromConsole();
+
+    void importFromFile();
+
+    void exportToFile();
+
+    long getOrderFromConsole(Menu menu);
 }

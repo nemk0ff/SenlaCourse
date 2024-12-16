@@ -1,8 +1,10 @@
 package Model;
 
 import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public interface MainManager {
     void addBook(long bookId, Integer amount, LocalDate addDate);
@@ -35,6 +37,8 @@ public interface MainManager {
 
     List<Order> getOrdersByStatus();
 
+    List<Request> getRequests();
+
     LinkedHashMap<Book, Long> getRequestsByCount();
 
     LinkedHashMap<Book, Long> getRequestsByPrice();
@@ -51,13 +55,29 @@ public interface MainManager {
 
     List<Book> getStaleBooksByPrice();
 
-    Optional<Order> getOrderDetails(Long orderId);
+    Optional<Order> getMaybeOrder(Long orderId);
+
+    Order getOrder(Long orderId);
 
     Optional<Book> getMaybeBook(long bookId);
 
     Book getBook(long bookId);
 
+    Optional<Request> getMaybeRequest(long requestId);
+
+    Request getRequest(long requestId);
+
     boolean containsBook(long bookId);
 
+    boolean containsOrder(long orderId);
+
+    boolean containsRequest(long requestId);
+
     void importBook(Book importBook);
+
+    void importOrder(Order importOrder);
+
+    void createRequests(Order order);
+
+    void importRequest(Request importRequest);
 }

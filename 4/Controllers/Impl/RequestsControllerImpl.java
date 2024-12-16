@@ -2,10 +2,15 @@ package Controllers.Impl;
 
 import Controllers.Action;
 import Controllers.RequestsController;
-import Model.Book;
-import Model.MainManager;
+import Model.*;
+import View.Menu;
 import View.RequestsMenu;
 import View.Impl.RequestsMenuImpl;
+
+import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class RequestsControllerImpl implements RequestsController {
     private final MainManager mainManager;
@@ -44,8 +49,14 @@ public class RequestsControllerImpl implements RequestsController {
                 getRequestsByPrice();
                 yield Action.CONTINUE;
             case 4:
-                yield Action.MAIN_MENU;
+                importRequest();
+                yield Action.CONTINUE;
             case 5:
+                exportRequest();
+                yield Action.CONTINUE;
+            case 6:
+                yield Action.MAIN_MENU;
+            case 7:
                 yield Action.EXIT;
             default:
                 requestsMenu.showError("Неизвестная команда");
@@ -68,5 +79,122 @@ public class RequestsControllerImpl implements RequestsController {
     @Override
     public void getRequestsByPrice() {
         requestsMenu.showRequests(mainManager.getRequestsByPrice());
+    }
+
+    @Override
+    public void importRequest() {
+        printImportFile();
+
+        requestsMenu.showMessage("Введите id запроса, который хотите импортировать");
+        long requestId = getNumberFromConsole(requestsMenu);
+
+        Optional<Request> findRequest = findRequestInFile(requestId);
+
+        if (findRequest.isPresent()) {
+            mainManager.importRequest(findRequest.get());
+            requestsMenu.showMessage("Запрос успешно импортирован:");
+            findRequest.ifPresent(requestsMenu::showRequest);
+        } else {
+            requestsMenu.showError("Ошибка импортирования");
+        }
+    }
+
+    public Optional<Request> findRequestInFile(Long targetRequestId) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
+            reader.readLine();
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length < 3) {
+                    throw new IllegalArgumentException("Обнаружена строка неверного формата: " + line);
+                }
+
+                long id = Long.parseLong(parts[0].trim());
+                if (id == targetRequestId) {
+                    long bookId = Long.parseLong(parts[1].trim());
+                    RequestStatus status = RequestStatus.valueOf(parts[2].trim());
+
+                    return Optional.of(new Request(id, bookId, status));
+                }
+            }
+        } catch (IOException e) {
+            requestsMenu.showError("IOException");
+        }
+        return Optional.empty();
+    }
+
+    private void printImportFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
+            requestsMenu.showMessage("Вот, какие запросы можно импортировать: ");
+            String line;
+            while ((line = reader.readLine()) != null) {
+                requestsMenu.showMessage("[" + line + "]");
+            }
+        } catch (IOException e) {
+            System.err.println(importPath + ": " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void exportRequest() {
+        requestsMenu.showRequests(mainManager.getRequests());
+        long exportId = getRequestId();
+        String exportString = mainManager.getRequest(exportId).toString();
+
+        List<String> newFileStrings = new ArrayList<>();
+
+        String firstString = "id;bookId;status";
+        newFileStrings.add(firstString);
+
+        boolean requestIsUpdated = false;
+        try (BufferedReader reader = new BufferedReader(new FileReader(exportPath))) {
+            reader.readLine();
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",", 2);
+                long id = Long.parseLong(parts[0].trim());
+                if (id == exportId) {
+                    newFileStrings.add(exportString);
+                    requestIsUpdated = true;
+                } else {
+                    newFileStrings.add(line);
+                }
+            }
+        } catch (IOException e) {
+            requestsMenu.showError("IOException: " + e.getMessage());
+            return;
+        }
+
+        if (!requestIsUpdated) {
+            newFileStrings.add(exportString);
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(exportPath))) {
+            for (String line : newFileStrings) {
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            requestsMenu.showError("IOException: " + e.getMessage());
+        }
+
+        requestsMenu.showSuccess("Запрос успешно экспортирован");
+    }
+
+    private long getRequestId() {
+        long requestId = getRequestFromConsole(requestsMenu);
+        while (!mainManager.containsRequest(requestId)) {
+            requestsMenu.showError("Такого запроса нет в магазине");
+            requestId = getBookFromConsole(requestsMenu);
+        }
+        return requestId;
+    }
+
+    @Override
+    public long getRequestFromConsole(Menu menu) {
+        menu.showGetId("Введите id запроса: ");
+        return getNumberFromConsole(menu);
     }
 }
