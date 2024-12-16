@@ -9,15 +9,13 @@ public interface LibraryManager {
 
     boolean writeOff(long id, Integer amount, LocalDate saleDate);
 
-    boolean isAvailable(Book book);
-
     List<Book> getBooks();
 
     List<Book> getBooks(List<Long> booksIds);
 
     Optional<Book> getMaybeBook(Long bookId);
 
-    Book getBook(Long bookId);
+    boolean containsBook(long bookId);
 
     void importBook(Book importBook);
 }

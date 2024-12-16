@@ -91,11 +91,15 @@ public class RequestsControllerImpl implements RequestsController {
         Optional<Request> findRequest = findRequestInFile(requestId);
 
         if (findRequest.isPresent()) {
-            mainManager.importRequest(findRequest.get());
-            requestsMenu.showMessage("Запрос успешно импортирован:");
-            findRequest.ifPresent(requestsMenu::showRequest);
+            try{
+                mainManager.importRequest(findRequest.get());
+                requestsMenu.showMessage("Запрос успешно импортирован:");
+                findRequest.ifPresent(requestsMenu::showRequest);
+            } catch (IllegalArgumentException e){
+                requestsMenu.showError(e.getMessage());
+            }
         } else {
-            requestsMenu.showError("Ошибка импортирования");
+            requestsMenu.showError("Не удалось получить запрос из файла");
         }
     }
 
@@ -140,7 +144,10 @@ public class RequestsControllerImpl implements RequestsController {
     public void exportRequest() {
         requestsMenu.showRequests(mainManager.getRequests());
         long exportId = getRequestId();
-        String exportString = mainManager.getRequest(exportId).toString();
+        String exportString = "";
+        if(mainManager.getRequest(exportId).isPresent()){
+            exportString = mainManager.getRequest(exportId).get().toString();
+        }
 
         List<String> newFileStrings = new ArrayList<>();
 

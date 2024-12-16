@@ -1,16 +1,17 @@
 package Model;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class OrdersManagerImpl implements OrdersManager {
-    private final List<Order> orders;
-    private final List<Request> requests;
+    private final Map<Long, Order> orders;
+    private final Map<Long, Request> requests;
 
     public OrdersManagerImpl() {
-        orders = new ArrayList<>();
-        requests = new ArrayList<>();
+        orders = new HashMap<>();
+        requests = new HashMap<>();
     }
 
     // Закрыть запросы по книге
@@ -24,7 +25,7 @@ public class OrdersManagerImpl implements OrdersManager {
     @Override
     public void closeRequest(long bookId, int count) {
         int counter = 0;
-        for (Request request : requests) {
+        for (Request request : getRequests()) {
             if (request.getBook() == bookId && request.getStatus() == RequestStatus.OPEN) {
                 request.closeRequest();
                 counter++;
@@ -37,24 +38,22 @@ public class OrdersManagerImpl implements OrdersManager {
 
     @Override
     public void addRequest(long bookId) {
-        requests.add(new Request(bookId));
+        Request request = new Request(bookId);
+        requests.put(request.getId(), request);
     }
 
-    // Добавить заказ
     @Override
     public void addOrder(Order order) {
-        orders.add(order);
+        orders.put(order.getId(),order);
     }
 
-    // Отменить заказ
     @Override
     public boolean cancelOrder(long orderId) {
-        for (Order order : orders) {
-            if (order.getId() == orderId && order.getStatus() == OrderStatus.NEW) {
-                order.setStatus(OrderStatus.CANCELED);
-                closeRequests(order.getBooks());
-                return true;
-            }
+        Optional<Order> order = getOrder(orderId);
+        if(order.isPresent() && order.get().getStatus() == OrderStatus.NEW){
+            order.get().setStatus(OrderStatus.CANCELED);
+            closeRequests(order.get().getBooks());
+            return true;
         }
         return false;
     }
@@ -79,37 +78,26 @@ public class OrdersManagerImpl implements OrdersManager {
 
     @Override
     public List<Order> getOrders() {
-        return orders;
-    }
-
-    @Override
-    public Order getOrder(long orderId) {
-        for (Order order : orders) {
-            if (order.getId() == orderId) {
-                return order;
-            }
-        }
-        return null;
+        return orders.values().stream().toList();
     }
 
     @Override
     public List<Request> getRequests() {
-        return requests;
+        return requests.values().stream().toList();
     }
 
     @Override
-    public Request getRequest(long requestId) {
-        for (Request request : requests) {
-            if (request.getId() == requestId) {
-                return request;
-            }
-        }
-        return null;
+    public Optional<Order> getOrder(long orderId) {
+        return Optional.ofNullable(orders.get(orderId));
     }
 
+    @Override
+    public Optional<Request> getRequest(long requestId) {
+        return Optional.ofNullable(requests.get(requestId));
+    }
 
     @Override
     public void importRequest(Request request) {
-        requests.add(request);
+        requests.put(request.getId(), request);
     }
 }

@@ -55,17 +55,13 @@ public interface MainManager {
 
     List<Book> getStaleBooksByPrice();
 
-    Optional<Order> getMaybeOrder(Long orderId);
+    Optional<Order> getOrder(Long orderId);
 
-    Order getOrder(Long orderId);
+    Optional<Book> getBook(long bookId);
 
-    Optional<Book> getMaybeBook(long bookId);
+    Optional<Request> getRequest(long requestId);
 
-    Book getBook(long bookId);
-
-    Optional<Request> getMaybeRequest(long requestId);
-
-    Request getRequest(long requestId);
+    boolean containsBooks(List<Long> booksIds);
 
     boolean containsBook(long bookId);
 

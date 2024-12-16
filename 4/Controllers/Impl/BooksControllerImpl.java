@@ -116,7 +116,7 @@ public class BooksControllerImpl implements BooksController {
 
     @Override
     public void showBookDetails() {
-        mainManager.getMaybeBook(getBookId()).ifPresent(booksMenu::showBook);
+        mainManager.getBook(getBookId()).ifPresent(booksMenu::showBook);
     }
 
     private long getBookId() {
@@ -172,7 +172,7 @@ public class BooksControllerImpl implements BooksController {
             booksMenu.showMessage("Книга импортирована:");
             findBook.ifPresent(booksMenu::showBook);
         } else {
-            booksMenu.showError("Ошибка импортирования");
+            booksMenu.showError("Не удалось получить книгу из файла");
         }
     }
 
@@ -225,7 +225,10 @@ public class BooksControllerImpl implements BooksController {
     public void exportToFile() {
         booksMenu.showBooks(mainManager.getBooks());
         long exportId = getBookId();
-        String exportString = mainManager.getBook(exportId).toString();
+        String exportString = "";
+        if(mainManager.getBook(exportId).isPresent()){
+            exportString = mainManager.getBook(exportId).get().toString();
+        }
 
         List<String> newFileStrings = new ArrayList<>();
 

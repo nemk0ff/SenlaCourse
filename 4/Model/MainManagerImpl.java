@@ -48,7 +48,8 @@ public class MainManagerImpl implements MainManager {
         // Если все книги для заказа есть, то мы завершаем заказ
         if (order.getStatus() == OrderStatus.NEW) {
             for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
-                if (getBook(entry.getKey()).getAmount() < entry.getValue()) {
+                Optional<Book> optionalBook = getBook(entry.getKey());
+                if(optionalBook.isEmpty() || optionalBook.get().getAmount() < entry.getValue()){
                     return;
                 }
             }
@@ -122,8 +123,9 @@ public class MainManagerImpl implements MainManager {
     }
 
     private List<Book> sortBooks(List<Book> books, Comparator<Book> comparator) {
-        books.sort(comparator);
-        return books;
+        List<Book> sortedBooks = new ArrayList<>(books);
+        sortedBooks.sort(comparator);
+        return sortedBooks;
     }
 
     @Override
@@ -148,21 +150,21 @@ public class MainManagerImpl implements MainManager {
     }
 
     private List<Order> sortOrders(List<Order> orders, Comparator<Order> comparator) {
-        orders.sort(comparator);
-        return orders;
+        List<Order> sortedOrders = new ArrayList<>(orders);
+        sortedOrders.sort(comparator);
+        return sortedOrders;
     }
 
     @Override
     public List<Request> getRequests() {
-        return ordersManager.getRequests()
-                .stream()
-                .filter(request -> request.getStatus() == RequestStatus.OPEN)
-                .toList();
+        return ordersManager.getRequests();
     }
 
-    private Map<Long, Long> groupRequestsByBook(List<Request> requests) {
+    private Map<Book, Long> groupRequestsByBook(List<Request> requests) {
         return requests.stream()
-                .collect(Collectors.groupingBy(Request::getBook, Collectors.counting()));
+                .map(request -> getBook(request.getBook()).map(book -> Map.entry(book, request.getBook())))
+                .filter(Optional::isPresent).map(Optional::get)
+                .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.counting()));
     }
 
     @Override
@@ -170,7 +172,7 @@ public class MainManagerImpl implements MainManager {
         return groupRequestsByBook(getRequests()).entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toMap(
-                        entry -> getBook(entry.getKey()),
+                        Map.Entry::getKey,
                         Map.Entry::getValue,
                         (e1, e2) -> e1,
                         LinkedHashMap::new));
@@ -179,9 +181,9 @@ public class MainManagerImpl implements MainManager {
     @Override
     public LinkedHashMap<Book, Long> getRequestsByPrice() {
         return groupRequestsByBook(getRequests()).entrySet().stream()
-                .sorted(Comparator.comparingDouble(entry -> getBook(entry.getKey()).getPrice()))
+                .sorted(Comparator.comparing(entry -> entry.getKey().getPrice()))
                 .collect(Collectors.toMap(
-                        entry -> getBook(entry.getKey()),
+                        Map.Entry::getKey,
                         Map.Entry::getValue,
                         (e1, e2) -> e1,
                         LinkedHashMap::new));
@@ -244,39 +246,28 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public Optional<Book> getMaybeBook(long id) {
+    public Optional<Book> getBook(long id) {
         return libraryManager.getMaybeBook(id);
     }
 
     @Override
-    public Optional<Order> getMaybeOrder(Long orderId) {
-        List<Order> orders = getOrders();
-        for (Order order : orders) {
-            if (order.getId() == orderId) {
-                return Optional.of(order);
-            }
-        }
-        return Optional.empty();
-    }
-
-    public Order getOrder(Long orderId) {
+    public Optional<Order> getOrder(Long orderId) {
         return ordersManager.getOrder(orderId);
     }
 
-
     @Override
-    public Book getBook(long id) {
-        return libraryManager.getBook(id);
+    public boolean containsBooks(List<Long> booksIds){
+        for (long id : booksIds) {
+            if (!containsBook(id)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public boolean containsBook(long bookId) {
-        for (Book book : getBooks()) {
-            if (bookId == book.getId()) {
-                return true;
-            }
-        }
-        return false;
+        return libraryManager.containsBook(bookId);
     }
 
     @Override
@@ -304,17 +295,13 @@ public class MainManagerImpl implements MainManager {
     }
 
     public boolean isAvailable(long bookId, int requestAmount) {
-        for (Book book : getBooks()) {
-            if (bookId == book.getId()) {
-                return book.getAmount() >= requestAmount;
-            }
-        }
-        return false;
+        Optional<Book> book = getBook(bookId);
+        return book.filter(value -> value.getAmount() >= requestAmount).isPresent();
     }
 
     @Override
     public void importBook(Book importBook) {
-        Optional<Book> findBook = getMaybeBook(importBook.getId());
+        Optional<Book> findBook = getBook(importBook.getId());
         if (findBook.isPresent()) {
             findBook.get().copyOf(importBook);
         } else {
@@ -324,7 +311,12 @@ public class MainManagerImpl implements MainManager {
 
     @Override
     public void importOrder(Order importOrder) {
-        Optional<Order> findOrder = getMaybeOrder(importOrder.getId());
+        // Если импортируем заказ на книгу, которой нет в магазине вообще
+        if(!containsBooks(importOrder.getBooks().keySet().stream().toList())){
+            throw new IllegalArgumentException("В импортируемом заказе " + importOrder.getId() + " есть несуществующие книги");
+        }
+
+        Optional<Order> findOrder = getOrder(importOrder.getId());
         if (findOrder.isPresent()) {
             // При копировании меняется состав заказа, нужно закрыть старые запросы
             ordersManager.closeRequests(findOrder.get().getBooks());
@@ -342,9 +334,9 @@ public class MainManagerImpl implements MainManager {
         boolean completed = true;
         for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
             // Если книги нет, то создаём запрос на неё
-            if (!isAvailable(entry.getKey(), entry.getValue())) {
-                int missingBooks = entry.getValue() - getBook(entry.getKey()).getAmount();
-                // Если не хватает пяти одинаковых книг, то открываем на неё 5 запросов
+            Optional<Book> book = getBook(entry.getKey());
+            if (book.isPresent() && !isAvailable(entry.getKey(), entry.getValue())) {
+                int missingBooks = entry.getValue() - book.get().getAmount();
                 for (int i = 0; i < missingBooks; i++) {
                     addRequest(entry.getKey());
                 }
@@ -358,26 +350,15 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public Optional<Request> getMaybeRequest(long requestId) {
-        List<Request> requests = getRequests();
-        for (Request request : requests) {
-            if (request.getId() == requestId) {
-                return Optional.of(request);
-            }
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Request getRequest(long requestId) {
+    public Optional<Request> getRequest(long requestId) {
         return ordersManager.getRequest(requestId);
     }
 
     @Override
     public void importRequest(Request importRequest) {
-        Optional<Request> findRequest = getMaybeRequest(importRequest.getId());
+        Optional<Request> findRequest = getRequest(importRequest.getId());
         if (findRequest.isPresent()) {
-            findRequest.get().copyOf(importRequest);
+            throw new IllegalArgumentException("Запрос [" + importRequest.getId() + "] уже есть в магазине");
         } else {
             ordersManager.importRequest(importRequest);
         }

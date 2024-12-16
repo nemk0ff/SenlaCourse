@@ -43,11 +43,6 @@ public class Request {
         return "[" + id + "]   книга №" + bookId + ",  статус:" + status;
     }
 
-    public void copyOf(Request other) {
-        this.bookId = other.bookId;
-        this.status = other.status;
-    }
-
     @Override
     public String toString() {
         return id + "," + bookId + "," + status.toString();

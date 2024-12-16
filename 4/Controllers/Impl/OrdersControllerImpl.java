@@ -146,7 +146,7 @@ public class OrdersControllerImpl implements OrdersController {
     @Override
     public void showOrderDetails() {
         ordersMenu.showGetId("Введите Id заказа: ");
-        Optional<Order> maybeOrder = mainManager.getMaybeOrder(getNumberFromConsole(ordersMenu));
+        Optional<Order> maybeOrder = mainManager.getOrder(getNumberFromConsole(ordersMenu));
         if (maybeOrder.isEmpty()) {
             ordersMenu.showError("Заказ не найден");
         } else {
@@ -260,11 +260,15 @@ public class OrdersControllerImpl implements OrdersController {
         Optional<Order> findOrder = findOrderInFile(orderId);
 
         if (findOrder.isPresent()) {
-            mainManager.importOrder(findOrder.get());
-            ordersMenu.showMessage("Заказ успешно импортирован:");
-            findOrder.ifPresent(ordersMenu::showOrder);
+            try{
+                mainManager.importOrder(findOrder.get());
+                ordersMenu.showMessage("Заказ успешно импортирован:");
+                findOrder.ifPresent(ordersMenu::showOrder);
+            } catch (IllegalArgumentException e){
+                ordersMenu.showError(e.getMessage());
+            }
         } else {
-            ordersMenu.showError("Ошибка импортирования");
+            ordersMenu.showError("Не удалось получить заказ из файла");
         }
     }
 

@@ -2,6 +2,7 @@ package Model;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface OrdersManager {
     boolean cancelOrder(long orderId);
@@ -16,11 +17,11 @@ public interface OrdersManager {
 
     List<Order> getOrders();
 
-    Order getOrder(long orderId);
-
-    Request getRequest(long requestId);
-
     List<Request> getRequests();
+
+    Optional<Order> getOrder(long orderId);
+
+    Optional<Request> getRequest(long requestId);
 
     void addRequest(long bookId);
 
