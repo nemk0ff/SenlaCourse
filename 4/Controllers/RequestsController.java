@@ -1,7 +1,5 @@
 package Controllers;
 
-import View.Menu;
-
 public interface RequestsController extends Controller {
     String importPath = "4/Import/importRequests.csv";
     String exportPath = "4/Export/exportRequests.csv";
@@ -12,9 +10,7 @@ public interface RequestsController extends Controller {
 
     void getRequestsByPrice();
 
-    void importRequest();
-
     void exportRequest();
 
-    long getRequestFromConsole(Menu menu);
+    void importAll();
 }

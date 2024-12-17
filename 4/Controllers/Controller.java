@@ -2,7 +2,7 @@ package Controllers;
 
 import View.Menu;
 
-import java.util.Scanner;
+import java.util.*;
 
 public interface Controller {
     Scanner scanner = new Scanner(System.in);
@@ -11,17 +11,7 @@ public interface Controller {
 
     Action checkInput();
 
-    default long getBookFromConsole(Menu menu, int index) {
-        menu.showGetBookId(index);
-        return getNumberFromConsole(menu);
-    }
-
-    default long getBookFromConsole(Menu menu) {
-        menu.showGetId("Введите id книги: ");
-        return getNumberFromConsole(menu);
-    }
-
-    default long getNumberFromConsole(Menu menu) {
+    static long getNumberFromConsole(Menu menu) {
         long answer;
         while (true) {
             String input = scanner.nextLine().trim();

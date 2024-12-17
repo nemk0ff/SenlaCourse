@@ -20,7 +20,19 @@ public class BooksMenuImpl implements BooksMenu {
         System.out.println("9. Вывести список залежавшихся книг (сортировка по цене)");
         System.out.println("10. Импортировать книгу");
         System.out.println("11. Экспортировать книгу");
-        System.out.println("12. Вернуться в главное меню");
-        System.out.println("13. Выйти из программы");
+        System.out.println("12. Импортировать все книги");
+        System.out.println("13. Экспортировать все книги");
+        System.out.println("14. Вернуться в главное меню");
+        System.out.println("15. Выйти из программы");
+    }
+
+    @Override
+    public void showImportDataMessage(){
+        System.out.println("Вот, какие книги можно импортировать: ");
+    }
+
+    @Override
+    public void showGetImportId(){
+        System.out.print("Введите id книги, которую хотите импортировать: ");
     }
 }

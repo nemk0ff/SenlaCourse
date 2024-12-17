@@ -1,10 +1,13 @@
 package Controllers.Impl;
 
 import Controllers.Action;
+import Controllers.Controller;
+import Controllers.Impl.FileControllers.ExportController;
+import Controllers.Impl.FileControllers.ImportController;
 import Controllers.OrdersController;
 import Model.MainManager;
-import Model.Order;
-import Model.OrderStatus;
+import Model.Items.Impl.Order;
+import Model.Items.OrderStatus;
 import View.Menu;
 import View.OrdersMenu;
 import View.Impl.OrdersMenuImpl;
@@ -12,7 +15,6 @@ import View.Impl.OrdersMenuImpl;
 import java.io.*;
 import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class OrdersControllerImpl implements OrdersController {
@@ -39,7 +41,7 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public Action checkInput() {
-        int answer = (int) getNumberFromConsole(ordersMenu);
+        int answer = (int) Controller.getNumberFromConsole(ordersMenu);
 
         return switch (answer) {
             case 1:
@@ -76,14 +78,20 @@ public class OrdersControllerImpl implements OrdersController {
                 getEarnedSum();
                 yield Action.CONTINUE;
             case 12:
-                importFromFile();
+                ImportController.importItem(importPath, ordersMenu, mainManager, ImportController::orderParser);
                 yield Action.CONTINUE;
             case 13:
-                exportToFile();
+                exportOrder();
                 yield Action.CONTINUE;
             case 14:
-                yield Action.MAIN_MENU;
+                importAll();
+                yield Action.CONTINUE;
             case 15:
+                ExportController.exportAll(ordersMenu, mainManager.getOrders(), exportPath);
+                yield Action.CONTINUE;
+            case 16:
+                yield Action.MAIN_MENU;
+            case 17:
                 yield Action.EXIT;
             default:
                 ordersMenu.showError("Неизвестная команда");
@@ -101,30 +109,38 @@ public class OrdersControllerImpl implements OrdersController {
     public Map<Long, Integer> getBooksFromConsole() {
         ordersMenu.showBooks(mainManager.getBooks());
         ordersMenu.showGetAmountBooks("Сколько уникальных книг вы хотите заказать? Введите число: ");
-        int count = (int) getNumberFromConsole(ordersMenu);
+        int count = (int) Controller.getNumberFromConsole(ordersMenu);
 
         long tempId;
         int tempAmount;
         Map<Long, Integer> booksIds = new HashMap<>();
 
         for (int i = 0; i < count; i++) {
-            tempId = getBookFromConsole(ordersMenu, i);
+            tempId = getBookFromConsole(i);
             while (!mainManager.containsBook(tempId) || booksIds.containsKey(tempId)) {
                 if (!mainManager.containsBook(tempId)) {
                     ordersMenu.showError("Такой книги нет в магазине");
-                    tempId = getBookFromConsole(ordersMenu);
+                    ordersMenu.showGetId("Выберите другую книгу и введите её id: ");
+                    tempId = Controller.getNumberFromConsole(ordersMenu);
                 }
                 if (booksIds.containsKey(tempId)) {
                     ordersMenu.showError("Вы уже выбрали эту книгу");
-                    tempId = getBookFromConsole(ordersMenu);
+                    ordersMenu.showGetId("Выберите другую книгу и введите её id: ");
+                    tempId = Controller.getNumberFromConsole(ordersMenu);
                 }
             }
 
             ordersMenu.showGetAmountBooks("Сколько книг [" + tempId + "] вам нужно? Введите число: ");
-            tempAmount = (int) getNumberFromConsole(ordersMenu);
+            tempAmount = (int) Controller.getNumberFromConsole(ordersMenu);
             booksIds.put(tempId, tempAmount);
         }
         return booksIds;
+    }
+
+    @Override
+    public long getBookFromConsole(int index) {
+        ordersMenu.showGetBookId(index);
+        return Controller.getNumberFromConsole(ordersMenu);
     }
 
     @Override
@@ -136,7 +152,7 @@ public class OrdersControllerImpl implements OrdersController {
     public void cancelOrder() {
         ordersMenu.showOrders(mainManager.getOrders());
         ordersMenu.showGetId("Введите id заказа, который хотите отменить: ");
-        if (mainManager.cancelOrder(getNumberFromConsole(ordersMenu))) {
+        if (mainManager.cancelOrder(Controller.getNumberFromConsole(ordersMenu))) {
             ordersMenu.showSuccess("Заказ отменен");
         } else {
             ordersMenu.showError("С таким id нет заказа, который можно отменить");
@@ -146,7 +162,7 @@ public class OrdersControllerImpl implements OrdersController {
     @Override
     public void showOrderDetails() {
         ordersMenu.showGetId("Введите Id заказа: ");
-        Optional<Order> maybeOrder = mainManager.getOrder(getNumberFromConsole(ordersMenu));
+        Optional<Order> maybeOrder = mainManager.getOrder(Controller.getNumberFromConsole(ordersMenu));
         if (maybeOrder.isEmpty()) {
             ordersMenu.showError("Заказ не найден");
         } else {
@@ -157,7 +173,7 @@ public class OrdersControllerImpl implements OrdersController {
     @Override
     public void setOrderStatus() {
         ordersMenu.showGetId("Введите Id заказа: ");
-        long orderId = getNumberFromConsole(ordersMenu);
+        long orderId = Controller.getNumberFromConsole(ordersMenu);
 
         OrderStatus newStatus = getStatusFromConsole();
 
@@ -251,135 +267,48 @@ public class OrdersControllerImpl implements OrdersController {
     }
 
     @Override
-    public void importFromFile() {
-        printImportFile();
-
-        ordersMenu.showMessage("Введите id заказа, который хотите импортировать");
-        long orderId = getNumberFromConsole(ordersMenu);
-
-        Optional<Order> findOrder = findOrderInFile(orderId);
-
-        if (findOrder.isPresent()) {
-            try{
-                mainManager.importOrder(findOrder.get());
-                ordersMenu.showMessage("Заказ успешно импортирован:");
-                findOrder.ifPresent(ordersMenu::showOrder);
-            } catch (IllegalArgumentException e){
-                ordersMenu.showError(e.getMessage());
-            }
-        } else {
-            ordersMenu.showError("Не удалось получить заказ из файла");
-        }
-    }
-
-    public Optional<Order> findOrderInFile(Long targetOrderId) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
-            reader.readLine();
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length < 6 || parts.length % 2 != 0) {
-                    throw new IllegalArgumentException("Обнаружена строка неверного формата: " + line);
-                }
-
-                long id = Long.parseLong(parts[0].trim());
-                if (id == targetOrderId) {
-                    String name = parts[1].trim();
-                    double price = Double.parseDouble(parts[2].trim());
-                    OrderStatus status = OrderStatus.valueOf(parts[3].trim());
-                    LocalDate orderDate = parts[4].trim().equals("null") ?
-                            null : LocalDate.parse(parts[4].trim(), dateFormatter);
-                    LocalDate completeDate = parts[5].trim().equals("null") ?
-                            null : LocalDate.parse(parts[5].trim(), dateFormatter);
-
-                    Map<Long, Integer> books = new HashMap<>();
-                    for (int i = 6; i < parts.length; i += 2) {
-                        long bookId = Long.parseLong(parts[i].trim());
-                        int amount = Integer.parseInt(parts[i + 1].trim());
-                        books.put(bookId, amount);
-                    }
-                    return Optional.of(new Order(id, name, price, status, orderDate, completeDate, books));
-                }
-            }
-        } catch (IOException e) {
-            ordersMenu.showError("IOException");
-        }
-        return Optional.empty();
-    }
-
-    public void printImportFile() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
-            ordersMenu.showMessage("Вот, какие заказы можно импортировать: ");
-            String line;
-            while ((line = reader.readLine()) != null) {
-                ordersMenu.showMessage("[" + line + "]");
-            }
-        } catch (IOException e) {
-            System.err.println(importPath + ": " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void exportToFile() {
+    public void exportOrder() {
         ordersMenu.showOrders(mainManager.getOrders());
-        long exportId = getOrderId();
-        String exportString = mainManager.getOrder(exportId).toString();
+        ordersMenu.showGetId("Введите id заказа, который хотите экспортировать: ");
+        long exportId = Controller.getNumberFromConsole(ordersMenu);
 
-        List<String> newFileStrings = new ArrayList<>();
-
-        String firstString = "id;clientName;price;status;orderDate;completeDate;book1;amount1;book2;amount2;...;bookN;amountN";
-        newFileStrings.add(firstString);
-
-        boolean orderIsUpdated = false;
-        try (BufferedReader reader = new BufferedReader(new FileReader(exportPath))) {
-            reader.readLine();
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                long id = Long.parseLong(parts[0].trim());
-                if (id == exportId) {
-                    newFileStrings.add(exportString);
-                    orderIsUpdated = true;
-                } else {
-                    newFileStrings.add(line);
-                }
-            }
-        } catch (Exception e) {
-            ordersMenu.showError("Error: " + e.getMessage());
+        String exportString;
+        try {
+            exportString = getExportString(exportId);
+        } catch (IllegalArgumentException e) {
+            ordersMenu.showError("Заказ для экспорта не найден");
             return;
         }
 
-        if (!orderIsUpdated) {
-            newFileStrings.add(exportString);
-        }
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(exportPath))) {
-            for (String line : newFileStrings) {
-                writer.write(line);
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            ordersMenu.showError("IOException: " + e.getMessage());
-        }
-
-        ordersMenu.showSuccess("Заказ успешно экспортирован");
-    }
-
-    private long getOrderId() {
-        long orderId = getOrderFromConsole(ordersMenu);
-        while (!mainManager.containsOrder(orderId)) {
-            ordersMenu.showError("Такого заказа нет в магазине");
-            orderId = getOrderFromConsole(ordersMenu);
-        }
-        return orderId;
+        ordersMenu.showOrders(mainManager.getOrders());
+        ExportController.exportItemToFile(ordersMenu, exportString, exportPath);
+        ordersMenu.showSuccess("Экспорт выполнен успешно");
     }
 
     @Override
-    public long getOrderFromConsole(Menu menu) {
-        menu.showGetId("Введите id заказа: ");
-        return getNumberFromConsole(menu);
+    public void importAll() {
+        List<Order> importedOrders = ImportController.importAllItemsFromFile(ordersMenu, importPath, ImportController::orderParser);
+
+        if (!importedOrders.isEmpty()) {
+            ordersMenu.showMessage("Результат импортирования: ");
+            for (Order importedOrder : importedOrders) {
+                try {
+                    mainManager.importItem(importedOrder);
+                    ordersMenu.showMessage("Импортирован: " + importedOrder.getInfoAbout());
+                } catch (IllegalArgumentException e) {
+                    ordersMenu.showError("Заказ не импортирован. " + e.getMessage());
+                }
+            }
+        } else {
+            ordersMenu.showError("Не удалось импортировать заказы из файла.");
+        }
+    }
+
+    public String getExportString(long id) {
+        Optional<Order> order = mainManager.getOrder(id);
+        if (order.isPresent()) {
+            return order.get().toString();
+        }
+        throw new IllegalArgumentException();
     }
 }

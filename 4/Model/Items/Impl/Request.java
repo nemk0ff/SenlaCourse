@@ -1,10 +1,13 @@
-package Model;
+package Model.Items.Impl;
 
-public class Request {
+import Model.Items.Item;
+import Model.Items.RequestStatus;
+
+public class Request implements Item {
     static long counter = 0L;
 
     private final long id;
-    private long bookId;
+    private final long bookId;
     private RequestStatus status;
 
     // Конструктор для запросов, которые создаются в логике магазина
@@ -23,6 +26,7 @@ public class Request {
         this.status = status;
     }
 
+    @Override
     public long getId() {
         return id;
     }
@@ -39,6 +43,7 @@ public class Request {
         status = RequestStatus.CLOSED;
     }
 
+    @Override
     public String getInfoAbout() {
         return "[" + id + "]   книга №" + bookId + ",  статус:" + status;
     }

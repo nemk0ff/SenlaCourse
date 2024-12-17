@@ -1,15 +1,18 @@
 package Controllers.Impl;
 
 import Controllers.Action;
+import Controllers.Controller;
+import Controllers.Impl.FileControllers.ExportController;
+import Controllers.Impl.FileControllers.ImportController;
 import Controllers.RequestsController;
 import Model.*;
+import Model.Items.Impl.Request;
+import Model.Items.RequestStatus;
 import View.Menu;
 import View.RequestsMenu;
 import View.Impl.RequestsMenuImpl;
 
 import java.io.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class RequestsControllerImpl implements RequestsController {
@@ -36,7 +39,7 @@ public class RequestsControllerImpl implements RequestsController {
 
     @Override
     public Action checkInput() {
-        int answer = (int) getNumberFromConsole(requestsMenu);
+        int answer = (int) Controller.getNumberFromConsole(requestsMenu);
 
         return switch (answer) {
             case 1:
@@ -49,14 +52,20 @@ public class RequestsControllerImpl implements RequestsController {
                 getRequestsByPrice();
                 yield Action.CONTINUE;
             case 4:
-                importRequest();
+                ImportController.importItem(importPath, requestsMenu, mainManager, ImportController::requestParser);
                 yield Action.CONTINUE;
             case 5:
                 exportRequest();
                 yield Action.CONTINUE;
             case 6:
-                yield Action.MAIN_MENU;
+                importAll();
+                yield Action.CONTINUE;
             case 7:
+                ExportController.exportAll(requestsMenu, mainManager.getRequests(), exportPath);
+                yield Action.CONTINUE;
+            case 8:
+                yield Action.MAIN_MENU;
+            case 9:
                 yield Action.EXIT;
             default:
                 requestsMenu.showError("Неизвестная команда");
@@ -67,7 +76,8 @@ public class RequestsControllerImpl implements RequestsController {
     @Override
     public void createRequest() {
         requestsMenu.showBooks(mainManager.getBooks());
-        long bookId = getBookFromConsole(requestsMenu);
+        requestsMenu.showGetId("Введите id книги, на которую хотите создать запрос: ");
+        long bookId = Controller.getNumberFromConsole(requestsMenu);
         mainManager.addRequest(bookId);
     }
 
@@ -82,126 +92,47 @@ public class RequestsControllerImpl implements RequestsController {
     }
 
     @Override
-    public void importRequest() {
-        printImportFile();
-
-        requestsMenu.showMessage("Введите id запроса, который хотите импортировать");
-        long requestId = getNumberFromConsole(requestsMenu);
-
-        Optional<Request> findRequest = findRequestInFile(requestId);
-
-        if (findRequest.isPresent()) {
-            try{
-                mainManager.importRequest(findRequest.get());
-                requestsMenu.showMessage("Запрос успешно импортирован:");
-                findRequest.ifPresent(requestsMenu::showRequest);
-            } catch (IllegalArgumentException e){
-                requestsMenu.showError(e.getMessage());
-            }
-        } else {
-            requestsMenu.showError("Не удалось получить запрос из файла");
-        }
-    }
-
-    public Optional<Request> findRequestInFile(Long targetRequestId) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
-            reader.readLine();
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length < 3) {
-                    throw new IllegalArgumentException("Обнаружена строка неверного формата: " + line);
-                }
-
-                long id = Long.parseLong(parts[0].trim());
-                if (id == targetRequestId) {
-                    long bookId = Long.parseLong(parts[1].trim());
-                    RequestStatus status = RequestStatus.valueOf(parts[2].trim());
-
-                    return Optional.of(new Request(id, bookId, status));
-                }
-            }
-        } catch (IOException e) {
-            requestsMenu.showError("IOException");
-        }
-        return Optional.empty();
-    }
-
-    private void printImportFile() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
-            requestsMenu.showMessage("Вот, какие запросы можно импортировать: ");
-            String line;
-            while ((line = reader.readLine()) != null) {
-                requestsMenu.showMessage("[" + line + "]");
-            }
-        } catch (IOException e) {
-            System.err.println(importPath + ": " + e.getMessage());
-        }
-    }
-
-    @Override
     public void exportRequest() {
-        requestsMenu.showRequests(mainManager.getRequests());
-        long exportId = getRequestId();
-        String exportString = "";
-        if(mainManager.getRequest(exportId).isPresent()){
-            exportString = mainManager.getRequest(exportId).get().toString();
-        }
+        requestsMenu.showGetId("Введите id запроса, который хотите экспортировать: ");
+        long exportId = Controller.getNumberFromConsole(requestsMenu);
 
-        List<String> newFileStrings = new ArrayList<>();
-
-        String firstString = "id;bookId;status";
-        newFileStrings.add(firstString);
-
-        boolean requestIsUpdated = false;
-        try (BufferedReader reader = new BufferedReader(new FileReader(exportPath))) {
-            reader.readLine();
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",", 2);
-                long id = Long.parseLong(parts[0].trim());
-                if (id == exportId) {
-                    newFileStrings.add(exportString);
-                    requestIsUpdated = true;
-                } else {
-                    newFileStrings.add(line);
-                }
-            }
-        } catch (IOException e) {
-            requestsMenu.showError("IOException: " + e.getMessage());
+        String exportString;
+        try {
+            exportString = getExportString(exportId);
+        } catch (IllegalArgumentException e) {
+            requestsMenu.showError("Запрос для экспорта не найден");
             return;
         }
 
-        if (!requestIsUpdated) {
-            newFileStrings.add(exportString);
-        }
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(exportPath))) {
-            for (String line : newFileStrings) {
-                writer.write(line);
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            requestsMenu.showError("IOException: " + e.getMessage());
-        }
-
-        requestsMenu.showSuccess("Запрос успешно экспортирован");
-    }
-
-    private long getRequestId() {
-        long requestId = getRequestFromConsole(requestsMenu);
-        while (!mainManager.containsRequest(requestId)) {
-            requestsMenu.showError("Такого запроса нет в магазине");
-            requestId = getBookFromConsole(requestsMenu);
-        }
-        return requestId;
+        requestsMenu.showRequests(mainManager.getRequests());
+        ExportController.exportItemToFile(requestsMenu, exportString, exportPath);
+        requestsMenu.showSuccess("Экспорт выполнен успешно");
     }
 
     @Override
-    public long getRequestFromConsole(Menu menu) {
-        menu.showGetId("Введите id запроса: ");
-        return getNumberFromConsole(menu);
+    public void importAll() {
+        List<Request> importedRequests = ImportController.importAllItemsFromFile(requestsMenu, importPath, ImportController::requestParser);
+
+        if (!importedRequests.isEmpty()) {
+            requestsMenu.showMessage("Результат импортирования:");
+            for (Request importedRequest : importedRequests) {
+                try {
+                    mainManager.importItem(importedRequest);
+                    requestsMenu.showMessage("Импортирован: " + importedRequest.getInfoAbout());
+                } catch (IllegalArgumentException e) {
+                    requestsMenu.showError("Запрос не импортирован. " + e.getMessage());
+                }
+            }
+        } else {
+            requestsMenu.showError("Не удалось импортировать запросы из файла.");
+        }
+    }
+
+    public String getExportString(long id) {
+        Optional<Request> request = mainManager.getRequest(id);
+        if (request.isPresent()) {
+            return request.get().toString();
+        }
+        throw new IllegalArgumentException();
     }
 }

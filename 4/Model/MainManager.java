@@ -1,5 +1,11 @@
 package Model;
 
+import Model.Items.Impl.Book;
+import Model.Items.Impl.Order;
+import Model.Items.Impl.Request;
+import Model.Items.Item;
+import Model.Items.OrderStatus;
+
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -65,15 +71,7 @@ public interface MainManager {
 
     boolean containsBook(long bookId);
 
-    boolean containsOrder(long orderId);
-
-    boolean containsRequest(long requestId);
-
-    void importBook(Book importBook);
-
-    void importOrder(Order importOrder);
-
     void createRequests(Order order);
 
-    void importRequest(Request importRequest);
+    <T extends Item> void importItem(T Item);
 }

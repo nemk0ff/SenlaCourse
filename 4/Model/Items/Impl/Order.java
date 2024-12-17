@@ -1,10 +1,13 @@
-package Model;
+package Model.Items.Impl;
+
+import Model.Items.Item;
+import Model.Items.OrderStatus;
 
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
 
-public class Order {
+public class Order implements Item {
     static Long counter = 0L;
 
     private final Long id;
@@ -40,10 +43,6 @@ public class Order {
         this.books = books;
     }
 
-    public long getId() {
-        return id;
-    }
-
     public LocalDate getCompleteDate() {
         return completeDate;
     }
@@ -68,12 +67,18 @@ public class Order {
         return books;
     }
 
+    @Override
+    public long getId() {
+        return id;
+    }
+
+    @Override
     public String getInfoAbout() {
         return "[" + id + "]  " + clientName + ",  " + price + ",  " + status + ",  " + orderDate.toString()
                 + ",  " + (completeDate == null ? "not been completed yet" : completeDate.toString());
     }
 
-    Boolean isCompleted() {
+    public Boolean isCompleted() {
         return (status == OrderStatus.COMPLETED);
     }
 

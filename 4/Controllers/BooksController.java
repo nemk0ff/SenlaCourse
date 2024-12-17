@@ -22,7 +22,7 @@ public interface BooksController extends Controller {
 
     void getStaleBooksByPrice();
 
-    void importFromFile();
+    void importAll();
 
-    void exportToFile();
+    void exportBook();
 }

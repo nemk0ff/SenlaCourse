@@ -1,7 +1,6 @@
 package Controllers;
 
-import Model.OrderStatus;
-import View.Menu;
+import Model.Items.OrderStatus;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -44,9 +43,9 @@ public interface OrdersController extends Controller {
 
     Map<Long, Integer> getBooksFromConsole();
 
-    void importFromFile();
+    long getBookFromConsole(int index);
 
-    void exportToFile();
+    void exportOrder();
 
-    long getOrderFromConsole(Menu menu);
+    void importAll();
 }

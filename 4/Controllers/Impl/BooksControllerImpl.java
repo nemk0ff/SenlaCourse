@@ -2,20 +2,21 @@ package Controllers.Impl;
 
 import Controllers.Action;
 import Controllers.BooksController;
-import Model.Book;
+import Controllers.Controller;
+import Controllers.Impl.FileControllers.ExportController;
+import Controllers.Impl.FileControllers.ImportController;
+import Model.Items.Impl.Book;
 import Model.MainManager;
+import View.BooksMenu;
 import View.Impl.BooksMenuImpl;
 
-import java.io.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class BooksControllerImpl implements BooksController {
     private final MainManager mainManager;
-    private final BooksMenuImpl booksMenu;
+    private final BooksMenu booksMenu;
 
     public BooksControllerImpl(MainManager mainManager) {
         this.mainManager = mainManager;
@@ -37,7 +38,7 @@ public class BooksControllerImpl implements BooksController {
 
     @Override
     public Action checkInput() {
-        int answer = (int) getNumberFromConsole(booksMenu);
+        int answer = (int) Controller.getNumberFromConsole(booksMenu);
 
         return switch (answer) {
             case 1:
@@ -68,14 +69,20 @@ public class BooksControllerImpl implements BooksController {
                 getStaleBooksByPrice();
                 yield Action.CONTINUE;
             case 10:
-                importFromFile();
+                ImportController.importItem(importPath, booksMenu, mainManager, ImportController::bookParser);
                 yield Action.CONTINUE;
             case 11:
-                exportToFile();
+                exportBook();
                 yield Action.CONTINUE;
             case 12:
-                yield Action.MAIN_MENU;
+                importAll();
+                yield Action.CONTINUE;
             case 13:
+                ExportController.exportAll(booksMenu, mainManager.getBooks(), exportPath);
+                yield Action.CONTINUE;
+            case 14:
+                yield Action.MAIN_MENU;
+            case 15:
                 yield Action.EXIT;
             default:
                 booksMenu.showError("Неизвестная команда");
@@ -90,7 +97,7 @@ public class BooksControllerImpl implements BooksController {
         long bookId = getBookId();
 
         booksMenu.showGetAmountBooks("Сколько книг добавить? Введите число: ");
-        int amount = (int) getNumberFromConsole(booksMenu);
+        int amount = (int) Controller.getNumberFromConsole(booksMenu);
 
         mainManager.addBook(bookId, amount, LocalDate.now());
     }
@@ -102,7 +109,7 @@ public class BooksControllerImpl implements BooksController {
         long id = getBookId();
 
         booksMenu.showGetAmountBooks("Сколько книг списать? Введите число");
-        int amount = (int) getNumberFromConsole(booksMenu);
+        int amount = (int) Controller.getNumberFromConsole(booksMenu);
 
         while (amount < 0) {
             amount = scanner.nextInt();
@@ -116,14 +123,14 @@ public class BooksControllerImpl implements BooksController {
 
     @Override
     public void showBookDetails() {
-        mainManager.getBook(getBookId()).ifPresent(booksMenu::showBook);
+        mainManager.getBook(getBookId()).ifPresent(booksMenu::showItem);
     }
 
     private long getBookId() {
-        long book = getBookFromConsole(booksMenu);
+        long book = Controller.getNumberFromConsole(booksMenu);
         while (!mainManager.containsBook(book)) {
             booksMenu.showError("Такой книги нет в магазине");
-            book = getBookFromConsole(booksMenu);
+            book = Controller.getNumberFromConsole(booksMenu);
         }
         return book;
     }
@@ -159,115 +166,42 @@ public class BooksControllerImpl implements BooksController {
     }
 
     @Override
-    public void importFromFile() {
-        printImportFile();
-
-        booksMenu.showMessage("Введите id книги, которую хотите импортировать");
-        long bookId = getNumberFromConsole(booksMenu);
-
-        Optional<Book> findBook = findBookInFile(bookId);
-
-        if (findBook.isPresent()) {
-            mainManager.importBook(findBook.get());
-            booksMenu.showMessage("Книга импортирована:");
-            findBook.ifPresent(booksMenu::showBook);
-        } else {
-            booksMenu.showError("Не удалось получить книгу из файла");
-        }
-    }
-
-    public Optional<Book> findBookInFile(Long targetBookId) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
-            reader.readLine();
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length == 8) {
-                    long id = Long.parseLong(parts[0].trim());
-
-                    if (id == targetBookId) {
-                        String name = parts[1].trim();
-                        String author = parts[2].trim();
-                        int publicationYear = Integer.parseInt(parts[3].trim());
-                        int amount = Integer.parseInt(parts[4].trim());
-                        double price = Double.parseDouble(parts[5].trim());
-                        LocalDate lastDeliveredDate = parts[6].trim().equals("null") ?
-                                null : LocalDate.parse(parts[6].trim(), dateFormatter);
-                        LocalDate lastSaleDate = parts[7].trim().equals("null") ?
-                                null : LocalDate.parse(parts[7].trim(), dateFormatter);
-
-                        return Optional.of(new Book(id, name, author, amount, price, publicationYear,
-                                lastDeliveredDate, lastSaleDate));
-                    }
-                }
-            }
-        } catch (IOException e) {
-            booksMenu.showError("IOException");
-        }
-        return Optional.empty();
-    }
-
-    public void printImportFile() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
-            booksMenu.showMessage("Вот, какие книги можно импортировать: ");
-            String line;
-            while ((line = reader.readLine()) != null) {
-                booksMenu.showMessage("[" + line + "]");
-            }
-        } catch (IOException e) {
-            System.err.println(importPath + ": " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void exportToFile() {
+    public void exportBook() {
         booksMenu.showBooks(mainManager.getBooks());
-        long exportId = getBookId();
-        String exportString = "";
-        if(mainManager.getBook(exportId).isPresent()){
-            exportString = mainManager.getBook(exportId).get().toString();
-        }
+        booksMenu.showGetId("Введите id книги, которую хотите экспортировать: ");
+        long exportId = Controller.getNumberFromConsole(booksMenu);
 
-        List<String> newFileStrings = new ArrayList<>();
-
-        String firstString = "id;name;author;publicationYear;amount;price;lastDeliveredDate;lastSaleDate";
-        newFileStrings.add(firstString);
-
-        boolean bookIsUpdated = false;
-        try (BufferedReader reader = new BufferedReader(new FileReader(exportPath))) {
-            reader.readLine();
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",", 2);
-                long id = Long.parseLong(parts[0].trim());
-                if (id == exportId) {
-                    newFileStrings.add(exportString);
-                    bookIsUpdated = true;
-                } else {
-                    newFileStrings.add(line);
-                }
-            }
-        } catch (IOException e) {
-            booksMenu.showError("IOException: " + e.getMessage());
+        String exportString;
+        try {
+            exportString = getExportString(exportId);
+        } catch (IllegalArgumentException e) {
+            booksMenu.showError("Книга для экспорта не найдена");
             return;
         }
 
-        if (!bookIsUpdated) {
-            newFileStrings.add(exportString);
-        }
+        booksMenu.showBooks(mainManager.getBooks());
+        ExportController.exportItemToFile(booksMenu, exportString, exportPath);
+        booksMenu.showSuccess("Экспорт выполнен успешно");
+    }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(exportPath))) {
-            for (String line : newFileStrings) {
-                writer.write(line);
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            booksMenu.showError("IOException: " + e.getMessage());
-        }
+    @Override
+    public void importAll() {
+        List<Book> importedBooks = ImportController.importAllItemsFromFile(booksMenu, importPath, ImportController::bookParser);
 
-        booksMenu.showSuccess("Книга успешно экспортирована");
+        if (!importedBooks.isEmpty()) {
+            importedBooks.forEach(mainManager::importItem);
+            booksMenu.showMessage("Все книги успешно импортированы:");
+            importedBooks.forEach(booksMenu::showItem);
+        } else {
+            booksMenu.showError("Не удалось импортировать книги из файла.");
+        }
+    }
+
+    public String getExportString(long id) {
+        Optional<Book> book = mainManager.getBook(id);
+        if (book.isPresent()) {
+            return book.get().toString();
+        }
+        throw new IllegalArgumentException();
     }
 }

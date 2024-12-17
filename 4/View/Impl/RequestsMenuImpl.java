@@ -1,7 +1,7 @@
 package View.Impl;
 
-import Model.Book;
-import Model.Request;
+import Model.Items.Impl.Book;
+import Model.Items.Impl.Request;
 import View.RequestsMenu;
 
 import java.util.LinkedHashMap;
@@ -20,8 +20,10 @@ public class RequestsMenuImpl implements RequestsMenu {
         System.out.println("3. Вывести список запросов на книги (сортировка по цене)");
         System.out.println("4. Импортировать запрос");
         System.out.println("5. Экспортировать запрос");
-        System.out.println("6. Вернуться в главное меню");
-        System.out.println("7. Выйти из программы");
+        System.out.println("6. Импортировать все запросы");
+        System.out.println("7. Экспортировать все запросы");
+        System.out.println("8. Вернуться в главное меню");
+        System.out.println("9. Выйти из программы");
     }
 
     @Override
@@ -37,11 +39,16 @@ public class RequestsMenuImpl implements RequestsMenu {
 
     @Override
     public void showRequests(List<Request> requests) {
-        requests.forEach(this::showRequest);
+        requests.forEach(this::showItem);
     }
 
     @Override
-    public void showRequest(Request request) {
-        System.out.println(request.getInfoAbout());
+    public void showImportDataMessage(){
+        System.out.println("Вот, какие запросы можно импортировать: ");
+    }
+
+    @Override
+    public void showGetImportId(){
+        System.out.print("Введите id запроса, который хотите импортировать: ");
     }
 }

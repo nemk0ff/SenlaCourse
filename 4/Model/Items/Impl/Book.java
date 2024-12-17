@@ -1,9 +1,12 @@
-package Model;
+package Model.Items.Impl;
+
+import Model.Items.BookStatus;
+import Model.Items.Item;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class Book {
+public class Book implements Item {
     static Long counter = 0L;
 
     private final Long id;
@@ -93,6 +96,7 @@ public class Book {
         return publicationDate;
     }
 
+    @Override
     public String getInfoAbout() {
         return "[" + id + "]   " + name + ",  " + author + ",  " + publicationDate
                 + ",  " + price + ",  " + amount + ",  " + status.toString()
@@ -104,6 +108,7 @@ public class Book {
         return status == BookStatus.AVAILABLE;
     }
 
+    @Override
     public long getId() {
         return id;
     }

@@ -1,5 +1,7 @@
 package Model;
 
+import Model.Items.Impl.Book;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

@@ -1,5 +1,11 @@
 package Model;
 
+import Model.Items.Impl.Book;
+import Model.Items.Impl.Order;
+import Model.Items.Impl.Request;
+import Model.Items.Item;
+import Model.Items.OrderStatus;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
@@ -49,7 +55,7 @@ public class MainManagerImpl implements MainManager {
         if (order.getStatus() == OrderStatus.NEW) {
             for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
                 Optional<Book> optionalBook = getBook(entry.getKey());
-                if(optionalBook.isEmpty() || optionalBook.get().getAmount() < entry.getValue()){
+                if (optionalBook.isEmpty() || optionalBook.get().getAmount() < entry.getValue()) {
                     return;
                 }
             }
@@ -256,7 +262,7 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public boolean containsBooks(List<Long> booksIds){
+    public boolean containsBooks(List<Long> booksIds) {
         for (long id : booksIds) {
             if (!containsBook(id)) {
                 return false;
@@ -270,26 +276,6 @@ public class MainManagerImpl implements MainManager {
         return libraryManager.containsBook(bookId);
     }
 
-    @Override
-    public boolean containsOrder(long orderId) {
-        for (Order order : getOrders()) {
-            if (orderId == order.getId()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean containsRequest(long requestId) {
-        for (Request request : getRequests()) {
-            if (requestId == request.getId()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public double getPrice(List<Long> booksIds) {
         return getBooks(booksIds).stream().mapToDouble(Book::getPrice).sum();
     }
@@ -297,36 +283,6 @@ public class MainManagerImpl implements MainManager {
     public boolean isAvailable(long bookId, int requestAmount) {
         Optional<Book> book = getBook(bookId);
         return book.filter(value -> value.getAmount() >= requestAmount).isPresent();
-    }
-
-    @Override
-    public void importBook(Book importBook) {
-        Optional<Book> findBook = getBook(importBook.getId());
-        if (findBook.isPresent()) {
-            findBook.get().copyOf(importBook);
-        } else {
-            libraryManager.importBook(importBook);
-        }
-    }
-
-    @Override
-    public void importOrder(Order importOrder) {
-        // Если импортируем заказ на книгу, которой нет в магазине вообще
-        if(!containsBooks(importOrder.getBooks().keySet().stream().toList())){
-            throw new IllegalArgumentException("В импортируемом заказе " + importOrder.getId() + " есть несуществующие книги");
-        }
-
-        Optional<Order> findOrder = getOrder(importOrder.getId());
-        if (findOrder.isPresent()) {
-            // При копировании меняется состав заказа, нужно закрыть старые запросы
-            ordersManager.closeRequests(findOrder.get().getBooks());
-            // Перезаписываем заказ
-            findOrder.get().copyOf(importOrder);
-        } else {
-            ordersManager.addOrder(importOrder);
-        }
-        // Открываем новые запросы, соответствующие составу импортируемого заказа
-        createRequests(importOrder);
     }
 
     @Override
@@ -354,13 +310,44 @@ public class MainManagerImpl implements MainManager {
         return ordersManager.getRequest(requestId);
     }
 
+
     @Override
-    public void importRequest(Request importRequest) {
-        Optional<Request> findRequest = getRequest(importRequest.getId());
-        if (findRequest.isPresent()) {
-            throw new IllegalArgumentException("Запрос [" + importRequest.getId() + "] уже есть в магазине");
-        } else {
-            ordersManager.importRequest(importRequest);
+    public <T extends Item> void importItem(T item){
+        if(item instanceof Book){
+            Optional<Book> findBook = getBook(item.getId());
+            if (findBook.isPresent()) {
+                findBook.get().copyOf((Book) item);
+            } else {
+                libraryManager.importBook((Book) item);
+            }
+        }
+
+        else if(item instanceof Order){
+            // Если импортируем заказ на книгу, которой нет в магазине вообще
+            if (!containsBooks(((Order) item).getBooks().keySet().stream().toList())) {
+                throw new IllegalArgumentException("В импортируемом заказе " + item.getId() + " есть несуществующие книги");
+            }
+
+            Optional<Order> findOrder = getOrder(item.getId());
+            if (findOrder.isPresent()) {
+                // При копировании меняется состав заказа, нужно закрыть старые запросы
+                ordersManager.closeRequests(findOrder.get().getBooks());
+                // Перезаписываем заказ
+                findOrder.get().copyOf((Order) item);
+            } else {
+                ordersManager.addOrder((Order) item);
+            }
+            // Открываем новые запросы, соответствующие составу импортируемого заказа
+            createRequests((Order) item);
+        }
+
+        else if(item instanceof Request){
+            Optional<Request> findRequest = getRequest(item.getId());
+            if (findRequest.isPresent()) {
+                throw new IllegalArgumentException("Запрос [" + item.getId() + "] уже есть в магазине");
+            } else {
+                ordersManager.importRequest((Request) item);
+            }
         }
     }
 }

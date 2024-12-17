@@ -37,7 +37,7 @@ public class MainController implements Controller {
 
     @Override
     public Action checkInput() {
-        int answer = (int) getNumberFromConsole(mainMenu);
+        int answer = (int) Controller.getNumberFromConsole(mainMenu);
 
         return switch (answer) {
             case 1 -> booksController.run();

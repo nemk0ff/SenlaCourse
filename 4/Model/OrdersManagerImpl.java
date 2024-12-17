@@ -1,5 +1,10 @@
 package Model;
 
+import Model.Items.Impl.Order;
+import Model.Items.Impl.Request;
+import Model.Items.OrderStatus;
+import Model.Items.RequestStatus;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

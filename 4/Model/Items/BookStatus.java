@@ -1,4 +1,4 @@
-package Model;
+package Model.Items;
 
 public enum BookStatus {
     AVAILABLE,

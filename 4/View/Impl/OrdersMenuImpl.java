@@ -1,6 +1,6 @@
 package View.Impl;
 
-import Model.Order;
+import Model.Items.Impl.Order;
 import View.OrdersMenu;
 
 import java.util.List;
@@ -27,8 +27,10 @@ public class OrdersMenuImpl implements OrdersMenu {
         System.out.println("11. Вывести сумму заработанных средств за период времени");
         System.out.println("12. Импортировать заказ");
         System.out.println("13. Экспортировать заказ");
-        System.out.println("14. Вернуться в главное меню");
-        System.out.println("15. Выйти из программы");
+        System.out.println("14. Импортировать все заказы");
+        System.out.println("15. Экспортировать все заказы");
+        System.out.println("16. Вернуться в главное меню");
+        System.out.println("17. Выйти из программы");
     }
 
     @Override
@@ -95,5 +97,15 @@ public class OrdersMenuImpl implements OrdersMenu {
     @Override
     public void showEarnedSum(Double sum) {
         System.out.println("Сумма заработанных средств : " + sum);
+    }
+
+    @Override
+    public void showImportDataMessage(){
+        System.out.println("Вот, какие заказы можно импортировать: ");
+    }
+
+    @Override
+    public void showGetImportId(){
+        System.out.print("Введите id заказа, который хотите импортировать: ");
     }
 }
