@@ -38,14 +38,15 @@ public class ImportController {
     }
 
     public static Request requestParser(String[] parts) {
-        if (parts.length != 3) {
+        if (parts.length != 4) {
             throw new IllegalArgumentException("Неверное количество частей в строке: " + parts.length);
         }
         long id = Long.parseLong(parts[0].trim());
         long bookId = Long.parseLong(parts[1].trim());
-        RequestStatus status = RequestStatus.valueOf(parts[2].trim());
+        int amount = Integer.parseInt(parts[2].trim());
+        RequestStatus status = RequestStatus.valueOf(parts[3].trim());
 
-        return new Request(id, bookId, status);
+        return new Request(id, bookId, amount, status);
     }
 
     public static Order orderParser(String[] parts) {

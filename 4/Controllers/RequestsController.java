@@ -10,6 +10,8 @@ public interface RequestsController extends Controller {
 
     void getRequestsByPrice();
 
+    void getAllRequests();
+
     void exportRequest();
 
     void importAll();

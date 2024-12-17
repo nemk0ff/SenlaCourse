@@ -29,21 +29,18 @@ public class OrdersManagerImpl implements OrdersManager {
 
     @Override
     public void closeRequest(long bookId, int count) {
-        int counter = 0;
         for (Request request : getRequests()) {
-            if (request.getBook() == bookId && request.getStatus() == RequestStatus.OPEN) {
+            if (request.getBook() == bookId && request.getStatus() == RequestStatus.OPEN
+                    && count == request.getAmount()) {
                 request.closeRequest();
-                counter++;
-                if (counter == count) {
-                    break;
-                }
+                break;
             }
         }
     }
 
     @Override
-    public void addRequest(long bookId) {
-        Request request = new Request(bookId);
+    public void addRequest(long bookId, int amount) {
+        Request request = new Request(bookId, amount);
         requests.put(request.getId(), request);
     }
 

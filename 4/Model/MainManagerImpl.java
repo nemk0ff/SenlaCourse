@@ -75,8 +75,8 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public void addRequest(long bookId) {
-        ordersManager.addRequest(bookId);
+    public void addRequest(long bookId, int amount) {
+        ordersManager.addRequest(bookId, amount);
     }
 
     @Override
@@ -292,10 +292,7 @@ public class MainManagerImpl implements MainManager {
             // Если книги нет, то создаём запрос на неё
             Optional<Book> book = getBook(entry.getKey());
             if (book.isPresent() && !isAvailable(entry.getKey(), entry.getValue())) {
-                int missingBooks = entry.getValue() - book.get().getAmount();
-                for (int i = 0; i < missingBooks; i++) {
-                    addRequest(entry.getKey());
-                }
+                addRequest(entry.getKey(), entry.getValue());
                 completed = false;
             }
         }
@@ -342,6 +339,10 @@ public class MainManagerImpl implements MainManager {
         }
 
         else if(item instanceof Request){
+            // Если импортируем запрос на книгу, которой нет в магазине вообще
+            if (!containsBook(((Request) item).getBook())) {
+                throw new IllegalArgumentException("Запрос " + item.getId() + " - запрос на книгу, которой не существует");
+            }
             Optional<Request> findRequest = getRequest(item.getId());
             if (findRequest.isPresent()) {
                 throw new IllegalArgumentException("Запрос [" + item.getId() + "] уже есть в магазине");

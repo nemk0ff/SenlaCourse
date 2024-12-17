@@ -64,8 +64,11 @@ public class RequestsControllerImpl implements RequestsController {
                 ExportController.exportAll(requestsMenu, mainManager.getRequests(), exportPath);
                 yield Action.CONTINUE;
             case 8:
-                yield Action.MAIN_MENU;
+                getAllRequests();
+                yield Action.CONTINUE;
             case 9:
+                yield Action.MAIN_MENU;
+            case 10:
                 yield Action.EXIT;
             default:
                 requestsMenu.showError("Неизвестная команда");
@@ -78,7 +81,9 @@ public class RequestsControllerImpl implements RequestsController {
         requestsMenu.showBooks(mainManager.getBooks());
         requestsMenu.showGetId("Введите id книги, на которую хотите создать запрос: ");
         long bookId = Controller.getNumberFromConsole(requestsMenu);
-        mainManager.addRequest(bookId);
+        requestsMenu.showMessage("На сколько книг создать запрос? ");
+        int amount = (int) Controller.getNumberFromConsole(requestsMenu);
+        mainManager.addRequest(bookId, amount);
     }
 
     @Override
@@ -92,7 +97,13 @@ public class RequestsControllerImpl implements RequestsController {
     }
 
     @Override
+    public void getAllRequests(){
+        requestsMenu.showRequests(mainManager.getRequests());
+    }
+
+    @Override
     public void exportRequest() {
+        requestsMenu.showRequests(mainManager.getRequests());
         requestsMenu.showGetId("Введите id запроса, который хотите экспортировать: ");
         long exportId = Controller.getNumberFromConsole(requestsMenu);
 
@@ -104,7 +115,6 @@ public class RequestsControllerImpl implements RequestsController {
             return;
         }
 
-        requestsMenu.showRequests(mainManager.getRequests());
         ExportController.exportItemToFile(requestsMenu, exportString, exportPath);
         requestsMenu.showSuccess("Экспорт выполнен успешно");
     }

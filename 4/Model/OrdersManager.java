@@ -27,7 +27,7 @@ public interface OrdersManager {
 
     Optional<Request> getRequest(long requestId);
 
-    void addRequest(long bookId);
+    void addRequest(long bookId, int amount);
 
     void importRequest(Request request);
 }

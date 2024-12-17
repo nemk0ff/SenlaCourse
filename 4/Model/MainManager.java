@@ -23,7 +23,7 @@ public interface MainManager {
 
     void createOrder(Map<Long, Integer> booksIds, String clientName, LocalDate createDate);
 
-    void addRequest(long bookId);
+    void addRequest(long bookId, int amount);
 
     List<Book> getBooks();
 

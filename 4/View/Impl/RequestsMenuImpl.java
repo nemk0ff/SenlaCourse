@@ -16,14 +16,15 @@ public class RequestsMenuImpl implements RequestsMenu {
         System.out.println("##############################");
         System.out.println("    Выберите действие:");
         System.out.println("1. Оставить запрос на книгу");
-        System.out.println("2. Вывести список запросов на книги (сортировка по количеству запросов)");
-        System.out.println("3. Вывести список запросов на книги (сортировка по цене)");
+        System.out.println("2. Вывести список открытых запросов на книги (сортировка по количеству запросов)");
+        System.out.println("3. Вывести список открытых запросов на книги (сортировка по цене)");
         System.out.println("4. Импортировать запрос");
         System.out.println("5. Экспортировать запрос");
         System.out.println("6. Импортировать все запросы");
         System.out.println("7. Экспортировать все запросы");
-        System.out.println("8. Вернуться в главное меню");
-        System.out.println("9. Выйти из программы");
+        System.out.println("8. Вывести все запросы за все время");
+        System.out.println("9. Вернуться в главное меню");
+        System.out.println("10. Выйти из программы");
     }
 
     @Override
