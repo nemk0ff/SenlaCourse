@@ -1,16 +1,13 @@
-package Model;
+package Managers;
 
-import Model.Items.Impl.Book;
-import Model.Items.Impl.Order;
-import Model.Items.Impl.Request;
-import Model.Items.Item;
-import Model.Items.OrderStatus;
+import Model.Impl.Book;
+import Model.Impl.Order;
+import Model.Item;
+import Model.OrderStatus;
+import Model.Impl.Request;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public interface MainManager {
     void addBook(long bookId, Integer amount, LocalDate addDate);
@@ -72,6 +69,12 @@ public interface MainManager {
     boolean containsBook(long bookId);
 
     void createRequests(Order order);
+
+    void importBook(Book book);
+
+    void importOrder(Order order);
+
+    void importRequest(Request request);
 
     <T extends Item> void importItem(T Item);
 }

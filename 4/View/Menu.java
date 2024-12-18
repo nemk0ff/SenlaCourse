@@ -1,12 +1,12 @@
 package View;
 
-import Model.Items.Impl.Book;
-import Model.Items.Item;
+import Model.Impl.Book;
+import Model.Item;
 
 import java.util.List;
 
 public interface Menu {
-    void showMenu();
+    default void showMenu() {}
 
     default void showError(String error) {
         System.out.println("Ошибка: " + error);
@@ -42,19 +42,20 @@ public interface Menu {
         System.out.println(message);
     }
 
-    default void showImportDataMessage(){
-        System.out.println("Доступные данные для импорта:");
-    }
-
-    default void showGetImportId(){
-        System.out.print("Введите id объекта, который хотите импортировать: ");
-    }
-
     default void showSuccessImport(){
         System.out.println("Импорт выполнен успешно");
     }
 
     default void showErrorImport(){
         System.out.println("Не удалось выполнить импорт");
+    }
+
+    default void showImportDataMessage(){
+        System.out.println("Вот, какие объекты можно импортировать: ");
+    }
+
+
+    default void showGetImportId(){
+        System.out.print("Введите id объекта, который хотите импортировать: ");
     }
 }

@@ -1,14 +1,14 @@
 package Controllers.Impl.FileControllers;
 
-import Controllers.Controller;
-import Model.Items.Impl.Book;
-import Model.Items.Impl.Order;
-import Model.Items.Impl.Request;
-import Model.Items.Item;
-import Model.Items.OrderStatus;
-import Model.Items.RequestStatus;
-import Model.MainManager;
-import View.Menu;
+import Controllers.Impl.InputUtils;
+import Model.Impl.Book;
+import Model.Impl.Order;
+import Model.Impl.Request;
+import Model.Item;
+import Model.OrderStatus;
+import Model.RequestStatus;
+import View.Impl.ImportExportMenuImpl;
+import View.ImportExportMenu;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -17,6 +17,9 @@ import java.util.*;
 import java.util.function.Function;
 
 public class ImportController {
+    private static final ImportExportMenu menu = new ImportExportMenuImpl();
+
+
     public static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public static Book bookParser(String[] parts) {
@@ -71,40 +74,28 @@ public class ImportController {
         return new Order(id, name, price, status, orderDate, completeDate, books);
     }
 
-    public static void printImportFile(Menu menu, String importPath) {
+    public static void printImportFile(String importPath) {
         try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
             menu.showImportDataMessage();
             String line;
             while ((line = reader.readLine()) != null) {
-                menu.showMessage(line);
+                menu.showImportData(line);
             }
         } catch (IOException e) {
-            menu.showError(importPath + ": " + e.getMessage());
+            menu.showImportError(importPath + ": " + e.getMessage());
         }
     }
 
-    public static <T extends Item> void importItem(String importPath, Menu menu, MainManager manager, Function<String[], T> parser){
-        printImportFile(menu, importPath);
+    public static <T extends Item> Optional<T> importItem(String importPath, Function<String[], T> parser){
+        printImportFile(importPath);
 
         menu.showGetImportId();
-        long itemId = Controller.getNumberFromConsole(menu);
+        long itemId = getNumberFromConsole();
 
-        Optional<T> findItem = findItemInFile(menu, itemId, importPath, parser);
-
-        if (findItem.isPresent()) {
-            try {
-                manager.importItem(findItem.get());
-                menu.showSuccessImport();
-                findItem.ifPresent(menu::showItem);
-            } catch (IllegalArgumentException e){
-                menu.showError(e.getMessage());
-            }
-        } else {
-            menu.showErrorImport();
-        }
+        return findItemInFile(itemId, importPath, parser);
     }
 
-    public static <T extends Item> Optional<T> findItemInFile(Menu menu, Long targetBookId, String importPath, Function<String[], T> parser) {
+    public static <T extends Item> Optional<T> findItemInFile(Long targetBookId, String importPath, Function<String[], T> parser) {
         try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
             reader.readLine();
 
@@ -118,12 +109,12 @@ public class ImportController {
                 }
             }
         } catch (IOException e) {
-            menu.showError("IOException" + e.getMessage());
+            menu.showImportError("IOException" + e.getMessage());
         }
         return Optional.empty();
     }
 
-    public static <T extends Item> List<T> importAllItemsFromFile(Menu menu, String importPath, Function<String[], T> parser) {
+    public static <T extends Item> List<T> importAllItemsFromFile(String importPath, Function<String[], T> parser) {
         List<T> items = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
             reader.readLine();
@@ -134,9 +125,22 @@ public class ImportController {
                 items.add(parser.apply(parts));
             }
         } catch (IOException e) {
-            menu.showError("IOException при чтении файла: " + e.getMessage());
+            menu.showImportError("IOException при чтении файла: " + e.getMessage());
             return new ArrayList<>();
         }
         return items;
+    }
+
+    private static long getNumberFromConsole(){
+        long answer;
+        while (true) {
+            try {
+                answer = InputUtils.getNumberFromConsole();
+                break;
+            } catch (NumberFormatException e) {
+                menu.showInputError("Неверный формат, попробуйте еще раз");
+            }
+        }
+        return answer;
     }
 }

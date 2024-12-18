@@ -1,14 +1,12 @@
-package Model;
+package Managers.Impl;
 
-import Model.Items.Impl.Order;
-import Model.Items.Impl.Request;
-import Model.Items.OrderStatus;
-import Model.Items.RequestStatus;
+import Managers.OrdersManager;
+import Model.Impl.Order;
+import Model.OrderStatus;
+import Model.Impl.Request;
+import Model.RequestStatus;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class OrdersManagerImpl implements OrdersManager {
     private final Map<Long, Order> orders;

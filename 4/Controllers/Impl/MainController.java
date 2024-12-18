@@ -3,8 +3,8 @@ package Controllers.Impl;
 import Controllers.Action;
 import Controllers.Controller;
 import Controllers.RequestsController;
-import Model.MainManager;
-import Model.MainManagerImpl;
+import Managers.MainManager;
+import Managers.Impl.MainManagerImpl;
 import View.Impl.MainMenu;
 
 public class MainController implements Controller {
@@ -37,7 +37,7 @@ public class MainController implements Controller {
 
     @Override
     public Action checkInput() {
-        int answer = (int) Controller.getNumberFromConsole(mainMenu);
+        int answer = (int) getNumberFromConsole();
 
         return switch (answer) {
             case 1 -> booksController.run();
@@ -49,5 +49,18 @@ public class MainController implements Controller {
                 yield Action.CONTINUE;
             }
         };
+    }
+
+    private long getNumberFromConsole(){
+        long answer;
+        while (true) {
+            try {
+                answer = InputUtils.getNumberFromConsole();
+                break;
+            } catch (NumberFormatException e) {
+                mainMenu.showError("Неверный формат, попробуйте еще раз");
+            }
+        }
+        return answer;
     }
 }

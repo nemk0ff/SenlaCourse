@@ -1,7 +1,7 @@
-package Model.Items.Impl;
+package Model.Impl;
 
-import Model.Items.BookStatus;
-import Model.Items.Item;
+import Model.BookStatus;
+import Model.Item;
 
 import java.time.LocalDate;
 import java.util.Objects;

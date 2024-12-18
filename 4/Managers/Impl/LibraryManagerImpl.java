@@ -1,6 +1,7 @@
-package Model;
+package Managers.Impl;
 
-import Model.Items.Impl.Book;
+import Managers.LibraryManager;
+import Model.Impl.Book;
 
 import java.time.LocalDate;
 import java.util.*;

@@ -1,30 +1,25 @@
 package Controllers.Impl.FileControllers;
 
-import View.BooksMenu;
-import View.Menu;
-import View.OrdersMenu;
-import View.RequestsMenu;
+
+import View.Impl.ImportExportMenuImpl;
+import View.ImportExportMenu;
+
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExportController {
-    private static final String bookHeader =
-            "id;name;author;publicationYear;amount;price;lastDeliveredDate;lastSaleDate";
-    private static final String orderHeader =
-            "id;clientName;price;status;orderDate;completeDate;book1;amount1;book2;amount2;...;bookN;amountN";
-    private static final String requestHeader = "id;bookId;status";
+    private static final ImportExportMenu menu = new ImportExportMenuImpl();
 
-
-    public static <T> void exportAll(Menu menu, List<T> items, String exportPath) {
-        items.forEach(item -> exportItemToFile(menu, item.toString(), exportPath));
-        menu.showSuccess("Экспорт выполнен успешно");
+    public static <T> void exportAll(List<T> items, String exportPath, String header) {
+        items.forEach(item -> exportItemToFile(item.toString(), exportPath, header));
+        menu.showSuccessExport();
     }
 
-    public static void exportItemToFile(Menu menu, String exportString, String exportPath) {
+    public static void exportItemToFile(String exportString, String exportPath, String header) {
         List<String> newFileStrings = new ArrayList<>();
-        newFileStrings.add(getHeader(menu));
+        newFileStrings.add(header);
 
         String[] exportParts = exportString.split(",");
         long exportId = Long.parseLong(exportParts[0].trim());
@@ -45,7 +40,7 @@ public class ExportController {
                 }
             }
         } catch (IOException e) {
-            menu.showError("IOException: " + e.getMessage());
+            menu.showExportError("IOException: " + e.getMessage());
             return;
         }
 
@@ -59,18 +54,7 @@ public class ExportController {
                 writer.newLine();
             }
         } catch (IOException e) {
-            menu.showError("IOException: " + e.getMessage());
+            menu.showExportError("IOException: " + e.getMessage());
         }
-    }
-
-    public static String getHeader(Menu menu){
-        if(menu instanceof BooksMenu){
-            return bookHeader;
-        } else if(menu instanceof OrdersMenu){
-            return orderHeader;
-        } else if(menu instanceof RequestsMenu){
-            return requestHeader;
-        }
-        return "";
     }
 }

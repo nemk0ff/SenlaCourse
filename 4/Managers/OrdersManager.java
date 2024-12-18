@@ -1,8 +1,8 @@
-package Model;
+package Managers;
 
-import Model.Items.Impl.Order;
-import Model.Items.Impl.Request;
-import Model.Items.OrderStatus;
+import Model.Impl.Order;
+import Model.OrderStatus;
+import Model.Impl.Request;
 
 import java.util.List;
 import java.util.Map;

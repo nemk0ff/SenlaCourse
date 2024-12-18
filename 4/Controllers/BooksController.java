@@ -1,9 +1,6 @@
 package Controllers;
 
 public interface BooksController extends Controller {
-    String importPath = "4/Import/importBooks.csv";
-    String exportPath = "4/Export/exportBooks.csv";
-
     void addBook();
 
     void writeOff();
@@ -23,6 +20,8 @@ public interface BooksController extends Controller {
     void getStaleBooksByPrice();
 
     void importAll();
+
+    void importBook();
 
     void exportBook();
 }

@@ -1,7 +1,7 @@
 package View;
 
-import Model.Items.Impl.Book;
-import Model.Items.Impl.Request;
+import Model.Impl.Book;
+import Model.Impl.Request;
 
 import java.util.LinkedHashMap;
 import java.util.List;

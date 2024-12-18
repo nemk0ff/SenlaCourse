@@ -1,4 +1,4 @@
-package Model.Items;
+package Model;
 
 public interface Item {
     String getInfoAbout();

@@ -1,7 +1,7 @@
-package Model.Items.Impl;
+package Model.Impl;
 
-import Model.Items.Item;
-import Model.Items.OrderStatus;
+import Model.Item;
+import Model.OrderStatus;
 
 import java.time.LocalDate;
 import java.util.Map;

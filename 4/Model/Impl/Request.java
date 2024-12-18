@@ -1,7 +1,7 @@
-package Model.Items.Impl;
+package Model.Impl;
 
-import Model.Items.Item;
-import Model.Items.RequestStatus;
+import Model.Item;
+import Model.RequestStatus;
 
 public class Request implements Item {
     static long counter = 0L;

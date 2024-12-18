@@ -1,10 +1,13 @@
-package Model;
+package Managers.Impl;
 
-import Model.Items.Impl.Book;
-import Model.Items.Impl.Order;
-import Model.Items.Impl.Request;
-import Model.Items.Item;
-import Model.Items.OrderStatus;
+import Managers.LibraryManager;
+import Managers.MainManager;
+import Managers.OrdersManager;
+import Model.Impl.Book;
+import Model.Impl.Order;
+import Model.Item;
+import Model.OrderStatus;
+import Model.Impl.Request;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -307,48 +310,62 @@ public class MainManagerImpl implements MainManager {
         return ordersManager.getRequest(requestId);
     }
 
+    @Override
+    public void importBook(Book book){
+        Optional<Book> findBook = getBook(book.getId());
+        if (findBook.isPresent()) {
+            findBook.get().copyOf(book);
+        } else {
+            libraryManager.importBook(book);
+        }
+    }
+
+    @Override
+    public void importOrder(Order order){
+        // Если импортируем заказ на книгу, которой нет в магазине вообще
+        if (!containsBooks((order).getBooks().keySet().stream().toList())) {
+            throw new IllegalArgumentException("В импортируемом заказе " + order.getId() + " есть несуществующие книги");
+        }
+
+        Optional<Order> findOrder = getOrder(order.getId());
+        if (findOrder.isPresent()) {
+            // При копировании меняется состав заказа, нужно закрыть старые запросы
+            ordersManager.closeRequests(findOrder.get().getBooks());
+            // Перезаписываем заказ
+            findOrder.get().copyOf(order);
+        } else {
+            ordersManager.addOrder(order);
+        }
+        // Открываем новые запросы, соответствующие составу импортируемого заказа
+        createRequests(order);
+    }
+
+    @Override
+    public void importRequest(Request request){
+        // Если импортируем запрос на книгу, которой нет в магазине вообще
+        if (!containsBook((request).getBook())) {
+            throw new IllegalArgumentException("Запрос " + request.getId() + " - запрос на книгу, которой не существует");
+        }
+        Optional<Request> findRequest = getRequest(request.getId());
+        if (findRequest.isPresent()) {
+            throw new IllegalArgumentException("Запрос [" + request.getId() + "] уже есть в магазине");
+        } else {
+            ordersManager.importRequest(request);
+        }
+    }
 
     @Override
     public <T extends Item> void importItem(T item){
         if(item instanceof Book){
-            Optional<Book> findBook = getBook(item.getId());
-            if (findBook.isPresent()) {
-                findBook.get().copyOf((Book) item);
-            } else {
-                libraryManager.importBook((Book) item);
-            }
+            importBook((Book) item);
         }
 
         else if(item instanceof Order){
-            // Если импортируем заказ на книгу, которой нет в магазине вообще
-            if (!containsBooks(((Order) item).getBooks().keySet().stream().toList())) {
-                throw new IllegalArgumentException("В импортируемом заказе " + item.getId() + " есть несуществующие книги");
-            }
-
-            Optional<Order> findOrder = getOrder(item.getId());
-            if (findOrder.isPresent()) {
-                // При копировании меняется состав заказа, нужно закрыть старые запросы
-                ordersManager.closeRequests(findOrder.get().getBooks());
-                // Перезаписываем заказ
-                findOrder.get().copyOf((Order) item);
-            } else {
-                ordersManager.addOrder((Order) item);
-            }
-            // Открываем новые запросы, соответствующие составу импортируемого заказа
-            createRequests((Order) item);
+            importOrder((Order) item);
         }
 
         else if(item instanceof Request){
-            // Если импортируем запрос на книгу, которой нет в магазине вообще
-            if (!containsBook(((Request) item).getBook())) {
-                throw new IllegalArgumentException("Запрос " + item.getId() + " - запрос на книгу, которой не существует");
-            }
-            Optional<Request> findRequest = getRequest(item.getId());
-            if (findRequest.isPresent()) {
-                throw new IllegalArgumentException("Запрос [" + item.getId() + "] уже есть в магазине");
-            } else {
-                ordersManager.importRequest((Request) item);
-            }
+            importRequest((Request) item);
         }
     }
 }

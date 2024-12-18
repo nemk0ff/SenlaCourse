@@ -1,18 +1,16 @@
 package Controllers.Impl;
 
 import Controllers.Action;
-import Controllers.Controller;
+import Controllers.Impl.FileControllers.CsvConstants;
 import Controllers.Impl.FileControllers.ExportController;
 import Controllers.Impl.FileControllers.ImportController;
 import Controllers.RequestsController;
-import Model.*;
-import Model.Items.Impl.Request;
-import Model.Items.RequestStatus;
-import View.Menu;
+import Managers.MainManager;
+import Model.Impl.Order;
+import Model.Impl.Request;
 import View.RequestsMenu;
 import View.Impl.RequestsMenuImpl;
 
-import java.io.*;
 import java.util.*;
 
 public class RequestsControllerImpl implements RequestsController {
@@ -39,7 +37,7 @@ public class RequestsControllerImpl implements RequestsController {
 
     @Override
     public Action checkInput() {
-        int answer = (int) Controller.getNumberFromConsole(requestsMenu);
+        int answer = (int) getNumberFromConsole();
 
         return switch (answer) {
             case 1:
@@ -52,7 +50,7 @@ public class RequestsControllerImpl implements RequestsController {
                 getRequestsByPrice();
                 yield Action.CONTINUE;
             case 4:
-                ImportController.importItem(importPath, requestsMenu, mainManager, ImportController::requestParser);
+                importRequest();
                 yield Action.CONTINUE;
             case 5:
                 exportRequest();
@@ -61,7 +59,8 @@ public class RequestsControllerImpl implements RequestsController {
                 importAll();
                 yield Action.CONTINUE;
             case 7:
-                ExportController.exportAll(requestsMenu, mainManager.getRequests(), exportPath);
+                ExportController.exportAll(mainManager.getRequests(),
+                        CsvConstants.EXPORT_REQUEST_PATH, CsvConstants.REQUEST_HEADER);
                 yield Action.CONTINUE;
             case 8:
                 getAllRequests();
@@ -80,9 +79,9 @@ public class RequestsControllerImpl implements RequestsController {
     public void createRequest() {
         requestsMenu.showBooks(mainManager.getBooks());
         requestsMenu.showGetId("Введите id книги, на которую хотите создать запрос: ");
-        long bookId = Controller.getNumberFromConsole(requestsMenu);
+        long bookId = getNumberFromConsole();
         requestsMenu.showMessage("На сколько книг создать запрос? ");
-        int amount = (int) Controller.getNumberFromConsole(requestsMenu);
+        int amount = (int) getNumberFromConsole();
         mainManager.addRequest(bookId, amount);
     }
 
@@ -102,10 +101,27 @@ public class RequestsControllerImpl implements RequestsController {
     }
 
     @Override
+    public void importRequest(){
+        Optional<Request> findRequest = ImportController.importItem(CsvConstants.IMPORT_REQUEST_PATH,
+                ImportController::requestParser);
+        if (findRequest.isPresent()) {
+            try {
+                mainManager.importItem(findRequest.get());
+                requestsMenu.showSuccessImport();
+                findRequest.ifPresent(requestsMenu::showItem);
+            } catch (IllegalArgumentException e){
+                requestsMenu.showError(e.getMessage());
+            }
+        } else {
+            requestsMenu.showErrorImport();
+        }
+    }
+
+    @Override
     public void exportRequest() {
         requestsMenu.showRequests(mainManager.getRequests());
         requestsMenu.showGetId("Введите id запроса, который хотите экспортировать: ");
-        long exportId = Controller.getNumberFromConsole(requestsMenu);
+        long exportId = getNumberFromConsole();
 
         String exportString;
         try {
@@ -115,13 +131,14 @@ public class RequestsControllerImpl implements RequestsController {
             return;
         }
 
-        ExportController.exportItemToFile(requestsMenu, exportString, exportPath);
+        ExportController.exportItemToFile(exportString, CsvConstants.EXPORT_REQUEST_PATH, CsvConstants.REQUEST_HEADER);
         requestsMenu.showSuccess("Экспорт выполнен успешно");
     }
 
     @Override
     public void importAll() {
-        List<Request> importedRequests = ImportController.importAllItemsFromFile(requestsMenu, importPath, ImportController::requestParser);
+        List<Request> importedRequests = ImportController.importAllItemsFromFile(CsvConstants.IMPORT_REQUEST_PATH,
+                ImportController::requestParser);
 
         if (!importedRequests.isEmpty()) {
             requestsMenu.showMessage("Результат импортирования:");
@@ -144,5 +161,18 @@ public class RequestsControllerImpl implements RequestsController {
             return request.get().toString();
         }
         throw new IllegalArgumentException();
+    }
+
+    private long getNumberFromConsole(){
+        long answer;
+        while (true) {
+            try {
+                answer = InputUtils.getNumberFromConsole();
+                break;
+            } catch (NumberFormatException e) {
+                requestsMenu.showError("Неверный формат, попробуйте еще раз");
+            }
+        }
+        return answer;
     }
 }

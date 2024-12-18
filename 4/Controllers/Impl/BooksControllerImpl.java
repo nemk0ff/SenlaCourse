@@ -2,11 +2,11 @@ package Controllers.Impl;
 
 import Controllers.Action;
 import Controllers.BooksController;
-import Controllers.Controller;
+import Controllers.Impl.FileControllers.CsvConstants;
 import Controllers.Impl.FileControllers.ExportController;
 import Controllers.Impl.FileControllers.ImportController;
-import Model.Items.Impl.Book;
-import Model.MainManager;
+import Model.Impl.Book;
+import Managers.MainManager;
 import View.BooksMenu;
 import View.Impl.BooksMenuImpl;
 
@@ -38,7 +38,7 @@ public class BooksControllerImpl implements BooksController {
 
     @Override
     public Action checkInput() {
-        int answer = (int) Controller.getNumberFromConsole(booksMenu);
+        int answer = (int) getNumberFromConsole();
 
         return switch (answer) {
             case 1:
@@ -69,7 +69,7 @@ public class BooksControllerImpl implements BooksController {
                 getStaleBooksByPrice();
                 yield Action.CONTINUE;
             case 10:
-                ImportController.importItem(importPath, booksMenu, mainManager, ImportController::bookParser);
+                importBook();
                 yield Action.CONTINUE;
             case 11:
                 exportBook();
@@ -78,7 +78,8 @@ public class BooksControllerImpl implements BooksController {
                 importAll();
                 yield Action.CONTINUE;
             case 13:
-                ExportController.exportAll(booksMenu, mainManager.getBooks(), exportPath);
+                ExportController.exportAll(mainManager.getBooks(),
+                        CsvConstants.EXPORT_BOOK_PATH, CsvConstants.BOOK_HEADER);
                 yield Action.CONTINUE;
             case 14:
                 yield Action.MAIN_MENU;
@@ -97,7 +98,7 @@ public class BooksControllerImpl implements BooksController {
         long bookId = getBookId();
 
         booksMenu.showGetAmountBooks("Сколько книг добавить? Введите число: ");
-        int amount = (int) Controller.getNumberFromConsole(booksMenu);
+        int amount = (int) getNumberFromConsole();
 
         mainManager.addBook(bookId, amount, LocalDate.now());
     }
@@ -109,7 +110,7 @@ public class BooksControllerImpl implements BooksController {
         long id = getBookId();
 
         booksMenu.showGetAmountBooks("Сколько книг списать? Введите число");
-        int amount = (int) Controller.getNumberFromConsole(booksMenu);
+        int amount = (int) getNumberFromConsole();
 
         while (amount < 0) {
             amount = scanner.nextInt();
@@ -127,10 +128,10 @@ public class BooksControllerImpl implements BooksController {
     }
 
     private long getBookId() {
-        long book = Controller.getNumberFromConsole(booksMenu);
+        long book = getNumberFromConsole();
         while (!mainManager.containsBook(book)) {
             booksMenu.showError("Такой книги нет в магазине");
-            book = Controller.getNumberFromConsole(booksMenu);
+            book = getNumberFromConsole();
         }
         return book;
     }
@@ -166,10 +167,27 @@ public class BooksControllerImpl implements BooksController {
     }
 
     @Override
+    public void importBook() {
+        Optional<Book> findBook = ImportController.importItem(CsvConstants.IMPORT_BOOK_PATH,
+                ImportController::bookParser);
+        if (findBook.isPresent()) {
+            try {
+                mainManager.importItem(findBook.get());
+                booksMenu.showSuccessImport();
+                findBook.ifPresent(booksMenu::showItem);
+            } catch (IllegalArgumentException e) {
+                booksMenu.showError(e.getMessage());
+            }
+        } else {
+            booksMenu.showErrorImport();
+        }
+    }
+
+    @Override
     public void exportBook() {
         booksMenu.showBooks(mainManager.getBooks());
         booksMenu.showGetId("Введите id книги, которую хотите экспортировать: ");
-        long exportId = Controller.getNumberFromConsole(booksMenu);
+        long exportId = getNumberFromConsole();
 
         String exportString;
         try {
@@ -180,13 +198,14 @@ public class BooksControllerImpl implements BooksController {
         }
 
         booksMenu.showBooks(mainManager.getBooks());
-        ExportController.exportItemToFile(booksMenu, exportString, exportPath);
+        ExportController.exportItemToFile(exportString, CsvConstants.EXPORT_BOOK_PATH, CsvConstants.BOOK_HEADER);
         booksMenu.showSuccess("Экспорт выполнен успешно");
     }
 
     @Override
     public void importAll() {
-        List<Book> importedBooks = ImportController.importAllItemsFromFile(booksMenu, importPath, ImportController::bookParser);
+        List<Book> importedBooks = ImportController.importAllItemsFromFile(CsvConstants.IMPORT_BOOK_PATH,
+                ImportController::bookParser);
 
         if (!importedBooks.isEmpty()) {
             importedBooks.forEach(mainManager::importItem);
@@ -203,5 +222,18 @@ public class BooksControllerImpl implements BooksController {
             return book.get().toString();
         }
         throw new IllegalArgumentException();
+    }
+
+    private long getNumberFromConsole() {
+        long answer;
+        while (true) {
+            try {
+                answer = InputUtils.getNumberFromConsole();
+                break;
+            } catch (NumberFormatException e) {
+                booksMenu.showError("Неверный формат, попробуйте еще раз");
+            }
+        }
+        return answer;
     }
 }

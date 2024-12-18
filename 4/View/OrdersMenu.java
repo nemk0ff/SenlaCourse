@@ -1,6 +1,6 @@
 package View;
 
-import Model.Items.Impl.Order;
+import Model.Impl.Order;
 
 import java.util.List;
 

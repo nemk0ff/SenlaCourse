@@ -1,7 +1,7 @@
 package View.Impl;
 
-import Model.Items.Impl.Book;
-import Model.Items.Impl.Request;
+import Model.Impl.Book;
+import Model.Impl.Request;
 import View.RequestsMenu;
 
 import java.util.LinkedHashMap;
