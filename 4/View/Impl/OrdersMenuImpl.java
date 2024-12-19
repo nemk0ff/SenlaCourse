@@ -1,10 +1,10 @@
 package View.Impl;
 
-import Model.Book;
-import Model.Order;
+import Model.Impl.Order;
 import View.OrdersMenu;
 
 import java.util.List;
+import java.util.Map;
 
 public class OrdersMenuImpl implements OrdersMenu {
 
@@ -25,14 +25,18 @@ public class OrdersMenuImpl implements OrdersMenu {
         System.out.println("9. Вывести список выполненных заказов за период времени(сортировка по цене)");
         System.out.println("10. Вывести количество выполненных заказов за период времени");
         System.out.println("11. Вывести сумму заработанных средств за период времени");
-        System.out.println("12. Вернуться в главное меню");
-        System.out.println("13. Выйти из программы");
+        System.out.println("12. Импортировать заказ");
+        System.out.println("13. Экспортировать заказ");
+        System.out.println("14. Импортировать все заказы");
+        System.out.println("15. Экспортировать все заказы");
+        System.out.println("16. Вернуться в главное меню");
+        System.out.println("17. Выйти из программы");
     }
 
     @Override
     public void showOrders(List<Order> orders) {
-        if(orders.isEmpty()){
-            System.out.println("У магазина пока не было заказов");
+        if (orders.isEmpty()) {
+            System.out.println("У магазина не было заказов");
             return;
         }
 
@@ -44,8 +48,8 @@ public class OrdersMenuImpl implements OrdersMenu {
     @Override
     public void showOrder(Order order) {
         System.out.println(order.getInfoAbout());
-        for (Book book: order.getBooks()) {
-            System.out.println(book.getInfoAbout());
+        for (Map.Entry<Long, Integer> s : order.getBooks().entrySet()) {
+            System.out.println("Книга: " + s.getKey() + " количество: " + s.getValue());
         }
         System.out.println();
     }
@@ -77,12 +81,7 @@ public class OrdersMenuImpl implements OrdersMenu {
 
     @Override
     public void showGetClientName() {
-        System.out.print("Введите имя клиента: ");
-    }
-
-    @Override
-    public void showGetBook(int index){
-        System.out.println("Введите книгу №" + (index+1));
+        System.out.println("Введите имя клиента: ");
     }
 
     @Override
@@ -98,5 +97,15 @@ public class OrdersMenuImpl implements OrdersMenu {
     @Override
     public void showEarnedSum(Double sum) {
         System.out.println("Сумма заработанных средств : " + sum);
+    }
+
+    @Override
+    public void showImportDataMessage(){
+        System.out.println("Вот, какие заказы можно импортировать: ");
+    }
+
+    @Override
+    public void showGetImportId(){
+        System.out.print("Введите id заказа, который хотите импортировать: ");
     }
 }

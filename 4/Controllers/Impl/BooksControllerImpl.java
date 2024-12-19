@@ -2,16 +2,21 @@ package Controllers.Impl;
 
 import Controllers.Action;
 import Controllers.BooksController;
-import Model.Book;
-import Model.MainManager;
+import Controllers.Impl.FileControllers.CsvConstants;
+import Controllers.Impl.FileControllers.ExportController;
+import Controllers.Impl.FileControllers.ImportController;
+import Model.Impl.Book;
+import Managers.MainManager;
+import View.BooksMenu;
 import View.Impl.BooksMenuImpl;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public class BooksControllerImpl implements BooksController {
     private final MainManager mainManager;
-    private final BooksMenuImpl booksMenu;
+    private final BooksMenu booksMenu;
 
     public BooksControllerImpl(MainManager mainManager) {
         this.mainManager = mainManager;
@@ -33,16 +38,7 @@ public class BooksControllerImpl implements BooksController {
 
     @Override
     public Action checkInput() {
-        int answer;
-        while (true) {
-            String input = scanner.nextLine().trim();
-            try {
-                answer = Integer.parseInt(input);
-                break;
-            } catch (NumberFormatException e) {
-                booksMenu.showError("Неверный формат, попробуйте еще раз");
-            }
-        }
+        int answer = (int) getNumberFromConsole();
 
         return switch (answer) {
             case 1:
@@ -73,8 +69,21 @@ public class BooksControllerImpl implements BooksController {
                 getStaleBooksByPrice();
                 yield Action.CONTINUE;
             case 10:
-                yield Action.MAIN_MENU;
+                importBook();
+                yield Action.CONTINUE;
             case 11:
+                exportBook();
+                yield Action.CONTINUE;
+            case 12:
+                importAll();
+                yield Action.CONTINUE;
+            case 13:
+                ExportController.exportAll(mainManager.getBooks(),
+                        CsvConstants.EXPORT_BOOK_PATH, CsvConstants.BOOK_HEADER);
+                yield Action.CONTINUE;
+            case 14:
+                yield Action.MAIN_MENU;
+            case 15:
                 yield Action.EXIT;
             default:
                 booksMenu.showError("Неизвестная команда");
@@ -85,43 +94,23 @@ public class BooksControllerImpl implements BooksController {
     @Override
     public void addBook() {
         booksMenu.showBooks(mainManager.getBooks());
-        Book book = getBookFromConsole(booksMenu);
-        while(!mainManager.containsBook(book)){
-            booksMenu.showError("Такой книги нет в магазине");
-            book = getBookFromConsole(booksMenu);
-        }
 
-        int amount;
-        while (true) {
-            booksMenu.showGetAmountBooks();
-            String input = scanner.nextLine().trim();
-            try {
-                amount = Integer.parseInt(input);
-                break;
-            } catch (NumberFormatException e) {
-                booksMenu.showError("Неверный формат количества, попробуйте еще раз");
-            }
-        }
+        long bookId = getBookId();
 
-        mainManager.addBook(book, amount, LocalDate.now());
+        booksMenu.showGetAmountBooks("Сколько книг добавить? Введите число: ");
+        int amount = (int) getNumberFromConsole();
+
+        mainManager.addBook(bookId, amount, LocalDate.now());
     }
 
     @Override
     public void writeOff() {
         booksMenu.showBooks(mainManager.getBooks());
-        Optional<Book> maybeBook = mainManager.getBookDetails(getBookFromConsole(booksMenu));
 
-        if (maybeBook.isEmpty()) {
-            booksMenu.showError("Книга не найдена");
-            return;
-        } else if(maybeBook.get().getAmount() == 0){
-            booksMenu.showError("Книги нет на складе");
-            return;
-        }
+        long id = getBookId();
 
-        booksMenu.showGetAmountBooks();
-        Integer amount = scanner.nextInt();
-        scanner.nextLine();
+        booksMenu.showGetAmountBooks("Сколько книг списать? Введите число");
+        int amount = (int) getNumberFromConsole();
 
         while (amount < 0) {
             amount = scanner.nextInt();
@@ -129,24 +118,22 @@ public class BooksControllerImpl implements BooksController {
             booksMenu.showError("Количество книг должно быть положительным числом");
         }
 
-        if (maybeBook.get().getAmount() < amount) {
-            booksMenu.showError("Количество книг на складе меньше количества, которое вы хотите списать");
-            return;
-        }
-
-        mainManager.writeOff(maybeBook.get(), amount, LocalDate.now());
+        mainManager.writeOff(id, amount, LocalDate.now());
         booksMenu.showSuccess("Списание книг произведено успешно!");
     }
 
     @Override
     public void showBookDetails() {
-        booksMenu.showBooks(mainManager.getBooks());
-        Optional<Book> maybeBook = mainManager.getBookDetails(getBookFromConsole(booksMenu));
-        if (maybeBook.isEmpty()) {
-            booksMenu.showError("Книга не найдена");
-        } else {
-            booksMenu.showBook(maybeBook.get());
+        mainManager.getBook(getBookId()).ifPresent(booksMenu::showItem);
+    }
+
+    private long getBookId() {
+        long book = getNumberFromConsole();
+        while (!mainManager.containsBook(book)) {
+            booksMenu.showError("Такой книги нет в магазине");
+            book = getNumberFromConsole();
         }
+        return book;
     }
 
     @Override
@@ -177,5 +164,76 @@ public class BooksControllerImpl implements BooksController {
     @Override
     public void getStaleBooksByPrice() {
         booksMenu.showBooks(mainManager.getStaleBooksByPrice());
+    }
+
+    @Override
+    public void importBook() {
+        Optional<Book> findBook = ImportController.importItem(CsvConstants.IMPORT_BOOK_PATH,
+                ImportController::bookParser);
+        if (findBook.isPresent()) {
+            try {
+                mainManager.importItem(findBook.get());
+                booksMenu.showSuccessImport();
+                findBook.ifPresent(booksMenu::showItem);
+            } catch (IllegalArgumentException e) {
+                booksMenu.showError(e.getMessage());
+            }
+        } else {
+            booksMenu.showErrorImport();
+        }
+    }
+
+    @Override
+    public void exportBook() {
+        booksMenu.showBooks(mainManager.getBooks());
+        booksMenu.showGetId("Введите id книги, которую хотите экспортировать: ");
+        long exportId = getNumberFromConsole();
+
+        String exportString;
+        try {
+            exportString = getExportString(exportId);
+        } catch (IllegalArgumentException e) {
+            booksMenu.showError("Книга для экспорта не найдена");
+            return;
+        }
+
+        booksMenu.showBooks(mainManager.getBooks());
+        ExportController.exportItemToFile(exportString, CsvConstants.EXPORT_BOOK_PATH, CsvConstants.BOOK_HEADER);
+        booksMenu.showSuccess("Экспорт выполнен успешно");
+    }
+
+    @Override
+    public void importAll() {
+        List<Book> importedBooks = ImportController.importAllItemsFromFile(CsvConstants.IMPORT_BOOK_PATH,
+                ImportController::bookParser);
+
+        if (!importedBooks.isEmpty()) {
+            importedBooks.forEach(mainManager::importItem);
+            booksMenu.showMessage("Все книги успешно импортированы:");
+            importedBooks.forEach(booksMenu::showItem);
+        } else {
+            booksMenu.showError("Не удалось импортировать книги из файла.");
+        }
+    }
+
+    public String getExportString(long id) {
+        Optional<Book> book = mainManager.getBook(id);
+        if (book.isPresent()) {
+            return book.get().toString();
+        }
+        throw new IllegalArgumentException();
+    }
+
+    private long getNumberFromConsole() {
+        long answer;
+        while (true) {
+            try {
+                answer = InputUtils.getNumberFromConsole();
+                break;
+            } catch (NumberFormatException e) {
+                booksMenu.showError("Неверный формат, попробуйте еще раз");
+            }
+        }
+        return answer;
     }
 }

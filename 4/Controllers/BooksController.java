@@ -18,4 +18,10 @@ public interface BooksController extends Controller {
     void getStaleBooksByDate();
 
     void getStaleBooksByPrice();
+
+    void importAll();
+
+    void importBook();
+
+    void exportBook();
 }

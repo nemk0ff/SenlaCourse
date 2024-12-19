@@ -1,20 +1,20 @@
 package Controllers.Impl;
 
 import Controllers.Action;
+import Controllers.Impl.FileControllers.CsvConstants;
+import Controllers.Impl.FileControllers.ExportController;
+import Controllers.Impl.FileControllers.ImportController;
 import Controllers.OrdersController;
-import Model.Book;
-import Model.MainManager;
-import Model.Order;
+import Managers.MainManager;
+import Model.Impl.Book;
+import Model.Impl.Order;
 import Model.OrderStatus;
-import View.Impl.OrdersMenuImpl;
 import View.OrdersMenu;
+import View.Impl.OrdersMenuImpl;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class OrdersControllerImpl implements OrdersController {
     private final MainManager mainManager;
@@ -40,16 +40,7 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public Action checkInput() {
-        int answer;
-        while (true) {
-            String input = scanner.nextLine().trim();
-            try {
-                answer = Integer.parseInt(input);
-                break;
-            } catch (NumberFormatException e) {
-                ordersMenu.showError("Неверный формат, попробуйте еще раз");
-            }
-        }
+        int answer = (int) getNumberFromConsole();
 
         return switch (answer) {
             case 1:
@@ -86,8 +77,21 @@ public class OrdersControllerImpl implements OrdersController {
                 getEarnedSum();
                 yield Action.CONTINUE;
             case 12:
-                yield Action.MAIN_MENU;
+                importOrder();
+                yield Action.CONTINUE;
             case 13:
+                exportOrder();
+                yield Action.CONTINUE;
+            case 14:
+                importAll();
+                yield Action.CONTINUE;
+            case 15:
+                ExportController.exportAll(mainManager.getOrders(),
+                        CsvConstants.EXPORT_ORDER_PATH, CsvConstants.ORDER_HEADER);
+                yield Action.CONTINUE;
+            case 16:
+                yield Action.MAIN_MENU;
+            case 17:
                 yield Action.EXIT;
             default:
                 ordersMenu.showError("Неизвестная команда");
@@ -96,42 +100,47 @@ public class OrdersControllerImpl implements OrdersController {
     }
 
     @Override
-    public String getClientNameFromConsole(){
+    public String getClientNameFromConsole() {
         ordersMenu.showGetClientName();
         return scanner.nextLine().trim();
     }
 
     @Override
-    public List<Book> getBooksFromConsole(){
+    public Map<Long, Integer> getBooksFromConsole() {
         ordersMenu.showBooks(mainManager.getBooks());
-        ordersMenu.showGetAmountBooks();
-        int count;
-        while (true) {
-            String input = scanner.nextLine().trim();
-            try {
-                count = Integer.parseInt(input);
-                break;
-            } catch (NumberFormatException e) {
-                ordersMenu.showError("Неверный формат, попробуйте еще раз");
-            }
-        }
+        ordersMenu.showGetAmountBooks("Сколько уникальных книг вы хотите заказать? Введите число: ");
+        int count = (int) getNumberFromConsole();
 
-        Book tempBook;
-        List<Book> books = new ArrayList<>();
+        long tempId;
+        int tempAmount;
+        Map<Long, Integer> booksIds = new HashMap<>();
+
         for (int i = 0; i < count; i++) {
-            ordersMenu.showGetBook(i);
-            tempBook = getBookFromConsole(ordersMenu);
-            while(!mainManager.containsBook(tempBook)){
-                ordersMenu.showError("Такой книги нет в магазине");
-                tempBook = getBookFromConsole(ordersMenu);
-            }
-            for (Book book: mainManager.getBooks()) {
-                if(book.equals(tempBook)){
-                    books.add(book);
+            tempId = getBookFromConsole(i);
+            while (!mainManager.containsBook(tempId) || booksIds.containsKey(tempId)) {
+                if (!mainManager.containsBook(tempId)) {
+                    ordersMenu.showError("Такой книги нет в магазине");
+                    ordersMenu.showGetId("Выберите другую книгу и введите её id: ");
+                    tempId = getNumberFromConsole();
+                }
+                if (booksIds.containsKey(tempId)) {
+                    ordersMenu.showError("Вы уже выбрали эту книгу");
+                    ordersMenu.showGetId("Выберите другую книгу и введите её id: ");
+                    tempId = getNumberFromConsole();
                 }
             }
+
+            ordersMenu.showGetAmountBooks("Сколько книг [" + tempId + "] вам нужно? Введите число: ");
+            tempAmount = (int) getNumberFromConsole();
+            booksIds.put(tempId, tempAmount);
         }
-        return books;
+        return booksIds;
+    }
+
+    @Override
+    public long getBookFromConsole(int index) {
+        ordersMenu.showGetBookId(index);
+        return getNumberFromConsole();
     }
 
     @Override
@@ -141,12 +150,19 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public void cancelOrder() {
-        mainManager.cancelOrder(new Order(getBooksFromConsole(), getClientNameFromConsole()));
+        ordersMenu.showOrders(mainManager.getOrders());
+        ordersMenu.showGetId("Введите id заказа, который хотите отменить: ");
+        if (mainManager.cancelOrder(getNumberFromConsole())) {
+            ordersMenu.showSuccess("Заказ отменен");
+        } else {
+            ordersMenu.showError("С таким id нет заказа, который можно отменить");
+        }
     }
 
     @Override
     public void showOrderDetails() {
-        Optional<Order> maybeOrder = mainManager.getOrderDetails(getClientNameFromConsole(), getBooksFromConsole());
+        ordersMenu.showGetId("Введите Id заказа: ");
+        Optional<Order> maybeOrder = mainManager.getOrder(getNumberFromConsole());
         if (maybeOrder.isEmpty()) {
             ordersMenu.showError("Заказ не найден");
         } else {
@@ -156,9 +172,16 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public void setOrderStatus() {
+        ordersMenu.showGetId("Введите Id заказа: ");
+        long orderId = getNumberFromConsole();
+
         OrderStatus newStatus = getStatusFromConsole();
 
-        mainManager.setOrderStatus(new Order(getBooksFromConsole(), getClientNameFromConsole()), newStatus);
+        if (mainManager.setOrderStatus(orderId, newStatus)) {
+            ordersMenu.showSuccess("Статус заказа изменен");
+        } else {
+            ordersMenu.showError("Статус заказа не изменен. Статус можно менять только с NEW на не NEW");
+        }
     }
 
     @Override
@@ -166,15 +189,15 @@ public class OrdersControllerImpl implements OrdersController {
         ordersMenu.showGetNewStatus();
         String new_status = scanner.nextLine().trim();
 
-        while (!Objects.equals(new_status, OrderStatus.COMPLETED.toString())
-                && !Objects.equals(new_status, OrderStatus.CANCELED.toString())
-                && !Objects.equals(new_status, OrderStatus.NEW.toString())) {
+        while (!new_status.equalsIgnoreCase(OrderStatus.COMPLETED.toString())
+                && !new_status.equalsIgnoreCase(OrderStatus.NEW.toString())
+                && !new_status.equalsIgnoreCase(OrderStatus.CANCELED.toString())) {
             ordersMenu.showError("Вы ввели некорректный статус. Попробуйте ещё раз");
             ordersMenu.showGetNewStatus();
             new_status = scanner.nextLine().trim();
         }
 
-        return OrderStatus.valueOf(new_status);
+        return OrderStatus.valueOf(new_status.toUpperCase());
     }
 
     @Override
@@ -241,5 +264,82 @@ public class OrdersControllerImpl implements OrdersController {
             ordersMenu.showError("Некорректный формат даты. Попробуйте ещё раз");
             return getDateFromConsole();
         }
+    }
+
+    @Override
+    public void importOrder(){
+        Optional<Order> findOrder = ImportController.importItem(CsvConstants.IMPORT_ORDER_PATH,
+                ImportController::orderParser);
+        if (findOrder.isPresent()) {
+            try {
+                mainManager.importItem(findOrder.get());
+                ordersMenu.showSuccessImport();
+                findOrder.ifPresent(ordersMenu::showItem);
+            } catch (IllegalArgumentException e){
+                ordersMenu.showError(e.getMessage());
+            }
+        } else {
+            ordersMenu.showErrorImport();
+        }
+    }
+
+    @Override
+    public void exportOrder() {
+        ordersMenu.showOrders(mainManager.getOrders());
+        ordersMenu.showGetId("Введите id заказа, который хотите экспортировать: ");
+        long exportId = getNumberFromConsole();
+
+        String exportString;
+        try {
+            exportString = getExportString(exportId);
+        } catch (IllegalArgumentException e) {
+            ordersMenu.showError("Заказ для экспорта не найден");
+            return;
+        }
+
+        ordersMenu.showOrders(mainManager.getOrders());
+        ExportController.exportItemToFile(exportString, CsvConstants.EXPORT_ORDER_PATH, CsvConstants.ORDER_HEADER);
+        ordersMenu.showSuccess("Экспорт выполнен успешно");
+    }
+
+    @Override
+    public void importAll() {
+        List<Order> importedOrders = ImportController.importAllItemsFromFile(CsvConstants.IMPORT_ORDER_PATH,
+                ImportController::orderParser);
+
+        if (!importedOrders.isEmpty()) {
+            ordersMenu.showMessage("Результат импортирования: ");
+            for (Order importedOrder : importedOrders) {
+                try {
+                    mainManager.importItem(importedOrder);
+                    ordersMenu.showMessage("Импортирован: " + importedOrder.getInfoAbout());
+                } catch (IllegalArgumentException e) {
+                    ordersMenu.showError("Заказ не импортирован. " + e.getMessage());
+                }
+            }
+        } else {
+            ordersMenu.showError("Не удалось импортировать заказы из файла.");
+        }
+    }
+
+    public String getExportString(long id) {
+        Optional<Order> order = mainManager.getOrder(id);
+        if (order.isPresent()) {
+            return order.get().toString();
+        }
+        throw new IllegalArgumentException();
+    }
+
+    private long getNumberFromConsole(){
+        long answer;
+        while (true) {
+            try {
+                answer = InputUtils.getNumberFromConsole();
+                break;
+            } catch (NumberFormatException e) {
+                ordersMenu.showError("Неверный формат, попробуйте еще раз");
+            }
+        }
+        return answer;
     }
 }

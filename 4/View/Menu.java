@@ -1,11 +1,12 @@
 package View;
 
-import Model.Book;
+import Model.Impl.Book;
+import Model.Item;
 
 import java.util.List;
 
 public interface Menu {
-    void showMenu();
+    default void showMenu() {}
 
     default void showError(String error) {
         System.out.println("Ошибка: " + error);
@@ -15,25 +16,46 @@ public interface Menu {
         System.out.println("Выполнено: " + success);
     }
 
-    default void showGetName() {
-        System.out.print("Введите название книги: ");
+    default void showGetId(String message) {
+        System.out.print(message);
     }
 
-    default void showGetAuthor() {
-        System.out.print("Введите автора книги: ");
+    default void showGetBookId(int index) {
+        System.out.print("Введите id книги №" + (index + 1) + ": ");
     }
 
-    default void showGetAmountBooks() {
-        System.out.print("Введите количество книг: ");
+    default void showGetAmountBooks(String message) {
+        System.out.print(message);
     }
 
     default void showBooks(List<Book> books) {
         System.out.println("========== КНИГИ МАГАЗИНА ==========");
-        books.forEach(this::showBook);
+        books.forEach(this::showItem);
         System.out.println("====================================");
     }
 
-    default void showBook(Book book) {
-        System.out.println(book.getInfoAbout());
+    default <T extends Item> void showItem(T item){
+        System.out.println(item.getInfoAbout());
+    }
+
+    default void showMessage(String message) {
+        System.out.println(message);
+    }
+
+    default void showSuccessImport(){
+        System.out.println("Импорт выполнен успешно");
+    }
+
+    default void showErrorImport(){
+        System.out.println("Не удалось выполнить импорт");
+    }
+
+    default void showImportDataMessage(){
+        System.out.println("Вот, какие объекты можно импортировать: ");
+    }
+
+
+    default void showGetImportId(){
+        System.out.print("Введите id объекта, который хотите импортировать: ");
     }
 }

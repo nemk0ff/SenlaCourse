@@ -1,6 +1,6 @@
 package View;
 
-import Model.Order;
+import Model.Impl.Order;
 
 import java.util.List;
 
@@ -20,8 +20,6 @@ public interface OrdersMenu extends Menu {
     void showGetDay();
 
     void showGetClientName();
-
-    void showGetBook(int index);
 
     void showGetNewStatus();
 
