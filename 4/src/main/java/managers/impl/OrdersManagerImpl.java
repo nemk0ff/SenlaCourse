@@ -16,19 +16,15 @@ public class OrdersManagerImpl implements OrdersManager {
 
     public OrdersManagerImpl(OrdersManagerDTO dto) {
         orders = new HashMap<>();
-        for (Map.Entry<Long, OrderDTO> entry : dto.orders().entrySet()) {
-            Long orderId = entry.getKey();
-            OrderDTO orderDTO = entry.getValue();
+        for (OrderDTO orderDTO : dto.orders()) {
             Order order = new Order(orderDTO);
-            orders.put(orderId, order);
+            orders.put(orderDTO.id(), order);
         }
 
         requests = new HashMap<>();
-        for (Map.Entry<Long, RequestDTO> entry : dto.requests().entrySet()) {
-            Long requestId = entry.getKey();
-            RequestDTO requestDTO = entry.getValue();
+        for (RequestDTO requestDTO : dto.requests()) {
             Request request = new Request(requestDTO);
-            requests.put(requestId, request);
+            requests.put(requestDTO.bookId(), request);
         }
     }
 

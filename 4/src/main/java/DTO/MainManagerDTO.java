@@ -7,8 +7,8 @@ public record MainManagerDTO(
         OrdersManagerDTO ordersManagerDTO) {
     public MainManagerDTO(MainManager mainManager) {
         this(
-            new LibraryManagerDTO(mainManager.getLibraryManager()),
-            new OrdersManagerDTO(mainManager.getOrdersManager())
+                new LibraryManagerDTO(mainManager.getLibraryManager()),
+                new OrdersManagerDTO(mainManager.getOrdersManager())
         );
     }
 }

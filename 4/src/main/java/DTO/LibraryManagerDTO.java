@@ -2,12 +2,22 @@ package DTO;
 
 import managers.LibraryManager;
 
-import java.util.Map;
+import java.util.List;
 import java.util.stream.Collectors;
 
-public record LibraryManagerDTO(Map<Long, BookDTO> books) {
+public record LibraryManagerDTO(List<BookDTO> books) {
     public LibraryManagerDTO(LibraryManager libraryManager) {
-        this(libraryManager.getBooks().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> new BookDTO(entry.getValue()))));
+        this(libraryManager.getBooks().values().stream()
+                .map(book -> new BookDTO(book.getId(),
+                        book.getName(),
+                        book.getAuthor(),
+                        book.getPrice(),
+                        book.getPublicationDate(),
+                        book.getAmount(),
+                        book.getLastDeliveredDate(),
+                        book.getLastSaleDate(),
+                        book.getStatus()))
+                .collect(Collectors.toList()));
     }
 }
+

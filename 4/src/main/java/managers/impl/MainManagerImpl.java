@@ -25,7 +25,7 @@ public class MainManagerImpl implements MainManager {
     private final LibraryManager libraryManager;
     private final OrdersManager ordersManager;
 
-    public MainManagerImpl(MainManagerDTO dto){
+    public MainManagerImpl(MainManagerDTO dto) {
         config = new ConfigManager();
 
         libraryManager = new LibraryManagerImpl(dto.libraryManagerDTO());

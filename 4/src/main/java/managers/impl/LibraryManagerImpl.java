@@ -13,11 +13,9 @@ public class LibraryManagerImpl implements LibraryManager {
 
     LibraryManagerImpl(LibraryManagerDTO dto) {
         books = new HashMap<>();
-        for (Map.Entry<Long, BookDTO> entry : dto.books().entrySet()) {
-            Long bookId = entry.getKey();
-            BookDTO bookDTO = entry.getValue();
+        for (BookDTO bookDTO : dto.books()) {
             Book book = new Book(bookDTO);
-            books.put(bookId, book);
+            books.put(bookDTO.id(), book);
         }
     }
 
