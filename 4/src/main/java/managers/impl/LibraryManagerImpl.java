@@ -11,11 +11,10 @@ import java.util.*;
 public class LibraryManagerImpl implements LibraryManager {
     private final Map<Long, Book> books;
 
-    LibraryManagerImpl(LibraryManagerDTO dto) {
-        books = new HashMap<>();
-        for (BookDTO bookDTO : dto.books()) {
-            Book book = new Book(bookDTO);
-            books.put(bookDTO.id(), book);
+    LibraryManagerImpl(LibraryManagerDTO libraryManagerDTO) {
+        this.books = new HashMap<>();
+        for (BookDTO bookDTO: libraryManagerDTO.books()) {
+            this.books.put(bookDTO.id(), new Book(bookDTO));
         }
     }
 

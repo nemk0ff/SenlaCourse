@@ -1,10 +1,10 @@
 package controllers.impl;
 
+import DTO.*;
 import constants.IOConstants;
 import controllers.Action;
 import controllers.Controller;
 import controllers.RequestsController;
-import DTO.MainManagerDTO;
 import managers.MainManager;
 import managers.impl.MainManagerImpl;
 import view.impl.MainMenu;
@@ -14,6 +14,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainController implements Controller {
     private final MainMenu mainMenu;
@@ -25,6 +27,7 @@ public class MainController implements Controller {
 
     public MainController() {
         this.mainManager = deserialization();
+        //this.mainManager = new MainManagerImpl();
         this.mainMenu = new MainMenu();
         this.booksController = new BooksControllerImpl(mainManager);
         this.ordersController = new OrdersControllerImpl(mainManager);
@@ -82,14 +85,20 @@ public class MainController implements Controller {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         File file = new File(IOConstants.SERIALIZATION_PATH);
-        MainManagerDTO deserializedLibrary = null;
+        LibraryManagerDTO deserializedLibrary = null;
+        OrdersManagerDTO deserializedOrders = null;
+
         try {
-            deserializedLibrary = mapper.readValue(file, MainManagerDTO.class);
+            Map<String, Object> ourDTO =
+                    mapper.readValue(file, new com.fasterxml.jackson.core.type.TypeReference<>() {
+                    });
+
+            deserializedLibrary = mapper.convertValue(ourDTO.get("libraryManagerDTO"), LibraryManagerDTO.class);
+            deserializedOrders = mapper.convertValue(ourDTO.get("ordersManagerDTO"), OrdersManagerDTO.class);
         } catch (IOException e) {
             System.out.printf(e.getMessage());
         }
-
-        return new MainManagerImpl(deserializedLibrary);
+        return new MainManagerImpl(deserializedLibrary, deserializedOrders);
     }
 
     private void serialization() {
@@ -97,10 +106,19 @@ public class MainController implements Controller {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        MainManagerDTO dto = new MainManagerDTO(mainManager);
+
+        LibraryManagerDTO libraryManagerDTO =
+                new LibraryManagerDTO(mainManager.getBooks().stream().map(BookDTO::new).toList());
+        OrdersManagerDTO ordersManagerDTO =
+                new OrdersManagerDTO(mainManager.getOrders().stream().map(OrderDTO::new).toList(),
+                        mainManager.getRequests().stream().map(RequestDTO::new).toList());
         File file = new File(IOConstants.SERIALIZATION_PATH);
+
         try {
-            mapper.writeValue(file, dto);
+            Map<String, Object> combinedDTO = new HashMap<>();
+            combinedDTO.put("libraryManagerDTO", libraryManagerDTO);
+            combinedDTO.put("ordersManagerDTO", ordersManagerDTO);
+            mapper.writeValue(file, combinedDTO);
         } catch (IOException e) {
             System.out.printf(e.getMessage());
         }

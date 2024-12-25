@@ -14,17 +14,15 @@ public class OrdersManagerImpl implements OrdersManager {
     private final Map<Long, Order> orders;
     private final Map<Long, Request> requests;
 
-    public OrdersManagerImpl(OrdersManagerDTO dto) {
-        orders = new HashMap<>();
-        for (OrderDTO orderDTO : dto.orders()) {
-            Order order = new Order(orderDTO);
-            orders.put(orderDTO.id(), order);
+    public OrdersManagerImpl(OrdersManagerDTO ordersManagerDTO) {
+        this.orders = new HashMap<>();
+        for (OrderDTO orderDTO: ordersManagerDTO.orders()) {
+            this.orders.put(orderDTO.id(), new Order(orderDTO));
         }
 
-        requests = new HashMap<>();
-        for (RequestDTO requestDTO : dto.requests()) {
-            Request request = new Request(requestDTO);
-            requests.put(requestDTO.bookId(), request);
+        this.requests = new HashMap<>();
+        for (RequestDTO requestDTO: ordersManagerDTO.requests()) {
+            this.requests.put(requestDTO.id(), new Request(requestDTO));
         }
     }
 

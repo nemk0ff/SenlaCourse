@@ -1,6 +1,7 @@
 package managers.impl;
 
-import DTO.MainManagerDTO;
+import DTO.LibraryManagerDTO;
+import DTO.OrdersManagerDTO;
 import config.ConfigManager;
 import lombok.Data;
 import managers.LibraryManager;
@@ -25,11 +26,11 @@ public class MainManagerImpl implements MainManager {
     private final LibraryManager libraryManager;
     private final OrdersManager ordersManager;
 
-    public MainManagerImpl(MainManagerDTO dto) {
+    public MainManagerImpl(LibraryManagerDTO libraryDTO, OrdersManagerDTO ordersDTO) {
         config = new ConfigManager();
 
-        libraryManager = new LibraryManagerImpl(dto.libraryManagerDTO());
-        ordersManager = new OrdersManagerImpl(dto.ordersManagerDTO());
+        libraryManager = new LibraryManagerImpl(libraryDTO);
+        ordersManager = new OrdersManagerImpl(ordersDTO);
     }
 
     @Override
