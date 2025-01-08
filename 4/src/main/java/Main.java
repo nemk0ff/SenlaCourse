@@ -64,6 +64,4 @@ public class Main {
         MainController mainController = di.getBean(MainController.class);
         mainController.run();
     }
-    // При десериализации устанавливать счётчик заказов и запросов на (макс. id + 1)
-    // При изменении статуса с NEW на COMPLETED нужно устанавливать дату завершения
 }

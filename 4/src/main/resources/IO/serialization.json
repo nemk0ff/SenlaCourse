@@ -35,7 +35,7 @@
     }, {
       "id" : 4,
       "clientName" : "Иван Кузнецов",
-      "status" : "NEW",
+      "status" : "COMPLETED",
       "books" : {
         "1" : 1,
         "2" : 1,
@@ -44,7 +44,7 @@
       },
       "price" : 3375.0,
       "orderDate" : "2024-05-07",
-      "completeDate" : null
+      "completeDate" : "2025-01-08"
     }, {
       "id" : 5,
       "clientName" : "Ольга Смирнова",
@@ -173,7 +173,7 @@
       "id" : 4,
       "bookId" : 4,
       "amount" : 3,
-      "status" : "OPEN"
+      "status" : "CLOSED"
     }, {
       "id" : 5,
       "bookId" : 8,

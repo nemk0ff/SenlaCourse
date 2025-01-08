@@ -7,6 +7,7 @@ import model.OrderStatus;
 import model.impl.Request;
 import model.RequestStatus;
 
+import java.time.LocalDate;
 import java.util.*;
 
 public class OrdersManagerImpl implements OrdersManager {
@@ -84,6 +85,7 @@ public class OrdersManagerImpl implements OrdersManager {
                 if (orderIt.getStatus() == OrderStatus.NEW && status != OrderStatus.NEW) {
                     closeRequests(orderIt.getBooks());
                     orderIt.setStatus(status);
+                    orderIt.setCompleteDate(LocalDate.now());
                     return true;
                 }
                 return false;
