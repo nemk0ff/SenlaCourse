@@ -1,7 +1,6 @@
 package controllers.impl;
 
 import DI.DI;
-import annotations.DIComponent;
 import annotations.DIComponentDependency;
 import controllers.Action;
 import controllers.BooksController;
@@ -10,18 +9,17 @@ import controllers.impl.IOControllers.ExportController;
 import controllers.impl.IOControllers.ImportController;
 import model.impl.Book;
 import managers.MainManager;
-import view.BooksMenu;
+import view.impl.BooksMenuImpl;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@DIComponent
 public class BooksControllerImpl implements BooksController {
     @DIComponentDependency
     DI di;
     @DIComponentDependency
-    BooksMenu booksMenu;
+    BooksMenuImpl booksMenu;
 
     public BooksControllerImpl() {
     }

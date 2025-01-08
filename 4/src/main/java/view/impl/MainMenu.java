@@ -1,9 +1,7 @@
 package view.impl;
 
-import annotations.DIComponent;
 import view.Menu;
 
-@DIComponent
 public class MainMenu implements Menu {
     @Override
     public void showMenu() {

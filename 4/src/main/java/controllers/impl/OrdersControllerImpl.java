@@ -1,7 +1,6 @@
 package controllers.impl;
 
 import DI.DI;
-import annotations.DIComponent;
 import annotations.DIComponentDependency;
 import controllers.Action;
 import constants.IOConstants;
@@ -11,18 +10,17 @@ import controllers.OrdersController;
 import managers.MainManager;
 import model.impl.Order;
 import model.OrderStatus;
-import view.OrdersMenu;
+import view.impl.OrdersMenuImpl;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.*;
 
-@DIComponent
 public class OrdersControllerImpl implements OrdersController {
     @DIComponentDependency
     DI di;
     @DIComponentDependency
-    OrdersMenu ordersMenu;
+    OrdersMenuImpl ordersMenu;
 
     public OrdersControllerImpl() {
     }

@@ -1,7 +1,6 @@
 package controllers.impl;
 
 import DI.DI;
-import annotations.DIComponent;
 import annotations.DIComponentDependency;
 import controllers.Action;
 import constants.IOConstants;
@@ -10,16 +9,15 @@ import controllers.impl.IOControllers.ImportController;
 import controllers.RequestsController;
 import managers.MainManager;
 import model.impl.Request;
-import view.RequestsMenu;
+import view.impl.RequestsMenuImpl;
 
 import java.util.*;
 
-@DIComponent
 public class RequestsControllerImpl implements RequestsController {
     @DIComponentDependency
     DI di;
     @DIComponentDependency
-    RequestsMenu requestsMenu;
+    RequestsMenuImpl requestsMenu;
 
     public RequestsControllerImpl() {
     }

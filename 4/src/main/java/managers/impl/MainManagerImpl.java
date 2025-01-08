@@ -1,13 +1,10 @@
 package managers.impl;
 
 import DTO.*;
-import annotations.DIComponent;
 import annotations.ConfigProperty;
 import config.ConfigurationManager;
 import lombok.Data;
-import managers.LibraryManager;
 import managers.MainManager;
-import managers.OrdersManager;
 import model.impl.*;
 import model.Item;
 import model.OrderStatus;
@@ -18,7 +15,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@DIComponent
 @Data
 public class MainManagerImpl implements MainManager {
     @ConfigProperty(propertyName = "book.stale.months", type = int.class)
@@ -27,8 +23,8 @@ public class MainManagerImpl implements MainManager {
     @ConfigProperty(propertyName = "mark.orders.completed", type = boolean.class)
     private boolean markOrdersCompleted;
 
-    private final LibraryManager libraryManager;
-    private final OrdersManager ordersManager;
+    LibraryManagerImpl libraryManager;
+    OrdersManagerImpl ordersManager;
 
     public MainManagerImpl(LibraryManagerDTO libraryDTO, OrdersManagerDTO ordersDTO) {
         ConfigurationManager.configure(this);

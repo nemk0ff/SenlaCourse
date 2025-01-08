@@ -1,19 +1,18 @@
 package config;
 
 import DTO.*;
-import annotations.DIComponent;
 import annotations.DIComponentDependency;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import constants.IOConstants;
 import managers.MainManager;
-import DI.DI;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@DIComponent
 public class SerializationManager {
     @DIComponentDependency
     ObjectMapper mapper;
@@ -21,9 +20,10 @@ public class SerializationManager {
     public SerializationManager() {
     }
 
-    public void serialize() {
-        DI di = DI.getInstance();
-        MainManager mainManager = di.getBean(MainManager.class);
+    public void serialize(MainManager mainManager) {
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         LibraryManagerDTO libraryManagerDTO =
                 new LibraryManagerDTO(mainManager.getBooks().stream().map(BookDTO::new).toList());

@@ -1,15 +1,18 @@
 package controllers.impl;
 
-import annotations.DIComponent;
+import DI.DI;
 import annotations.DIComponentDependency;
+import config.DeserializationManager;
 import config.SerializationManager;
 import controllers.Action;
 import controllers.Controller;
+import managers.MainManager;
 import view.impl.MainMenu;
 
 
-@DIComponent
 public class MainController implements Controller {
+    @DIComponentDependency
+    DI di;
     @DIComponentDependency
     MainMenu mainMenu;
     @DIComponentDependency
@@ -19,6 +22,8 @@ public class MainController implements Controller {
     @DIComponentDependency
     RequestsControllerImpl requestsController;
     @DIComponentDependency
+    DeserializationManager deserializationManager;
+    @DIComponentDependency
     SerializationManager serializationManager;
 
     public MainController() {
@@ -26,6 +31,9 @@ public class MainController implements Controller {
 
     @Override
     public Action run() {
+        MainManager deserializeObj = deserializationManager.deserialize();
+        saveMainManager(deserializeObj);
+
         mainMenu.showMenu();
         Action action = checkInput();
 
@@ -34,8 +42,16 @@ public class MainController implements Controller {
             action = checkInput();
         }
 
-        serializationManager.serialize();
+        serializationManager.serialize(mainManager());
         return Action.EXIT;
+    }
+
+    private MainManager mainManager() {
+        return di.getBean(MainManager.class);
+    }
+
+    private void saveMainManager(MainManager mainManager) {
+        di.registerBean(MainManager.class, () -> mainManager);
     }
 
     @Override

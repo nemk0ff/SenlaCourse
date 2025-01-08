@@ -35,7 +35,7 @@
     }, {
       "id" : 4,
       "clientName" : "Иван Кузнецов",
-      "status" : "COMPLETED",
+      "status" : "NEW",
       "books" : {
         "1" : 1,
         "2" : 1,
@@ -44,7 +44,7 @@
       },
       "price" : 3375.0,
       "orderDate" : "2024-05-07",
-      "completeDate" : "2025-01-08"
+      "completeDate" : null
     }, {
       "id" : 5,
       "clientName" : "Ольга Смирнова",
@@ -153,6 +153,16 @@
       "price" : 3025.0,
       "orderDate" : "2024-05-25",
       "completeDate" : "2024-05-29"
+    }, {
+      "id" : 14,
+      "clientName" : "Александр Смирнов",
+      "status" : "NEW",
+      "books" : {
+        "17" : 10
+      },
+      "price" : 25.5,
+      "orderDate" : "2025-01-08",
+      "completeDate" : null
     } ],
     "requests" : [ {
       "id" : 1,
@@ -173,7 +183,7 @@
       "id" : 4,
       "bookId" : 4,
       "amount" : 3,
-      "status" : "CLOSED"
+      "status" : "OPEN"
     }, {
       "id" : 5,
       "bookId" : 8,
@@ -244,6 +254,11 @@
       "bookId" : 5,
       "amount" : 6,
       "status" : "OPEN"
+    }, {
+      "id" : 26,
+      "bookId" : 17,
+      "amount" : 10,
+      "status" : "OPEN"
     } ]
   },
   "libraryManagerDTO" : {
@@ -293,8 +308,8 @@
       "author" : "Иван Гончаров",
       "price" : 12.0,
       "publicationDate" : 1859,
-      "amount" : 1,
-      "lastDeliveredDate" : "2024-01-15",
+      "amount" : 3,
+      "lastDeliveredDate" : "2025-01-08",
       "lastSaleDate" : "2023-12-10",
       "status" : "AVAILABLE"
     }, {
@@ -373,8 +388,8 @@
       "author" : "Уолтер Айзексон",
       "price" : 25.5,
       "publicationDate" : 2007,
-      "amount" : 1,
-      "lastDeliveredDate" : "2023-10-15",
+      "amount" : 4,
+      "lastDeliveredDate" : "2025-01-08",
       "lastSaleDate" : "2024-02-28",
       "status" : "AVAILABLE"
     }, {
@@ -443,8 +458,8 @@
       "author" : "Томас Кун",
       "price" : 18.75,
       "publicationDate" : 1962,
-      "amount" : 1,
-      "lastDeliveredDate" : "2023-11-10",
+      "amount" : 6,
+      "lastDeliveredDate" : "2025-01-08",
       "lastSaleDate" : "2025-01-08",
       "status" : "AVAILABLE"
     } ]

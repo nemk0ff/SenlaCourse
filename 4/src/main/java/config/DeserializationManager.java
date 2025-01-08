@@ -1,11 +1,11 @@
 package config;
 
-
 import DTO.LibraryManagerDTO;
 import DTO.OrdersManagerDTO;
-import annotations.DIComponent;
 import annotations.DIComponentDependency;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import constants.IOConstants;
 import managers.impl.MainManagerImpl;
 
@@ -13,12 +13,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-@DIComponent
 public class DeserializationManager {
     @DIComponentDependency
     ObjectMapper mapper;
 
-    public MainManagerImpl deserialization() {
+    public MainManagerImpl deserialize() {
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
         File file = new File(IOConstants.SERIALIZATION_PATH);
         LibraryManagerDTO deserializedLibrary = null;
         OrdersManagerDTO deserializedOrders = null;
