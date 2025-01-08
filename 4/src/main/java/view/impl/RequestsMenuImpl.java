@@ -1,5 +1,6 @@
 package view.impl;
 
+import annotations.DIComponent;
 import model.impl.Book;
 import model.impl.Request;
 import view.RequestsMenu;
@@ -7,6 +8,7 @@ import view.RequestsMenu;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+@DIComponent
 public class RequestsMenuImpl implements RequestsMenu {
 
     @Override

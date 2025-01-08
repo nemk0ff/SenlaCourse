@@ -1,11 +1,13 @@
 package view.impl;
 
+import annotations.DIComponent;
 import model.impl.Order;
 import view.OrdersMenu;
 
 import java.util.List;
 import java.util.Map;
 
+@DIComponent
 public class OrdersMenuImpl implements OrdersMenu {
 
     @Override

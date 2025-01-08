@@ -1,5 +1,8 @@
 package controllers.impl;
 
+import DI.DI;
+import annotations.DIComponent;
+import annotations.DIComponentDependency;
 import controllers.Action;
 import constants.IOConstants;
 import controllers.impl.IOControllers.ExportController;
@@ -9,19 +12,19 @@ import managers.MainManager;
 import model.impl.Order;
 import model.OrderStatus;
 import view.OrdersMenu;
-import view.impl.OrdersMenuImpl;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.*;
 
+@DIComponent
 public class OrdersControllerImpl implements OrdersController {
-    private final MainManager mainManager;
-    private final OrdersMenu ordersMenu;
+    @DIComponentDependency
+    DI di;
+    @DIComponentDependency
+    OrdersMenu ordersMenu;
 
-    public OrdersControllerImpl(MainManager mainManager) {
-        this.mainManager = mainManager;
-        this.ordersMenu = new OrdersMenuImpl();
+    public OrdersControllerImpl() {
     }
 
     @Override
@@ -35,6 +38,14 @@ public class OrdersControllerImpl implements OrdersController {
         }
 
         return action;
+    }
+
+    private MainManager mainManager() {
+        return di.getBean(MainManager.class);
+    }
+
+    private void saveMainManager(MainManager mainManager) {
+        di.registerBean(MainManager.class, () -> mainManager);
     }
 
     @Override
@@ -85,7 +96,7 @@ public class OrdersControllerImpl implements OrdersController {
                 importAll();
                 yield Action.CONTINUE;
             case 15:
-                ExportController.exportAll(mainManager.getOrders(),
+                ExportController.exportAll(mainManager().getOrders(),
                         IOConstants.EXPORT_ORDER_PATH, IOConstants.ORDER_HEADER);
                 yield Action.CONTINUE;
             case 16:
@@ -106,7 +117,7 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public Map<Long, Integer> getBooksFromConsole() {
-        ordersMenu.showBooks(mainManager.getBooks());
+        ordersMenu.showBooks(mainManager().getBooks());
         ordersMenu.showGetAmountBooks("Сколько уникальных книг вы хотите заказать? Введите число: ");
         int count = (int) getNumberFromConsole();
 
@@ -116,8 +127,8 @@ public class OrdersControllerImpl implements OrdersController {
 
         for (int i = 0; i < count; i++) {
             tempId = getBookFromConsole(i);
-            while (!mainManager.containsBook(tempId) || booksIds.containsKey(tempId)) {
-                if (!mainManager.containsBook(tempId)) {
+            while (!mainManager().containsBook(tempId) || booksIds.containsKey(tempId)) {
+                if (!mainManager().containsBook(tempId)) {
                     ordersMenu.showError("Такой книги нет в магазине");
                     ordersMenu.showGetId("Выберите другую книгу и введите её id: ");
                     tempId = getNumberFromConsole();
@@ -144,11 +155,17 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public void createOrder() {
+        MainManager mainManager = mainManager();
+
         mainManager.createOrder(getBooksFromConsole(), getClientNameFromConsole(), LocalDate.now());
+
+        saveMainManager(mainManager);
     }
 
     @Override
     public void cancelOrder() {
+        MainManager mainManager = mainManager();
+
         ordersMenu.showOrders(mainManager.getOrders());
         ordersMenu.showGetId("Введите id заказа, который хотите отменить: ");
         if (mainManager.cancelOrder(getNumberFromConsole())) {
@@ -156,12 +173,14 @@ public class OrdersControllerImpl implements OrdersController {
         } else {
             ordersMenu.showError("С таким id нет заказа, который можно отменить");
         }
+
+        saveMainManager(mainManager);
     }
 
     @Override
     public void showOrderDetails() {
         ordersMenu.showGetId("Введите Id заказа: ");
-        Optional<Order> maybeOrder = mainManager.getOrder(getNumberFromConsole());
+        Optional<Order> maybeOrder = mainManager().getOrder(getNumberFromConsole());
         if (maybeOrder.isEmpty()) {
             ordersMenu.showError("Заказ не найден");
         } else {
@@ -171,6 +190,8 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public void setOrderStatus() {
+        MainManager mainManager = mainManager();
+
         ordersMenu.showGetId("Введите Id заказа: ");
         long orderId = getNumberFromConsole();
 
@@ -181,6 +202,8 @@ public class OrdersControllerImpl implements OrdersController {
         } else {
             ordersMenu.showError("Статус заказа не изменен. Статус можно менять только с NEW на не NEW");
         }
+
+        saveMainManager(mainManager);
     }
 
     @Override
@@ -201,37 +224,37 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public void getOrdersByDate() {
-        ordersMenu.showOrders(mainManager.getOrdersByDate());
+        ordersMenu.showOrders(mainManager().getOrdersByDate());
     }
 
     @Override
     public void getOrdersByPrice() {
-        ordersMenu.showOrders(mainManager.getOrdersByPrice());
+        ordersMenu.showOrders(mainManager().getOrdersByPrice());
     }
 
     @Override
     public void getOrdersByStatus() {
-        ordersMenu.showOrders(mainManager.getOrdersByStatus());
+        ordersMenu.showOrders(mainManager().getOrdersByStatus());
     }
 
     @Override
     public void getCountCompletedOrders() {
-        ordersMenu.showCountCompletedOrders(mainManager.getCountCompletedOrders(getBeginDate(), getEndDate()));
+        ordersMenu.showCountCompletedOrders(mainManager().getCountCompletedOrders(getBeginDate(), getEndDate()));
     }
 
     @Override
     public void getEarnedSum() {
-        ordersMenu.showEarnedSum(mainManager.getEarnedSum(getBeginDate(), getEndDate()));
+        ordersMenu.showEarnedSum(mainManager().getEarnedSum(getBeginDate(), getEndDate()));
     }
 
     @Override
     public void getCompletedOrdersByDate() {
-        ordersMenu.showOrders(mainManager.getCompletedOrdersByDate(getBeginDate(), getEndDate()));
+        ordersMenu.showOrders(mainManager().getCompletedOrdersByDate(getBeginDate(), getEndDate()));
     }
 
     @Override
     public void getCompletedOrdersByPrice() {
-        ordersMenu.showOrders(mainManager.getCompletedOrdersByPrice(getBeginDate(), getEndDate()));
+        ordersMenu.showOrders(mainManager().getCompletedOrdersByPrice(getBeginDate(), getEndDate()));
     }
 
     @Override
@@ -267,6 +290,8 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public void importOrder() {
+        MainManager mainManager = mainManager();
+
         Optional<Order> findOrder = ImportController.importItem(IOConstants.IMPORT_ORDER_PATH,
                 ImportController::orderParser);
         if (findOrder.isPresent()) {
@@ -280,11 +305,13 @@ public class OrdersControllerImpl implements OrdersController {
         } else {
             ordersMenu.showErrorImport();
         }
+
+        saveMainManager(mainManager);
     }
 
     @Override
     public void exportOrder() {
-        ordersMenu.showOrders(mainManager.getOrders());
+        ordersMenu.showOrders(mainManager().getOrders());
         ordersMenu.showGetId("Введите id заказа, который хотите экспортировать: ");
         long exportId = getNumberFromConsole();
 
@@ -296,13 +323,15 @@ public class OrdersControllerImpl implements OrdersController {
             return;
         }
 
-        ordersMenu.showOrders(mainManager.getOrders());
+        ordersMenu.showOrders(mainManager().getOrders());
         ExportController.exportItemToFile(exportString, IOConstants.EXPORT_ORDER_PATH, IOConstants.ORDER_HEADER);
         ordersMenu.showSuccess("Экспорт выполнен успешно");
     }
 
     @Override
     public void importAll() {
+        MainManager mainManager = mainManager();
+
         List<Order> importedOrders = ImportController.importAllItemsFromFile(IOConstants.IMPORT_ORDER_PATH,
                 ImportController::orderParser);
 
@@ -319,10 +348,12 @@ public class OrdersControllerImpl implements OrdersController {
         } else {
             ordersMenu.showError("Не удалось импортировать заказы из файла.");
         }
+
+        saveMainManager(mainManager);
     }
 
     public String getExportString(long id) {
-        Optional<Order> order = mainManager.getOrder(id);
+        Optional<Order> order = mainManager().getOrder(id);
         if (order.isPresent()) {
             return order.get().toString();
         }

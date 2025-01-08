@@ -2,7 +2,6 @@ package managers.impl;
 
 import DTO.*;
 import managers.OrdersManager;
-import model.impl.Book;
 import model.impl.Order;
 import model.OrderStatus;
 import model.impl.Request;
@@ -16,14 +15,22 @@ public class OrdersManagerImpl implements OrdersManager {
 
     public OrdersManagerImpl(OrdersManagerDTO ordersManagerDTO) {
         this.orders = new HashMap<>();
-        for (OrderDTO orderDTO: ordersManagerDTO.orders()) {
-            this.orders.put(orderDTO.id(), new Order(orderDTO));
+        long maxOrderId = 0;
+        for (OrderDTO orderDTO : ordersManagerDTO.orders()) {
+            Order order = new Order(orderDTO);
+            this.orders.put(orderDTO.id(), order);
+            maxOrderId = Math.max(maxOrderId, order.getId());
         }
+        Order.setCounter(maxOrderId);
 
         this.requests = new HashMap<>();
-        for (RequestDTO requestDTO: ordersManagerDTO.requests()) {
-            this.requests.put(requestDTO.id(), new Request(requestDTO));
+        long maxRequestId = 0;
+        for (RequestDTO requestDTO : ordersManagerDTO.requests()) {
+            Request request = new Request(requestDTO);
+            this.requests.put(requestDTO.id(), request);
+            maxRequestId = Math.max(maxRequestId, request.getId());
         }
+        Request.setCounter(maxRequestId);
     }
 
     // Закрыть запросы по книге

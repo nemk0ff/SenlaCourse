@@ -1,5 +1,8 @@
 package controllers.impl;
 
+import DI.DI;
+import annotations.DIComponent;
+import annotations.DIComponentDependency;
 import controllers.Action;
 import controllers.BooksController;
 import constants.IOConstants;
@@ -8,19 +11,19 @@ import controllers.impl.IOControllers.ImportController;
 import model.impl.Book;
 import managers.MainManager;
 import view.BooksMenu;
-import view.impl.BooksMenuImpl;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+@DIComponent
 public class BooksControllerImpl implements BooksController {
-    private final MainManager mainManager;
-    private final BooksMenu booksMenu;
+    @DIComponentDependency
+    DI di;
+    @DIComponentDependency
+    BooksMenu booksMenu;
 
-    public BooksControllerImpl(MainManager mainManager) {
-        this.mainManager = mainManager;
-        this.booksMenu = new BooksMenuImpl();
+    public BooksControllerImpl() {
     }
 
     @Override
@@ -32,8 +35,15 @@ public class BooksControllerImpl implements BooksController {
             booksMenu.showMenu();
             action = checkInput();
         }
-
         return action;
+    }
+
+    private MainManager mainManager() {
+        return di.getBean(MainManager.class);
+    }
+
+    private void saveMainManager(MainManager mainManager) {
+        di.registerBean(MainManager.class, () -> mainManager);
     }
 
     @Override
@@ -78,7 +88,7 @@ public class BooksControllerImpl implements BooksController {
                 importAll();
                 yield Action.CONTINUE;
             case 13:
-                ExportController.exportAll(mainManager.getBooks(),
+                ExportController.exportAll(mainManager().getBooks(),
                         IOConstants.EXPORT_BOOK_PATH, IOConstants.BOOK_HEADER);
                 yield Action.CONTINUE;
             case 14:
@@ -93,6 +103,8 @@ public class BooksControllerImpl implements BooksController {
 
     @Override
     public void addBook() {
+        MainManager mainManager = mainManager();
+
         booksMenu.showBooks(mainManager.getBooks());
 
         long bookId = getBookId();
@@ -101,10 +113,14 @@ public class BooksControllerImpl implements BooksController {
         int amount = (int) getNumberFromConsole();
 
         mainManager.addBook(bookId, amount, LocalDate.now());
+
+        saveMainManager(mainManager);
     }
 
     @Override
     public void writeOff() {
+        MainManager mainManager = mainManager();
+
         booksMenu.showBooks(mainManager.getBooks());
 
         long id = getBookId();
@@ -120,16 +136,18 @@ public class BooksControllerImpl implements BooksController {
 
         mainManager.writeOff(id, amount, LocalDate.now());
         booksMenu.showSuccess("Списание книг произведено успешно!");
+
+        saveMainManager(mainManager);
     }
 
     @Override
     public void showBookDetails() {
-        mainManager.getBook(getBookId()).ifPresent(booksMenu::showItem);
+        mainManager().getBook(getBookId()).ifPresent(booksMenu::showItem);
     }
 
     private long getBookId() {
         long book = getNumberFromConsole();
-        while (!mainManager.containsBook(book)) {
+        while (!mainManager().containsBook(book)) {
             booksMenu.showError("Такой книги нет в магазине");
             book = getNumberFromConsole();
         }
@@ -138,36 +156,38 @@ public class BooksControllerImpl implements BooksController {
 
     @Override
     public void getBooksByAlphabet() {
-        booksMenu.showBooks(mainManager.getBooksByAlphabet());
+        booksMenu.showBooks(mainManager().getBooksByAlphabet());
     }
 
     @Override
     public void getBooksByDate() {
-        booksMenu.showBooks(mainManager.getBooksByDate());
+        booksMenu.showBooks(mainManager().getBooksByDate());
     }
 
     @Override
     public void getBooksByPrice() {
-        booksMenu.showBooks(mainManager.getBooksByPrice());
+        booksMenu.showBooks(mainManager().getBooksByPrice());
     }
 
     @Override
     public void getBooksByAvailable() {
-        booksMenu.showBooks(mainManager.getBooksByAvailable());
+        booksMenu.showBooks(mainManager().getBooksByAvailable());
     }
 
     @Override
     public void getStaleBooksByDate() {
-        booksMenu.showBooks(mainManager.getStaleBooksByDate());
+        booksMenu.showBooks(mainManager().getStaleBooksByDate());
     }
 
     @Override
     public void getStaleBooksByPrice() {
-        booksMenu.showBooks(mainManager.getStaleBooksByPrice());
+        booksMenu.showBooks(mainManager().getStaleBooksByPrice());
     }
 
     @Override
     public void importBook() {
+        MainManager mainManager = mainManager();
+
         Optional<Book> findBook = ImportController.importItem(IOConstants.IMPORT_BOOK_PATH,
                 ImportController::bookParser);
         if (findBook.isPresent()) {
@@ -181,11 +201,13 @@ public class BooksControllerImpl implements BooksController {
         } else {
             booksMenu.showErrorImport();
         }
+
+        saveMainManager(mainManager);
     }
 
     @Override
     public void exportBook() {
-        booksMenu.showBooks(mainManager.getBooks());
+        booksMenu.showBooks(mainManager().getBooks());
         booksMenu.showGetId("Введите id книги, которую хотите экспортировать: ");
         long exportId = getNumberFromConsole();
 
@@ -197,13 +219,15 @@ public class BooksControllerImpl implements BooksController {
             return;
         }
 
-        booksMenu.showBooks(mainManager.getBooks());
+        booksMenu.showBooks(mainManager().getBooks());
         ExportController.exportItemToFile(exportString, IOConstants.EXPORT_BOOK_PATH, IOConstants.BOOK_HEADER);
         booksMenu.showSuccess("Экспорт выполнен успешно");
     }
 
     @Override
     public void importAll() {
+        MainManager mainManager = mainManager();
+
         List<Book> importedBooks = ImportController.importAllItemsFromFile(IOConstants.IMPORT_BOOK_PATH,
                 ImportController::bookParser);
 
@@ -214,10 +238,12 @@ public class BooksControllerImpl implements BooksController {
         } else {
             booksMenu.showError("Не удалось импортировать книги из файла.");
         }
+
+        saveMainManager(mainManager);
     }
 
     public String getExportString(long id) {
-        Optional<Book> book = mainManager.getBook(id);
+        Optional<Book> book = mainManager().getBook(id);
         if (book.isPresent()) {
             return book.get().toString();
         }

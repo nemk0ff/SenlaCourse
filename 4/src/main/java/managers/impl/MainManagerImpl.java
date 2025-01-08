@@ -1,17 +1,16 @@
 package managers.impl;
 
-import DTO.LibraryManagerDTO;
-import DTO.OrdersManagerDTO;
-import config.ConfigManager;
+import DTO.*;
+import annotations.DIComponent;
+import annotations.ConfigProperty;
+import config.ConfigurationManager;
 import lombok.Data;
 import managers.LibraryManager;
 import managers.MainManager;
 import managers.OrdersManager;
-import model.impl.Book;
-import model.impl.Order;
+import model.impl.*;
 import model.Item;
 import model.OrderStatus;
-import model.impl.Request;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -19,15 +18,20 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@DIComponent
 @Data
 public class MainManagerImpl implements MainManager {
-    private final ConfigManager config;
+    @ConfigProperty(propertyName = "book.stale.months", type = int.class)
+    private int staleBookMonths;
+
+    @ConfigProperty(propertyName = "mark.orders.completed", type = boolean.class)
+    private boolean markOrdersCompleted;
 
     private final LibraryManager libraryManager;
     private final OrdersManager ordersManager;
 
     public MainManagerImpl(LibraryManagerDTO libraryDTO, OrdersManagerDTO ordersDTO) {
-        config = new ConfigManager();
+        ConfigurationManager.configure(this);
 
         libraryManager = new LibraryManagerImpl(libraryDTO);
         ordersManager = new OrdersManagerImpl(ordersDTO);
@@ -42,7 +46,7 @@ public class MainManagerImpl implements MainManager {
     @Override
     public void addBook(long id, Integer amount, LocalDate deliveredDate) {
         libraryManager.addBook(id, amount, deliveredDate);
-        if (config.isMarkOrdersCompletedOnStockAdd()) {
+        if (markOrdersCompleted) {
             updateOrders(deliveredDate);
         }
     }
@@ -235,9 +239,9 @@ public class MainManagerImpl implements MainManager {
         return getBooks().stream()
                 .filter(book -> book.getAmount() > 0)
                 .filter(book -> (book.getLastSaleDate() == null && Period.between(book.getLastDeliveredDate(),
-                        LocalDate.now()).getMonths() >= config.getStaleBookMonths())
+                        LocalDate.now()).getMonths() >= staleBookMonths)
                         || (book.getLastSaleDate() != null && Period.between(book.getLastSaleDate(),
-                        LocalDate.now()).getMonths() >= config.getStaleBookMonths()));
+                        LocalDate.now()).getMonths() >= staleBookMonths));
     }
 
     @Override
