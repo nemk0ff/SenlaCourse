@@ -1,7 +1,7 @@
 package managers;
 
+import DTO.LibraryManagerDTO;
 import model.impl.Book;
-import model.impl.Order;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -12,6 +12,8 @@ public interface LibraryManager {
     boolean addBook(long id, Integer amount, LocalDate addDate);
 
     boolean writeOff(long id, Integer amount, LocalDate saleDate);
+
+    void initialize(LibraryManagerDTO libraryManagerDTO);
 
     Map<Long, Book> getBooks();
 

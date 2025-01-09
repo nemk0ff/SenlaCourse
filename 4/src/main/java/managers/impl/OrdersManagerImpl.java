@@ -14,8 +14,13 @@ public class OrdersManagerImpl implements OrdersManager {
     private final Map<Long, Order> orders;
     private final Map<Long, Request> requests;
 
-    public OrdersManagerImpl(OrdersManagerDTO ordersManagerDTO) {
+    public OrdersManagerImpl() {
         this.orders = new HashMap<>();
+
+        this.requests = new HashMap<>();
+    }
+
+    public void initialize(OrdersManagerDTO ordersManagerDTO) {
         long maxOrderId = 0;
         for (OrderDTO orderDTO : ordersManagerDTO.orders()) {
             Order order = new Order(orderDTO);
@@ -24,7 +29,6 @@ public class OrdersManagerImpl implements OrdersManager {
         }
         Order.setCounter(maxOrderId);
 
-        this.requests = new HashMap<>();
         long maxRequestId = 0;
         for (RequestDTO requestDTO : ordersManagerDTO.requests()) {
             Request request = new Request(requestDTO);

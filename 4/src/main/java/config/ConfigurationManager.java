@@ -47,7 +47,6 @@ public class ConfigurationManager {
             }
             properties.load(input);
         }
-
         return properties;
     }
 

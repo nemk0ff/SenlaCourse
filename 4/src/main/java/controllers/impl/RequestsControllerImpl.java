@@ -1,13 +1,12 @@
 package controllers.impl;
 
-import DI.DI;
 import annotations.DIComponentDependency;
 import controllers.Action;
 import constants.IOConstants;
 import controllers.impl.IOControllers.ExportController;
 import controllers.impl.IOControllers.ImportController;
 import controllers.RequestsController;
-import managers.MainManager;
+import managers.impl.MainManagerImpl;
 import model.impl.Request;
 import view.impl.RequestsMenuImpl;
 
@@ -15,7 +14,7 @@ import java.util.*;
 
 public class RequestsControllerImpl implements RequestsController {
     @DIComponentDependency
-    DI di;
+    MainManagerImpl mainManager;
     @DIComponentDependency
     RequestsMenuImpl requestsMenu;
 
@@ -33,14 +32,6 @@ public class RequestsControllerImpl implements RequestsController {
         }
 
         return action;
-    }
-
-    private MainManager mainManager() {
-        return di.getBean(MainManager.class);
-    }
-
-    private void saveMainManager(MainManager mainManager) {
-        di.registerBean(MainManager.class, () -> mainManager);
     }
 
     @Override
@@ -67,7 +58,7 @@ public class RequestsControllerImpl implements RequestsController {
                 importAll();
                 yield Action.CONTINUE;
             case 7:
-                ExportController.exportAll(mainManager().getRequests(),
+                ExportController.exportAll(mainManager.getRequests(),
                         IOConstants.EXPORT_REQUEST_PATH, IOConstants.REQUEST_HEADER);
                 yield Action.CONTINUE;
             case 8:
@@ -85,37 +76,31 @@ public class RequestsControllerImpl implements RequestsController {
 
     @Override
     public void createRequest() {
-        MainManager mainManager = mainManager();
-
         requestsMenu.showBooks(mainManager.getBooks());
         requestsMenu.showGetId("Введите id книги, на которую хотите создать запрос: ");
         long bookId = getNumberFromConsole();
         requestsMenu.showMessage("На сколько книг создать запрос? ");
         int amount = (int) getNumberFromConsole();
         mainManager.addRequest(bookId, amount);
-
-        saveMainManager(mainManager);
     }
 
     @Override
     public void getRequestsByCount() {
-        requestsMenu.showRequests(mainManager().getRequestsByCount());
+        requestsMenu.showRequests(mainManager.getRequestsByCount());
     }
 
     @Override
     public void getRequestsByPrice() {
-        requestsMenu.showRequests(mainManager().getRequestsByPrice());
+        requestsMenu.showRequests(mainManager.getRequestsByPrice());
     }
 
     @Override
     public void getAllRequests() {
-        requestsMenu.showRequests(mainManager().getRequests());
+        requestsMenu.showRequests(mainManager.getRequests());
     }
 
     @Override
     public void importRequest() {
-        MainManager mainManager = mainManager();
-
         Optional<Request> findRequest = ImportController.importItem(IOConstants.IMPORT_REQUEST_PATH,
                 ImportController::requestParser);
         if (findRequest.isPresent()) {
@@ -129,13 +114,11 @@ public class RequestsControllerImpl implements RequestsController {
         } else {
             requestsMenu.showErrorImport();
         }
-
-        saveMainManager(mainManager);
     }
 
     @Override
     public void exportRequest() {
-        requestsMenu.showRequests(mainManager().getRequests());
+        requestsMenu.showRequests(mainManager.getRequests());
         requestsMenu.showGetId("Введите id запроса, который хотите экспортировать: ");
         long exportId = getNumberFromConsole();
 
@@ -153,8 +136,6 @@ public class RequestsControllerImpl implements RequestsController {
 
     @Override
     public void importAll() {
-        MainManager mainManager = mainManager();
-
         List<Request> importedRequests = ImportController.importAllItemsFromFile(IOConstants.IMPORT_REQUEST_PATH,
                 ImportController::requestParser);
 
@@ -171,12 +152,10 @@ public class RequestsControllerImpl implements RequestsController {
         } else {
             requestsMenu.showError("Не удалось импортировать запросы из файла.");
         }
-
-        saveMainManager(mainManager);
     }
 
     public String getExportString(long id) {
-        Optional<Request> request = mainManager().getRequest(id);
+        Optional<Request> request = mainManager.getRequest(id);
         if (request.isPresent()) {
             return request.get().toString();
         }

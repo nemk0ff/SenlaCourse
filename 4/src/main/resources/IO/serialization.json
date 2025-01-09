@@ -163,6 +163,17 @@
       "price" : 25.5,
       "orderDate" : "2025-01-08",
       "completeDate" : null
+    }, {
+      "id" : 15,
+      "clientName" : "Дмитрий Маликов",
+      "status" : "COMPLETED",
+      "books" : {
+        "1" : 1,
+        "23" : 1
+      },
+      "price" : 26.2,
+      "orderDate" : "2025-01-09",
+      "completeDate" : "2025-01-09"
     } ],
     "requests" : [ {
       "id" : 1,
@@ -266,11 +277,11 @@
       "id" : 1,
       "name" : "Анна Каренина",
       "author" : "Л.Н.Толстой",
-      "price" : 5.0,
-      "publicationDate" : 1150,
-      "amount" : 1877,
-      "lastDeliveredDate" : "2025-01-08",
-      "lastSaleDate" : "2025-01-08",
+      "price" : 1150.0,
+      "publicationDate" : 1884,
+      "amount" : 5,
+      "lastDeliveredDate" : "2025-01-09",
+      "lastSaleDate" : "2025-01-09",
       "status" : "AVAILABLE"
     }, {
       "id" : 2,
@@ -278,8 +289,8 @@
       "author" : "А.С.Пушкин",
       "price" : 200.0,
       "publicationDate" : 1836,
-      "amount" : 1,
-      "lastDeliveredDate" : "2024-04-21",
+      "amount" : 3,
+      "lastDeliveredDate" : "2025-01-09",
       "lastSaleDate" : "2024-03-19",
       "status" : "AVAILABLE"
     }, {
@@ -438,9 +449,9 @@
       "author" : "Мэтт Ридли",
       "price" : 21.2,
       "publicationDate" : 1999,
-      "amount" : 10,
+      "amount" : 9,
       "lastDeliveredDate" : "2024-02-25",
-      "lastSaleDate" : "2024-03-05",
+      "lastSaleDate" : "2025-01-09",
       "status" : "AVAILABLE"
     }, {
       "id" : 25,
@@ -458,8 +469,8 @@
       "author" : "Томас Кун",
       "price" : 18.75,
       "publicationDate" : 1962,
-      "amount" : 6,
-      "lastDeliveredDate" : "2025-01-08",
+      "amount" : 9,
+      "lastDeliveredDate" : "2025-01-09",
       "lastSaleDate" : "2025-01-08",
       "status" : "AVAILABLE"
     } ]

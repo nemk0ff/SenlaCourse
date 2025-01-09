@@ -1,7 +1,7 @@
 package managers.impl;
 
-import DTO.*;
 import annotations.ConfigProperty;
+import annotations.DIComponentDependency;
 import config.ConfigurationManager;
 import lombok.Data;
 import managers.MainManager;
@@ -23,28 +23,31 @@ public class MainManagerImpl implements MainManager {
     @ConfigProperty(propertyName = "mark.orders.completed", type = boolean.class)
     private boolean markOrdersCompleted;
 
+    @DIComponentDependency
     LibraryManagerImpl libraryManager;
+    @DIComponentDependency
     OrdersManagerImpl ordersManager;
 
-    public MainManagerImpl(LibraryManagerDTO libraryDTO, OrdersManagerDTO ordersDTO) {
+    public MainManagerImpl() {
         ConfigurationManager.configure(this);
-
-        libraryManager = new LibraryManagerImpl(libraryDTO);
-        ordersManager = new OrdersManagerImpl(ordersDTO);
+        System.out.println(staleBookMonths);
+        System.out.println(markOrdersCompleted);
     }
 
     @Override
-    public void writeOff(long id, Integer amount, LocalDate writeOffDate) {
-        libraryManager.writeOff(id, amount, writeOffDate);
+    public boolean writeOff(long id, Integer amount, LocalDate writeOffDate) {
+        boolean result = libraryManager.writeOff(id, amount, writeOffDate);
         updateOrders(writeOffDate);
+        return result;
     }
 
     @Override
-    public void addBook(long id, Integer amount, LocalDate deliveredDate) {
-        libraryManager.addBook(id, amount, deliveredDate);
+    public boolean addBook(long id, Integer amount, LocalDate deliveredDate) {
+        boolean result = libraryManager.addBook(id, amount, deliveredDate);
         if (markOrdersCompleted) {
             updateOrders(deliveredDate);
         }
+        return result;
     }
 
     private void updateOrders(LocalDate updateDate) {

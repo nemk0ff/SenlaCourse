@@ -1,10 +1,6 @@
 package DI;
 
 import annotations.DIComponentDependency;
-import config.DeserializationManager;
-import controllers.impl.MainController;
-import managers.MainManager;
-import managers.impl.MainManagerImpl;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -27,10 +23,6 @@ public class DI {
 
     public <T> void registerBean(Class<T> clazz, Object bean) {
         beans.put(clazz, bean);
-    }
-
-    public <T> void registerBean(Class<T> clazz, Supplier<T> beanSupplier) {
-        beans.put(clazz, beanSupplier);
     }
 
     public <T> T getBean(Class<T> objClass) {

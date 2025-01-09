@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import constants.IOConstants;
-import managers.impl.MainManagerImpl;
+import managers.MainManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class DeserializationManager {
     @DIComponentDependency
     ObjectMapper mapper;
 
-    public MainManagerImpl deserialize() {
+    public void deserialize(MainManager mainManager) {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -36,7 +36,8 @@ public class DeserializationManager {
         } catch (IOException e) {
             System.out.printf(e.getMessage());
         }
-        return new MainManagerImpl(deserializedLibrary, deserializedOrders);
+        mainManager.getLibraryManager().initialize(deserializedLibrary);
+        mainManager.getOrdersManager().initialize(deserializedOrders);
     }
 
 }

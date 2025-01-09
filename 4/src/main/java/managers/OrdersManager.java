@@ -1,5 +1,6 @@
 package managers;
 
+import DTO.OrdersManagerDTO;
 import model.impl.Order;
 import model.OrderStatus;
 import model.impl.Request;
@@ -12,6 +13,8 @@ public interface OrdersManager {
     boolean cancelOrder(long orderId);
 
     boolean setOrderStatus(long orderId, OrderStatus status);
+
+    void initialize(OrdersManagerDTO ordersManagerDTO);
 
     void closeRequests(Map<Long, Integer> book);
 
