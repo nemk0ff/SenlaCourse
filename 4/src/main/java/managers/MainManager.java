@@ -10,9 +10,9 @@ import java.time.LocalDate;
 import java.util.*;
 
 public interface MainManager {
-    boolean addBook(long bookId, Integer amount, LocalDate addDate);
+    void addBook(long bookId, Integer amount, LocalDate addDate);
 
-    boolean writeOff(long bookId, Integer amount, LocalDate saleDate);
+    void writeOff(long bookId, Integer amount, LocalDate saleDate);
 
     boolean cancelOrder(long orderId);
 

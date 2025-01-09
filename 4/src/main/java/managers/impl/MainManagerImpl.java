@@ -30,24 +30,20 @@ public class MainManagerImpl implements MainManager {
 
     public MainManagerImpl() {
         ConfigurationManager.configure(this);
-        System.out.println(staleBookMonths);
-        System.out.println(markOrdersCompleted);
     }
 
     @Override
-    public boolean writeOff(long id, Integer amount, LocalDate writeOffDate) {
-        boolean result = libraryManager.writeOff(id, amount, writeOffDate);
+    public void writeOff(long id, Integer amount, LocalDate writeOffDate) throws IllegalArgumentException {
+        libraryManager.writeOff(id, amount, writeOffDate);
         updateOrders(writeOffDate);
-        return result;
     }
 
     @Override
-    public boolean addBook(long id, Integer amount, LocalDate deliveredDate) {
-        boolean result = libraryManager.addBook(id, amount, deliveredDate);
+    public void addBook(long id, Integer amount, LocalDate deliveredDate) throws IllegalArgumentException {
+        libraryManager.addBook(id, amount, deliveredDate);
         if (markOrdersCompleted) {
             updateOrders(deliveredDate);
         }
-        return result;
     }
 
     private void updateOrders(LocalDate updateDate) {

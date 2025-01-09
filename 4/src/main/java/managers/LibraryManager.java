@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface LibraryManager {
-    boolean addBook(long id, Integer amount, LocalDate addDate);
+    void addBook(long id, Integer amount, LocalDate addDate);
 
-    boolean writeOff(long id, Integer amount, LocalDate saleDate);
+    void writeOff(long id, Integer amount, LocalDate saleDate);
 
     void initialize(LibraryManagerDTO libraryManagerDTO);
 

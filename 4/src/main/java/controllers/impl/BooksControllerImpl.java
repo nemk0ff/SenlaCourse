@@ -99,10 +99,11 @@ public class BooksControllerImpl implements BooksController {
         booksMenu.showGetAmountBooks("Сколько книг добавить? Введите число: ");
         int amount = (int) getNumberFromConsole();
 
-        if (mainManager.addBook(bookId, amount, LocalDate.now())) {
+        try {
+            mainManager.addBook(bookId, amount, LocalDate.now());
             booksMenu.showSuccess("Добавлено " + amount + " книг " + bookId);
-        } else {
-            booksMenu.showError("При добавлении книги произошла ошибка.");
+        } catch (IllegalArgumentException e) {
+            booksMenu.showError(e.getMessage());
         }
     }
 
@@ -115,16 +116,11 @@ public class BooksControllerImpl implements BooksController {
         booksMenu.showGetAmountBooks("Сколько книг списать? Введите число");
         int amount = (int) getNumberFromConsole();
 
-        while (amount < 0) {
-            amount = scanner.nextInt();
-            scanner.nextLine();
-            booksMenu.showError("Количество книг должно быть положительным числом");
-        }
-
-        if(mainManager.writeOff(id, amount, LocalDate.now())){
+        try {
+            mainManager.writeOff(id, amount, LocalDate.now());
             booksMenu.showSuccess("Списание книг произведено успешно!");
-        } else{
-            booksMenu.showError("При списании книги произошла ошибка.");
+        } catch (IllegalArgumentException e) {
+            booksMenu.showError(e.getMessage());
         }
     }
 
