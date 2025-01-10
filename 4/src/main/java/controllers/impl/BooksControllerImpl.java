@@ -1,13 +1,13 @@
 package controllers.impl;
 
+import annotations.DIComponentDependency;
 import controllers.Action;
 import controllers.BooksController;
 import constants.IOConstants;
 import controllers.impl.IOControllers.ExportController;
 import controllers.impl.IOControllers.ImportController;
+import managers.impl.MainManagerImpl;
 import model.impl.Book;
-import managers.MainManager;
-import view.BooksMenu;
 import view.impl.BooksMenuImpl;
 
 import java.time.LocalDate;
@@ -15,12 +15,12 @@ import java.util.List;
 import java.util.Optional;
 
 public class BooksControllerImpl implements BooksController {
-    private final MainManager mainManager;
-    private final BooksMenu booksMenu;
+    @DIComponentDependency
+    MainManagerImpl mainManager;
+    @DIComponentDependency
+    BooksMenuImpl booksMenu;
 
-    public BooksControllerImpl(MainManager mainManager) {
-        this.mainManager = mainManager;
-        this.booksMenu = new BooksMenuImpl();
+    public BooksControllerImpl() {
     }
 
     @Override
@@ -32,7 +32,6 @@ public class BooksControllerImpl implements BooksController {
             booksMenu.showMenu();
             action = checkInput();
         }
-
         return action;
     }
 
@@ -100,7 +99,12 @@ public class BooksControllerImpl implements BooksController {
         booksMenu.showGetAmountBooks("Сколько книг добавить? Введите число: ");
         int amount = (int) getNumberFromConsole();
 
-        mainManager.addBook(bookId, amount, LocalDate.now());
+        try {
+            mainManager.addBook(bookId, amount, LocalDate.now());
+            booksMenu.showSuccess("Добавлено " + amount + " книг " + bookId);
+        } catch (IllegalArgumentException e) {
+            booksMenu.showError(e.getMessage());
+        }
     }
 
     @Override
@@ -112,14 +116,12 @@ public class BooksControllerImpl implements BooksController {
         booksMenu.showGetAmountBooks("Сколько книг списать? Введите число");
         int amount = (int) getNumberFromConsole();
 
-        while (amount < 0) {
-            amount = scanner.nextInt();
-            scanner.nextLine();
-            booksMenu.showError("Количество книг должно быть положительным числом");
+        try {
+            mainManager.writeOff(id, amount, LocalDate.now());
+            booksMenu.showSuccess("Списание книг произведено успешно!");
+        } catch (IllegalArgumentException e) {
+            booksMenu.showError(e.getMessage());
         }
-
-        mainManager.writeOff(id, amount, LocalDate.now());
-        booksMenu.showSuccess("Списание книг произведено успешно!");
     }
 
     @Override

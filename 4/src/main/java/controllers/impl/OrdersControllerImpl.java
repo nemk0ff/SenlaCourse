@@ -1,14 +1,14 @@
 package controllers.impl;
 
+import annotations.DIComponentDependency;
 import controllers.Action;
 import constants.IOConstants;
 import controllers.impl.IOControllers.ExportController;
 import controllers.impl.IOControllers.ImportController;
 import controllers.OrdersController;
-import managers.MainManager;
+import managers.impl.MainManagerImpl;
 import model.impl.Order;
 import model.OrderStatus;
-import view.OrdersMenu;
 import view.impl.OrdersMenuImpl;
 
 import java.time.DateTimeException;
@@ -16,12 +16,12 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class OrdersControllerImpl implements OrdersController {
-    private final MainManager mainManager;
-    private final OrdersMenu ordersMenu;
+    @DIComponentDependency
+    MainManagerImpl mainManager;
+    @DIComponentDependency
+    OrdersMenuImpl ordersMenu;
 
-    public OrdersControllerImpl(MainManager mainManager) {
-        this.mainManager = mainManager;
-        this.ordersMenu = new OrdersMenuImpl();
+    public OrdersControllerImpl() {
     }
 
     @Override

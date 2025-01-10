@@ -19,7 +19,7 @@ public class Book implements Item {
     private LocalDate lastDeliveredDate;
     private LocalDate lastSaleDate;
     private Double price;
-    private BookStatus status = BookStatus.NOT_AVAILABLE;
+    private BookStatus status;
     private Integer amount;
 
     // Конструктор для создания книги, которая лежит в магазине

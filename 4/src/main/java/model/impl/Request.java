@@ -7,7 +7,7 @@ import model.RequestStatus;
 
 @Data
 public class Request implements Item {
-    static long counter = 0L;
+    private static long counter = 0L;
 
     private final long id;
     private final long bookId;
@@ -37,6 +37,10 @@ public class Request implements Item {
         this.bookId = dto.bookId();
         this.amount = dto.amount();
         this.status = dto.status();
+    }
+
+    public static void setCounter(long counter){
+        Request.counter = counter;
     }
 
     @Override

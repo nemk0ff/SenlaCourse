@@ -11,7 +11,7 @@ import java.util.Objects;
 
 @Data
 public class Order implements Item {
-    static Long counter = 0L;
+    private static Long counter = 0L;
 
     private final Long id;
     private OrderStatus status;
@@ -54,6 +54,10 @@ public class Order implements Item {
         this.orderDate = dto.orderDate();
         this.completeDate = dto.completeDate();
         this.books = dto.books();
+    }
+
+    public static void setCounter(long counter){
+        Order.counter = counter;
     }
 
     @Override

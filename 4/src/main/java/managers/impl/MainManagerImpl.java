@@ -1,17 +1,13 @@
 package managers.impl;
 
-import DTO.LibraryManagerDTO;
-import DTO.OrdersManagerDTO;
-import config.ConfigManager;
+import annotations.ConfigProperty;
+import annotations.DIComponentDependency;
+import config.ConfigurationManager;
 import lombok.Data;
-import managers.LibraryManager;
 import managers.MainManager;
-import managers.OrdersManager;
-import model.impl.Book;
-import model.impl.Order;
+import model.impl.*;
 import model.Item;
 import model.OrderStatus;
-import model.impl.Request;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -21,28 +17,31 @@ import java.util.stream.Stream;
 
 @Data
 public class MainManagerImpl implements MainManager {
-    private final ConfigManager config;
+    @ConfigProperty(propertyName = "book.stale.months", type = int.class)
+    private int staleBookMonths;
 
-    private final LibraryManager libraryManager;
-    private final OrdersManager ordersManager;
+    @ConfigProperty(propertyName = "mark.orders.completed", type = boolean.class)
+    private boolean markOrdersCompleted;
 
-    public MainManagerImpl(LibraryManagerDTO libraryDTO, OrdersManagerDTO ordersDTO) {
-        config = new ConfigManager();
+    @DIComponentDependency
+    LibraryManagerImpl libraryManager;
+    @DIComponentDependency
+    OrdersManagerImpl ordersManager;
 
-        libraryManager = new LibraryManagerImpl(libraryDTO);
-        ordersManager = new OrdersManagerImpl(ordersDTO);
+    public MainManagerImpl() {
+        ConfigurationManager.configure(this);
     }
 
     @Override
-    public void writeOff(long id, Integer amount, LocalDate writeOffDate) {
+    public void writeOff(long id, Integer amount, LocalDate writeOffDate) throws IllegalArgumentException {
         libraryManager.writeOff(id, amount, writeOffDate);
         updateOrders(writeOffDate);
     }
 
     @Override
-    public void addBook(long id, Integer amount, LocalDate deliveredDate) {
+    public void addBook(long id, Integer amount, LocalDate deliveredDate) throws IllegalArgumentException {
         libraryManager.addBook(id, amount, deliveredDate);
-        if (config.isMarkOrdersCompletedOnStockAdd()) {
+        if (markOrdersCompleted) {
             updateOrders(deliveredDate);
         }
     }
@@ -235,9 +234,9 @@ public class MainManagerImpl implements MainManager {
         return getBooks().stream()
                 .filter(book -> book.getAmount() > 0)
                 .filter(book -> (book.getLastSaleDate() == null && Period.between(book.getLastDeliveredDate(),
-                        LocalDate.now()).getMonths() >= config.getStaleBookMonths())
+                        LocalDate.now()).getMonths() >= staleBookMonths)
                         || (book.getLastSaleDate() != null && Period.between(book.getLastSaleDate(),
-                        LocalDate.now()).getMonths() >= config.getStaleBookMonths()));
+                        LocalDate.now()).getMonths() >= staleBookMonths));
     }
 
     @Override

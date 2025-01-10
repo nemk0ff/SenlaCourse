@@ -1,24 +1,24 @@
 package controllers.impl;
 
+import annotations.DIComponentDependency;
 import controllers.Action;
 import constants.IOConstants;
 import controllers.impl.IOControllers.ExportController;
 import controllers.impl.IOControllers.ImportController;
 import controllers.RequestsController;
-import managers.MainManager;
+import managers.impl.MainManagerImpl;
 import model.impl.Request;
-import view.RequestsMenu;
 import view.impl.RequestsMenuImpl;
 
 import java.util.*;
 
 public class RequestsControllerImpl implements RequestsController {
-    private final MainManager mainManager;
-    private final RequestsMenu requestsMenu;
+    @DIComponentDependency
+    MainManagerImpl mainManager;
+    @DIComponentDependency
+    RequestsMenuImpl requestsMenu;
 
-    public RequestsControllerImpl(MainManager mainManager) {
-        this.mainManager = mainManager;
-        this.requestsMenu = new RequestsMenuImpl();
+    public RequestsControllerImpl() {
     }
 
     @Override

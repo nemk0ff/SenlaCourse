@@ -2,14 +2,13 @@
   "ordersManagerDTO" : {
     "orders" : [ {
       "id" : 1,
-      "clientName" : "Екатерина Иванова",
+      "clientName" : "Никита Уваров",
       "status" : "NEW",
       "books" : {
-        "1" : 2,
-        "3" : 1
+        "6" : 1
       },
-      "price" : 2275.0,
-      "orderDate" : "2024-05-01",
+      "price" : 9.5,
+      "orderDate" : "2025-01-08",
       "completeDate" : null
     }, {
       "id" : 2,
@@ -60,7 +59,7 @@
     }, {
       "id" : 6,
       "clientName" : "Дмитрий Морозов",
-      "status" : "NEW",
+      "status" : "CANCELED",
       "books" : {
         "5" : 1,
         "6" : 2,
@@ -131,7 +130,7 @@
     }, {
       "id" : 12,
       "clientName" : "Андрей Волков",
-      "status" : "NEW",
+      "status" : "COMPLETED",
       "books" : {
         "1" : 1,
         "4" : 2,
@@ -154,11 +153,32 @@
       "price" : 3025.0,
       "orderDate" : "2024-05-25",
       "completeDate" : "2024-05-29"
+    }, {
+      "id" : 14,
+      "clientName" : "Александр Смирнов",
+      "status" : "NEW",
+      "books" : {
+        "17" : 10
+      },
+      "price" : 25.5,
+      "orderDate" : "2025-01-08",
+      "completeDate" : null
+    }, {
+      "id" : 15,
+      "clientName" : "Дмитрий Маликов",
+      "status" : "COMPLETED",
+      "books" : {
+        "1" : 1,
+        "23" : 1
+      },
+      "price" : 26.2,
+      "orderDate" : "2025-01-09",
+      "completeDate" : "2025-01-09"
     } ],
     "requests" : [ {
       "id" : 1,
-      "bookId" : 1,
-      "amount" : 2,
+      "bookId" : 6,
+      "amount" : 1,
       "status" : "OPEN"
     }, {
       "id" : 2,
@@ -184,7 +204,7 @@
       "id" : 6,
       "bookId" : 7,
       "amount" : 1,
-      "status" : "OPEN"
+      "status" : "CLOSED"
     }, {
       "id" : 7,
       "bookId" : 9,
@@ -214,7 +234,7 @@
       "id" : 12,
       "bookId" : 4,
       "amount" : 2,
-      "status" : "OPEN"
+      "status" : "CLOSED"
     }, {
       "id" : 13,
       "bookId" : 4,
@@ -224,7 +244,7 @@
       "id" : 14,
       "bookId" : 5,
       "amount" : 1,
-      "status" : "OPEN"
+      "status" : "CLOSED"
     }, {
       "id" : 15,
       "bookId" : 2,
@@ -240,6 +260,16 @@
       "bookId" : 8,
       "amount" : 1,
       "status" : "OPEN"
+    }, {
+      "id" : 25,
+      "bookId" : 5,
+      "amount" : 6,
+      "status" : "OPEN"
+    }, {
+      "id" : 26,
+      "bookId" : 17,
+      "amount" : 10,
+      "status" : "OPEN"
     } ]
   },
   "libraryManagerDTO" : {
@@ -248,10 +278,10 @@
       "name" : "Анна Каренина",
       "author" : "Л.Н.Толстой",
       "price" : 1150.0,
-      "publicationDate" : 1877,
-      "amount" : 1,
-      "lastDeliveredDate" : "2024-04-05",
-      "lastSaleDate" : "2024-02-23",
+      "publicationDate" : 1884,
+      "amount" : 5,
+      "lastDeliveredDate" : "2025-01-09",
+      "lastSaleDate" : "2025-01-09",
       "status" : "AVAILABLE"
     }, {
       "id" : 2,
@@ -259,8 +289,8 @@
       "author" : "А.С.Пушкин",
       "price" : 200.0,
       "publicationDate" : 1836,
-      "amount" : 1,
-      "lastDeliveredDate" : "2024-04-21",
+      "amount" : 3,
+      "lastDeliveredDate" : "2025-01-09",
       "lastSaleDate" : "2024-03-19",
       "status" : "AVAILABLE"
     }, {
@@ -269,10 +299,10 @@
       "author" : "А.С.Пушкин",
       "price" : 450.0,
       "publicationDate" : 1833,
-      "amount" : 1,
+      "amount" : 0,
       "lastDeliveredDate" : "2024-10-20",
-      "lastSaleDate" : "2024-12-25",
-      "status" : "AVAILABLE"
+      "lastSaleDate" : "2025-01-08",
+      "status" : "NOT_AVAILABLE"
     }, {
       "id" : 4,
       "name" : "Пиковая дама",
@@ -289,8 +319,8 @@
       "author" : "Иван Гончаров",
       "price" : 12.0,
       "publicationDate" : 1859,
-      "amount" : 1,
-      "lastDeliveredDate" : "2024-01-15",
+      "amount" : 3,
+      "lastDeliveredDate" : "2025-01-08",
       "lastSaleDate" : "2023-12-10",
       "status" : "AVAILABLE"
     }, {
@@ -339,10 +369,10 @@
       "author" : "Н.В.Гоголь",
       "price" : 875.0,
       "publicationDate" : 1835,
-      "amount" : 0,
-      "lastDeliveredDate" : "2024-01-11",
+      "amount" : 3,
+      "lastDeliveredDate" : "2025-01-08",
       "lastSaleDate" : null,
-      "status" : "NOT_AVAILABLE"
+      "status" : "AVAILABLE"
     }, {
       "id" : 42,
       "name" : "Sapiens. Краткая история человечества",
@@ -369,8 +399,8 @@
       "author" : "Уолтер Айзексон",
       "price" : 25.5,
       "publicationDate" : 2007,
-      "amount" : 1,
-      "lastDeliveredDate" : "2023-10-15",
+      "amount" : 4,
+      "lastDeliveredDate" : "2025-01-08",
       "lastSaleDate" : "2024-02-28",
       "status" : "AVAILABLE"
     }, {
@@ -409,9 +439,9 @@
       "author" : "Стивен Хокинг",
       "price" : 15.99,
       "publicationDate" : 1988,
-      "amount" : 7,
+      "amount" : 5,
       "lastDeliveredDate" : "2024-01-15",
-      "lastSaleDate" : "2024-02-20",
+      "lastSaleDate" : "2025-01-08",
       "status" : "AVAILABLE"
     }, {
       "id" : 23,
@@ -419,9 +449,9 @@
       "author" : "Мэтт Ридли",
       "price" : 21.2,
       "publicationDate" : 1999,
-      "amount" : 10,
+      "amount" : 9,
       "lastDeliveredDate" : "2024-02-25",
-      "lastSaleDate" : "2024-03-05",
+      "lastSaleDate" : "2025-01-09",
       "status" : "AVAILABLE"
     }, {
       "id" : 25,
@@ -429,19 +459,19 @@
       "author" : "Митио Каку",
       "price" : 29.0,
       "publicationDate" : 2008,
-      "amount" : 0,
-      "lastDeliveredDate" : "2024-01-15",
+      "amount" : 4,
+      "lastDeliveredDate" : "2025-01-08",
       "lastSaleDate" : null,
-      "status" : "NOT_AVAILABLE"
+      "status" : "AVAILABLE"
     }, {
       "id" : 31,
       "name" : "Структура научных революций",
       "author" : "Томас Кун",
       "price" : 18.75,
       "publicationDate" : 1962,
-      "amount" : 2,
-      "lastDeliveredDate" : "2023-11-10",
-      "lastSaleDate" : "2024-03-01",
+      "amount" : 9,
+      "lastDeliveredDate" : "2025-01-09",
+      "lastSaleDate" : "2025-01-08",
       "status" : "AVAILABLE"
     } ]
   }
