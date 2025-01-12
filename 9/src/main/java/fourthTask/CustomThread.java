@@ -14,14 +14,9 @@ public class CustomThread extends Thread {
     @SneakyThrows
     @Override
     public void run() {
-        LocalTime timeStart = LocalTime.now();
-        LocalTime timeEnd;
         while (true) {
-            timeEnd = LocalTime.now();
-            if (timeEnd.toSecondOfDay() - timeStart.toSecondOfDay() >= n) {
-                System.out.println(LocalTime.now());
-                timeStart = timeEnd;
-            }
+            Thread.sleep(n * 1000L);
+            System.out.println(LocalTime.now());
         }
     }
 }
