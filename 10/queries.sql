@@ -59,7 +59,7 @@ WHERE price > 1000;
 -- 13. Найти среднюю скорость ПК, выпущенных производителем A
 SELECT AVG(speed) 
 FROM pc JOIN product ON pc.model = product.model
-WHERE product.maker = 'A'
+WHERE product.maker = 'A';
 
 -- 14. Для каждого значения скорости процессора найти среднюю стоимость ПК с такой же скоростью. 
 -- Вывести поля: скорость, средняя цена.
@@ -77,11 +77,13 @@ HAVING COUNT(hd) >= 2;
 -- В результате каждая пара указывается только один раз, т.е. (i,j), но не (j,i), 
 -- Порядок вывода полей: модель с большим номером, модель с меньшим номером, скорость, RAM.
 SELECT DISTINCT LEAST(pc1.model, pc2.model), 
-GREATEST(pc1.model, pc2.model)
+	GREATEST(pc1.model, pc2.model),
+    pc1.speed,
+	pc1.ram
 FROM pc pc1 JOIN pc pc2
 WHERE pc1.speed = pc2.speed 
 AND pc1.model != pc2.model 
-AND pc1.ram = pc2.ram
+AND pc1.ram = pc2.ram;
 
 -- 17. Найти модели ноутбуков, скорость которых меньше скорости любого из ПК. Вывести поля: type, model, speed.
 SELECT product.type, product.model, laptop.speed 
@@ -91,7 +93,8 @@ WHERE laptop.speed < (SELECT MIN(speed) FROM pc);
 -- 18. Найти производителей самых дешевых цветных принтеров. Вывести поля: maker, price.
 SELECT product.maker, printer.price 
 FROM product JOIN printer ON product.model = printer.model
-WHERE printer.price = (SELECT MIN(price) FROM printer);
+WHERE printer.price = (SELECT MIN(price) FROM printer)
+	AND printer.color = 'y';
 
 -- 19. Для каждого производителя найти средний размер экрана выпускаемых им ноутбуков. 
 -- Вывести поля: maker, средний размер экрана.
