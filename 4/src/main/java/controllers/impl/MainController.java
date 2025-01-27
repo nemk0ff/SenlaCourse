@@ -1,17 +1,12 @@
 package controllers.impl;
 
 import annotations.DIComponentDependency;
-import config.DeserializationManager;
-import config.SerializationManager;
 import controllers.Action;
 import controllers.Controller;
-import managers.impl.MainManagerImpl;
 import view.impl.MainMenu;
 
 
 public class MainController implements Controller {
-    @DIComponentDependency
-    MainManagerImpl mainManager;
     @DIComponentDependency
     MainMenu mainMenu;
     @DIComponentDependency
@@ -20,17 +15,12 @@ public class MainController implements Controller {
     OrdersControllerImpl ordersController;
     @DIComponentDependency
     RequestsControllerImpl requestsController;
-    @DIComponentDependency
-    DeserializationManager deserializationManager;
-    @DIComponentDependency
-    SerializationManager serializationManager;
 
     public MainController() {
     }
 
     @Override
     public Action run() {
-        deserializationManager.deserialize(mainManager);
 
         mainMenu.showMenu();
         Action action = checkInput();
@@ -39,8 +29,6 @@ public class MainController implements Controller {
             mainMenu.showMenu();
             action = checkInput();
         }
-
-        serializationManager.serialize(mainManager);
         return Action.EXIT;
     }
 

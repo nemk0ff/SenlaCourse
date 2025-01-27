@@ -1,0 +1,177 @@
+package DAO.impl;
+
+import DAO.RequestDAO;
+import annotations.DIComponentDependency;
+import config.DatabaseConnection;
+import model.RequestStatus;
+import model.impl.Request;
+
+import java.sql.*;
+import java.util.*;
+
+public class RequestDAOImpl implements RequestDAO {
+    @DIComponentDependency
+    DatabaseConnection databaseConnection;
+
+    public RequestDAOImpl() {
+    }
+
+    @Override
+    public List<Request> getRequests() {
+        List<Request> requests = new ArrayList<>();
+
+        try (PreparedStatement preparedStatement = databaseConnection.connection().prepareStatement
+                ("SELECT * FROM requests")) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                getRequest(resultSet).ifPresent(requests::add);
+            }
+        } catch (SQLException e) {
+            return new ArrayList<>();
+        }
+        return requests;
+    }
+
+    @Override
+    public Optional<Request> getRequestById(long request_id) {
+        try (Statement statement = databaseConnection.connection().createStatement()) {
+            ResultSet results = statement.executeQuery("SELECT * FROM requests WHERE request_id = " + request_id);
+            results.next();
+            return getRequest(results);
+        } catch (SQLException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Request> getRequestByBook(long book_id, int amount) {
+        try (Statement statement = databaseConnection.connection().createStatement()) {
+            ResultSet results = statement.executeQuery
+                    ("SELECT * FROM requests WHERE book_id = " + book_id + " AND amount = " + amount + " LIMIT 1");
+            results.next();
+            return getRequest(results);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public void addRequest(long book_id, int amount) {
+        Savepoint save;
+        try {
+            save = databaseConnection.connection().setSavepoint();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        String insertOrderQuery = "INSERT INTO requests (request_id, book_id, amount, status) VALUES (?, ?, ?, ?)";
+
+        try (PreparedStatement orderStatement = databaseConnection.connection().prepareStatement(insertOrderQuery)) {
+            long newId = getNewRequestId();
+            orderStatement.setLong(1, newId);
+            orderStatement.setLong(2, book_id);
+            orderStatement.setInt(3, amount);
+            orderStatement.setString(4, "OPEN");
+
+            if (orderStatement.executeUpdate() == 0) {
+                throw new RuntimeException("Ошибка бд при создании запроса: ни одна строка не изменена");
+            }
+            databaseConnection.connection().commit();
+        } catch (SQLException e) {
+            try {
+                databaseConnection.connection().rollback(save);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void importRequest(Request request) {
+        Savepoint save;
+        try {
+            save = databaseConnection.connection().setSavepoint();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        String query = "INSERT INTO requests (request_id, book_id, amount, status) VALUES (?, ?, ?, ?) ";
+
+        try (PreparedStatement preparedStatement = databaseConnection.connection().prepareStatement(query)) {
+            preparedStatement.setLong(1, request.getId());
+            preparedStatement.setLong(2, request.getBookId());
+            preparedStatement.setInt(3, request.getAmount());
+            preparedStatement.setString(4, request.getStatus().toString());
+
+            if (preparedStatement.executeUpdate() == 0) {
+                throw new RuntimeException("Ошибка бд при импорте запроса: ни одна строка не изменена");
+            }
+            databaseConnection.connection().commit();
+        } catch (SQLException e) {
+            try {
+                databaseConnection.connection().rollback(save);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void closeRequest(long request_id) {
+        Savepoint save;
+        try {
+            save = databaseConnection.connection().setSavepoint();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        String updateQuery = "UPDATE requests SET status = ? WHERE request_id = ?";
+        try (PreparedStatement statement = databaseConnection.connection().prepareStatement(updateQuery)) {
+            statement.setString(1, "CLOSED");
+            statement.setLong(2, request_id);
+
+            if (statement.executeUpdate() == 0) {
+                throw new RuntimeException("Ошибка бд при импорте запроса: ни одна строка не изменена");
+            }
+            databaseConnection.connection().commit();
+        } catch (SQLException e) {
+            try {
+                databaseConnection.connection().rollback(save);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Optional<Request> getRequest(ResultSet resultOrder) {
+        try{
+            return Optional.of(new Request(resultOrder.getLong(1),
+                    resultOrder.getLong(2),
+                    resultOrder.getInt(3),
+                    getStatusFromString(resultOrder.getString(4))));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    private RequestStatus getStatusFromString(String input) {
+        for (RequestStatus status : RequestStatus.values()) {
+            if (status.name().equalsIgnoreCase(input)) {
+                return status;
+            }
+        }
+        return null;
+    }
+
+    private long getNewRequestId() throws SQLException {
+        try (Statement statement = databaseConnection.connection().createStatement()) {
+            ResultSet resultOrder = statement.executeQuery("SELECT MAX(request_id) FROM requests");
+            resultOrder.next();
+            return resultOrder.getLong(1) + 1;
+        }
+    }
+}

@@ -1,6 +1,5 @@
 package model.impl;
 
-import DTO.OrderDTO;
 import model.Item;
 import model.OrderStatus;
 import lombok.Data;
@@ -11,9 +10,7 @@ import java.util.Objects;
 
 @Data
 public class Order implements Item {
-    private static Long counter = 0L;
-
-    private final Long id;
+    private Long id = 0L;
     private OrderStatus status;
     private Map<Long, Integer> books;
     private Double price;
@@ -23,9 +20,6 @@ public class Order implements Item {
 
     // Для создания заказа магазина
     public Order(Map<Long, Integer> books, double price, OrderStatus status, LocalDate orderDate, String clientName) {
-        counter++;
-        this.id = counter;
-
         this.books = books;
         this.status = status;
         this.orderDate = orderDate;
@@ -35,8 +29,8 @@ public class Order implements Item {
     }
 
     // Для создания импортируемого заказа
-    public Order(long id, String clientName, double price, OrderStatus status, LocalDate orderDate,
-                 LocalDate completeDate, Map<Long, Integer> books) {
+    public Order(long id, OrderStatus status, double price, LocalDate orderDate,
+                 LocalDate completeDate, String clientName, Map<Long, Integer> books) {
         this.id = id;
         this.clientName = clientName;
         this.price = price;
@@ -44,20 +38,6 @@ public class Order implements Item {
         this.orderDate = orderDate;
         this.completeDate = completeDate;
         this.books = books;
-    }
-
-    public Order(OrderDTO dto) {
-        this.id = dto.id();
-        this.clientName = dto.clientName();
-        this.price = dto.price();
-        this.status = dto.status();
-        this.orderDate = dto.orderDate();
-        this.completeDate = dto.completeDate();
-        this.books = dto.books();
-    }
-
-    public static void setCounter(long counter){
-        Order.counter = counter;
     }
 
     @Override

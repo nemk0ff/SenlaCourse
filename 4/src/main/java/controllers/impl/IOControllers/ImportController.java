@@ -37,7 +37,7 @@ public class ImportController {
         LocalDate lastSaleDate = parts[7].trim().equals("null") ?
                 null : LocalDate.parse(parts[7].trim(), dateFormatter);
 
-        return new Book(id, name, author, amount, price, publicationYear, lastDeliveredDate, lastSaleDate);
+        return new Book(id, name, author, publicationYear, amount, price, lastDeliveredDate, lastSaleDate);
     }
 
     public static Request requestParser(String[] parts) {
@@ -71,7 +71,7 @@ public class ImportController {
             int amount = Integer.parseInt(parts[i + 1].trim());
             books.put(bookId, amount);
         }
-        return new Order(id, name, price, status, orderDate, completeDate, books);
+        return new Order(id, status, price, orderDate, completeDate, name, books);
     }
 
     public static void printImportFile(String importPath) {

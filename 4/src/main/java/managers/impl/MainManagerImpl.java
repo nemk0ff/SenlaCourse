@@ -33,18 +33,106 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
+    public void addBook(long id, Integer amount, LocalDate deliveredDate) throws IllegalArgumentException {
+        libraryManager.add(id, amount, deliveredDate);
+        if (markOrdersCompleted) {
+            updateOrders(deliveredDate);
+        }
+    }
+
+    @Override
     public void writeOff(long id, Integer amount, LocalDate writeOffDate) throws IllegalArgumentException {
         libraryManager.writeOff(id, amount, writeOffDate);
         updateOrders(writeOffDate);
     }
 
     @Override
-    public void addBook(long id, Integer amount, LocalDate deliveredDate) throws IllegalArgumentException {
-        libraryManager.addBook(id, amount, deliveredDate);
-        if (markOrdersCompleted) {
-            updateOrders(deliveredDate);
-        }
+    public Optional<Book> getBook(long id) {
+        return libraryManager.getBook(id);
     }
+
+    @Override
+    public List<Book> getAllBooks() {
+        return libraryManager.getAllBooks();
+    }
+
+    private List<Book> sortBooks(List<Book> books, Comparator<Book> comparator) {
+        if (books.isEmpty()) {
+            return books;
+        }
+        List<Book> sortedBooks = new ArrayList<>(books);
+        sortedBooks.sort(comparator);
+        return sortedBooks;
+    }
+
+    @Override
+    public List<Book> getAllBooksByAlphabet() {
+        return sortBooks(getAllBooks(), Comparator.comparing(Book::getName));
+    }
+
+    @Override
+    public List<Book> getAllBooksByDate() {
+        return sortBooks(getAllBooks(), Comparator.comparing(Book::getPublicationDate));
+    }
+
+    @Override
+    public List<Book> getAllBooksByPrice() {
+        return sortBooks(getAllBooks(), Comparator.comparing(Book::getPrice));
+    }
+
+    @Override
+    public List<Book> getAllBooksByAvailable() {
+        return sortBooks(getAllBooks(), Comparator.comparing(Book::getStatus));
+    }
+
+    private List<Book> getBooks(List<Long> booksIds) {
+        return libraryManager.getBooks(booksIds);
+    }
+
+    private Stream<Book> getStaleBooks() throws IllegalArgumentException {
+        return getAllBooks().stream()
+                .filter(book -> book.getAmount() > 0)
+                .filter(book -> (book.getLastSaleDate() == null && Period.between(book.getLastDeliveredDate(),
+                        LocalDate.now()).getMonths() >= staleBookMonths)
+                        || (book.getLastSaleDate() != null && Period.between(book.getLastSaleDate(),
+                        LocalDate.now()).getMonths() >= staleBookMonths));
+    }
+
+    @Override
+    public List<Book> getAllStaleBooksByDate() throws IllegalArgumentException {
+        return getStaleBooks()
+                .sorted(Comparator.comparing(Book::getLastDeliveredDate))
+                .toList();
+    }
+
+    @Override
+    public List<Book> getAllStaleBooksByPrice() throws IllegalArgumentException {
+        return getStaleBooks()
+                .sorted(Comparator.comparing(Book::getPrice))
+                .toList();
+    }
+
+    @Override
+    public boolean containsBooks(List<Long> booksIds) {
+        for (long id : booksIds) {
+            if (!containsBook(id)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean containsBook(long bookId) {
+        return libraryManager.containsBook(bookId);
+    }
+
+    @Override
+    public void importBook(Book book) throws IllegalArgumentException {
+        libraryManager.importBook(book);
+        updateOrders(LocalDate.now());
+    }
+
 
     private void updateOrders(LocalDate updateDate) {
         for (Order order : getOrders()) {
@@ -66,8 +154,7 @@ public class MainManagerImpl implements MainManager {
     }
 
     private void completeOrder(Order order, LocalDate completeDate) {
-        order.setStatus(OrderStatus.COMPLETED);
-        order.setCompleteDate(completeDate);
+        ordersManager.setOrderStatus(order.getId(), OrderStatus.COMPLETED);
 
         ordersManager.closeRequests(order.getBooks());
 
@@ -77,7 +164,7 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public void addRequest(long bookId, int amount) {
+    public void createRequest(long bookId, int amount) {
         ordersManager.addRequest(bookId, amount);
     }
 
@@ -92,53 +179,19 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public boolean cancelOrder(long orderId) {
-        return ordersManager.cancelOrder(orderId);
+    public void cancelOrder(long orderId) {
+        ordersManager.cancelOrder(orderId);
     }
 
     @Override
-    public boolean setOrderStatus(long orderId, OrderStatus status) {
-        return ordersManager.setOrderStatus(orderId, status);
+    public void setOrderStatus(long orderId, OrderStatus status) {
+        ordersManager.setOrderStatus(orderId, status);
     }
 
-    @Override
-    public List<Book> getBooks() {
-        return libraryManager.getBooksAsList();
-    }
-
-    public List<Book> getBooks(List<Long> booksIds) {
-        return libraryManager.getBooks(booksIds);
-    }
-
-    @Override
-    public List<Book> getBooksByAlphabet() {
-        return sortBooks(getBooks(), Comparator.comparing(Book::getName));
-    }
-
-    @Override
-    public List<Book> getBooksByDate() {
-        return sortBooks(getBooks(), Comparator.comparing(Book::getPublicationDate));
-    }
-
-    @Override
-    public List<Book> getBooksByPrice() {
-        return sortBooks(getBooks(), Comparator.comparing(Book::getPrice));
-    }
-
-    @Override
-    public List<Book> getBooksByAvailable() {
-        return sortBooks(getBooks(), Comparator.comparing(Book::getStatus));
-    }
-
-    private List<Book> sortBooks(List<Book> books, Comparator<Book> comparator) {
-        List<Book> sortedBooks = new ArrayList<>(books);
-        sortedBooks.sort(comparator);
-        return sortedBooks;
-    }
 
     @Override
     public List<Order> getOrders() {
-        return ordersManager.getOrdersAsList();
+        return ordersManager.getOrders();
     }
 
     @Override
@@ -165,7 +218,7 @@ public class MainManagerImpl implements MainManager {
 
     @Override
     public List<Request> getRequests() {
-        return ordersManager.getRequestsAsList();
+        return ordersManager.getRequests();
     }
 
     private Map<Book, Long> groupRequestsByBook(List<Request> requests) {
@@ -230,52 +283,9 @@ public class MainManagerImpl implements MainManager {
                 .filter(order -> !order.getCompleteDate().isBefore(begin) && !order.getCompleteDate().isAfter(end));
     }
 
-    private Stream<Book> getStaleBooks() {
-        return getBooks().stream()
-                .filter(book -> book.getAmount() > 0)
-                .filter(book -> (book.getLastSaleDate() == null && Period.between(book.getLastDeliveredDate(),
-                        LocalDate.now()).getMonths() >= staleBookMonths)
-                        || (book.getLastSaleDate() != null && Period.between(book.getLastSaleDate(),
-                        LocalDate.now()).getMonths() >= staleBookMonths));
-    }
-
-    @Override
-    public List<Book> getStaleBooksByDate() {
-        return getStaleBooks()
-                .sorted(Comparator.comparing(Book::getLastDeliveredDate))
-                .toList();
-    }
-
-    @Override
-    public List<Book> getStaleBooksByPrice() {
-        return getStaleBooks()
-                .sorted(Comparator.comparing(Book::getPrice))
-                .toList();
-    }
-
-    @Override
-    public Optional<Book> getBook(long id) {
-        return libraryManager.getMaybeBook(id);
-    }
-
     @Override
     public Optional<Order> getOrder(Long orderId) {
         return ordersManager.getOrder(orderId);
-    }
-
-    @Override
-    public boolean containsBooks(List<Long> booksIds) {
-        for (long id : booksIds) {
-            if (!containsBook(id)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public boolean containsBook(long bookId) {
-        return libraryManager.containsBook(bookId);
     }
 
     public double getPrice(List<Long> booksIds) {
@@ -291,10 +301,9 @@ public class MainManagerImpl implements MainManager {
     public void createRequests(Order order) {
         boolean completed = true;
         for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
-            // Если книги нет, то создаём запрос на неё
             Optional<Book> book = getBook(entry.getKey());
+            createRequest(entry.getKey(), entry.getValue());
             if (book.isPresent() && !isAvailable(entry.getKey(), entry.getValue())) {
-                addRequest(entry.getKey(), entry.getValue());
                 completed = false;
             }
         }
@@ -310,17 +319,7 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public void importBook(Book book) {
-        Optional<Book> findBook = getBook(book.getId());
-        if (findBook.isPresent()) {
-            findBook.get().copyOf(book);
-        } else {
-            libraryManager.importBook(book);
-        }
-    }
-
-    @Override
-    public void importOrder(Order order) {
+    public void importOrder(Order order) throws IllegalArgumentException {
         // Если импортируем заказ на книгу, которой нет в магазине вообще
         if (!containsBooks((order).getBooks().keySet().stream().toList())) {
             throw new IllegalArgumentException("В импортируемом заказе " + order.getId() + " есть несуществующие книги");
@@ -340,7 +339,7 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public void importRequest(Request request) {
+    public void importRequest(Request request) throws IllegalArgumentException {
         // Если импортируем запрос на книгу, которой нет в магазине вообще
         if (!containsBook((request).getBookId())) {
             throw new IllegalArgumentException("Запрос " + request.getId() + " - запрос на книгу, которой не существует");
@@ -354,7 +353,7 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public <T extends Item> void importItem(T item) {
+    public <T extends Item> void importItem(T item) throws IllegalArgumentException {
         if (item instanceof Book) {
             importBook((Book) item);
         } else if (item instanceof Order) {

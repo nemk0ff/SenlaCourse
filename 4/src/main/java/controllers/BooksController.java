@@ -21,6 +21,8 @@ public interface BooksController extends Controller {
 
     void importAll();
 
+    void exportAll();
+
     void importBook();
 
     void exportBook();

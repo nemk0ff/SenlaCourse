@@ -58,8 +58,7 @@ public class RequestsControllerImpl implements RequestsController {
                 importAll();
                 yield Action.CONTINUE;
             case 7:
-                ExportController.exportAll(mainManager.getRequests(),
-                        IOConstants.EXPORT_REQUEST_PATH, IOConstants.REQUEST_HEADER);
+                exportAll();
                 yield Action.CONTINUE;
             case 8:
                 getAllRequests();
@@ -76,27 +75,43 @@ public class RequestsControllerImpl implements RequestsController {
 
     @Override
     public void createRequest() {
-        requestsMenu.showBooks(mainManager.getBooks());
+        requestsMenu.showBooks(mainManager.getAllBooks());
         requestsMenu.showGetId("Введите id книги, на которую хотите создать запрос: ");
         long bookId = getNumberFromConsole();
         requestsMenu.showMessage("На сколько книг создать запрос? ");
         int amount = (int) getNumberFromConsole();
-        mainManager.addRequest(bookId, amount);
+        try {
+            mainManager.createRequest(bookId, amount);
+        } catch (Exception e) {
+            requestsMenu.showError(e.getMessage());
+        }
     }
 
     @Override
     public void getRequestsByCount() {
-        requestsMenu.showRequests(mainManager.getRequestsByCount());
+        try {
+            requestsMenu.showRequests(mainManager.getRequestsByCount());
+        } catch (Exception e) {
+            requestsMenu.showError(e.getMessage());
+        }
     }
 
     @Override
     public void getRequestsByPrice() {
-        requestsMenu.showRequests(mainManager.getRequestsByPrice());
+        try {
+            requestsMenu.showRequests(mainManager.getRequestsByPrice());
+        } catch (Exception e) {
+            requestsMenu.showError(e.getMessage());
+        }
     }
 
     @Override
     public void getAllRequests() {
-        requestsMenu.showRequests(mainManager.getRequests());
+        try {
+            requestsMenu.showRequests(mainManager.getRequests());
+        } catch (Exception e) {
+            requestsMenu.showError(e.getMessage());
+        }
     }
 
     @Override
@@ -108,7 +123,7 @@ public class RequestsControllerImpl implements RequestsController {
                 mainManager.importItem(findRequest.get());
                 requestsMenu.showSuccessImport();
                 findRequest.ifPresent(requestsMenu::showItem);
-            } catch (IllegalArgumentException e) {
+            } catch (Exception e) {
                 requestsMenu.showError(e.getMessage());
             }
         } else {
@@ -125,7 +140,7 @@ public class RequestsControllerImpl implements RequestsController {
         String exportString;
         try {
             exportString = getExportString(exportId);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             requestsMenu.showError("Запрос для экспорта не найден");
             return;
         }
@@ -150,7 +165,17 @@ public class RequestsControllerImpl implements RequestsController {
                 }
             }
         } else {
-            requestsMenu.showError("Не удалось импортировать запросы из файла.");
+            requestsMenu.showError("Импорт не выполнен: запросы для импорта не найдены");
+        }
+    }
+
+    @Override
+    public void exportAll() {
+        try {
+            ExportController.exportAll(mainManager.getRequests(),
+                    IOConstants.EXPORT_REQUEST_PATH, IOConstants.REQUEST_HEADER);
+        } catch (Exception e) {
+            requestsMenu.showError("Не удалось выполнить экспорт: " + e.getMessage());
         }
     }
 
@@ -159,7 +184,7 @@ public class RequestsControllerImpl implements RequestsController {
         if (request.isPresent()) {
             return request.get().toString();
         }
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Запрос №" + id + " не найден");
     }
 
     private long getNumberFromConsole() {

@@ -1,6 +1,5 @@
 package model.impl;
 
-import DTO.RequestDTO;
 import lombok.Data;
 import model.Item;
 import model.RequestStatus;
@@ -30,13 +29,6 @@ public class Request implements Item {
         this.bookId = bookId;
         this.amount = amount;
         this.status = status;
-    }
-
-    public Request(RequestDTO dto) {
-        this.id = dto.id();
-        this.bookId = dto.bookId();
-        this.amount = dto.amount();
-        this.status = dto.status();
     }
 
     public static void setCounter(long counter){
