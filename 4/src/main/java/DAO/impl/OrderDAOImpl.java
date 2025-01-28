@@ -123,10 +123,10 @@ public class OrderDAOImpl implements OrderDAO {
             case OrderSort.COMPLETE_DATE -> "SELECT * FROM orders ORDER BY completeDate";
             case OrderSort.PRICE -> "SELECT * FROM orders ORDER BY price";
             case OrderSort.STATUS -> "SELECT * FROM orders ORDER BY status";
-            case OrderSort.COMPLETED_BY_DATE -> "SELECT * FROM orders WHERE completeDate >= " + begin +
-                    " AND completeDate <= " + end + " ORDER BY completeDate";
-            case OrderSort.COMPLETED_BY_PRICE -> "SELECT * FROM orders WHERE completeDate >= " + begin +
-                    " AND completeDate <= " + end + " ORDER BY price";
+            case OrderSort.COMPLETED_BY_DATE -> "SELECT * FROM orders WHERE completeDate >= '" + begin +
+                    "' AND completeDate <= '" + end + "' ORDER BY completeDate";
+            case OrderSort.COMPLETED_BY_PRICE -> "SELECT * FROM orders WHERE completeDate >= '" + begin +
+                    "' AND completeDate <= '" + end + "' ORDER BY price";
             default -> "SELECT * FROM orders ORDER BY order_id";
         };
     }
@@ -147,13 +147,10 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public Double getEarnedSum(LocalDate begin, LocalDate end) {
-        String query = "SELECT SUM(price) FROM orders WHERE completeDate >= " + begin + " AND completeDate <= " + end;
+        String query = "SELECT SUM(price) FROM orders WHERE completeDate >= '" + begin + "' AND completeDate <= '" + end + "'";
 
         try (Statement statement = databaseConnection.connection().createStatement();
              ResultSet result = statement.executeQuery(query)) {
-            if (result.wasNull()) {
-                throw new SQLException("Ошибка при получении заработанной суммы за период времени");
-            }
             result.next();
             return result.getDouble(1);
         } catch (SQLException e) {
@@ -163,13 +160,10 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public Long getCountCompletedOrders(LocalDate begin, LocalDate end) {
-        String query = "SELECT COUNT(*) FROM orders WHERE completeDate >= " + begin + " AND completeDate <= " + end;
+        String query = "SELECT COUNT(*) FROM orders WHERE completeDate >= '" + begin + "' AND completeDate <= '" + end + "'";
 
         try (Statement statement = databaseConnection.connection().createStatement();
              ResultSet result = statement.executeQuery(query)) {
-            if (result.wasNull()) {
-                throw new SQLException("Ошибка при получении количества выполненных заказов за период времени");
-            }
             result.next();
             return result.getLong(1);
         } catch (SQLException e) {
