@@ -83,13 +83,4 @@ public class Order implements Item {
         }
         return resultString.toString();
     }
-
-    public void copyOf(Order other) {
-        this.clientName = other.clientName;
-        this.price = other.price;
-        this.status = other.status;
-        this.orderDate = other.orderDate;
-        this.completeDate = other.completeDate;
-        this.books = other.books;
-    }
 }

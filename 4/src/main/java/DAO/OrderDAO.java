@@ -12,6 +12,8 @@ public interface OrderDAO {
 
     void addOrder(Order order);
 
+    void rewriteOrder(Order order);
+
     List<Order> getAllOrders(OrderSort sortType, LocalDateTime begin, LocalDateTime end);
 
     Optional<Order> getOrderById(long order_id);

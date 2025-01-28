@@ -5,7 +5,6 @@ import annotations.DIComponentDependency;
 import config.DatabaseConnection;
 import model.OrderStatus;
 import model.impl.Order;
-import sorting.BookSort;
 import sorting.OrderSort;
 
 import java.sql.*;
@@ -21,13 +20,6 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public void setOrderStatus(long orderId, String status) {
-        Savepoint save;
-        try {
-            save = databaseConnection.connection().setSavepoint();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
         String updateQuery = "UPDATE orders SET status = ?, completeDate = ? WHERE order_id = ?";
         try (PreparedStatement statement = databaseConnection.connection().prepareStatement(updateQuery)) {
             statement.setString(1, status);
@@ -40,7 +32,34 @@ public class OrderDAOImpl implements OrderDAO {
             databaseConnection.connection().commit();
         } catch (SQLException e) {
             try {
-                databaseConnection.connection().rollback(save);
+                databaseConnection.connection().rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void rewriteOrder(Order order) {
+        String updateQuery = "UPDATE orders SET status = ?, price = ?, orderDate = ?, completeDate = ?, clientName = ?" +
+                "WHERE order_id = ?";
+        try (PreparedStatement statement = databaseConnection.connection().prepareStatement(updateQuery)) {
+            statement.setString(1, order.getStatus().toString());
+            statement.setDouble(2, order.getPrice());
+            statement.setTimestamp(3, Timestamp.valueOf(order.getOrderDate()));
+            if (order.getCompleteDate() != null) {
+                statement.setTimestamp(4, Timestamp.valueOf(order.getCompleteDate()));
+            } else {
+                statement.setNull(4, Types.TIMESTAMP);
+            }
+            statement.setString(5, order.getClientName());
+            statement.setLong(5, order.getId());
+
+            databaseConnection.connection().commit();
+        } catch (SQLException e) {
+            try {
+                databaseConnection.connection().rollback();
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }

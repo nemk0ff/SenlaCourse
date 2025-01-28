@@ -88,13 +88,6 @@ public class RequestDAOImpl implements RequestDAO {
 
     @Override
     public void addRequest(long book_id, int amount) {
-        Savepoint save;
-        try {
-            save = databaseConnection.connection().setSavepoint();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
         String insertOrderQuery = "INSERT INTO requests (request_id, book_id, amount, status) VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement orderStatement = databaseConnection.connection().prepareStatement(insertOrderQuery)) {
@@ -110,7 +103,7 @@ public class RequestDAOImpl implements RequestDAO {
             databaseConnection.connection().commit();
         } catch (SQLException e) {
             try {
-                databaseConnection.connection().rollback(save);
+                databaseConnection.connection().rollback();
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
@@ -120,13 +113,6 @@ public class RequestDAOImpl implements RequestDAO {
 
     @Override
     public void importRequest(Request request) {
-        Savepoint save;
-        try {
-            save = databaseConnection.connection().setSavepoint();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
         String query = "INSERT INTO requests (request_id, book_id, amount, status) VALUES (?, ?, ?, ?) ";
 
         try (PreparedStatement preparedStatement = databaseConnection.connection().prepareStatement(query)) {
@@ -141,7 +127,7 @@ public class RequestDAOImpl implements RequestDAO {
             databaseConnection.connection().commit();
         } catch (SQLException e) {
             try {
-                databaseConnection.connection().rollback(save);
+                databaseConnection.connection().rollback();
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
@@ -151,13 +137,6 @@ public class RequestDAOImpl implements RequestDAO {
 
     @Override
     public void closeRequest(long request_id) {
-        Savepoint save;
-        try {
-            save = databaseConnection.connection().setSavepoint();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
         String updateQuery = "UPDATE requests SET status = ? WHERE request_id = ?";
         try (PreparedStatement statement = databaseConnection.connection().prepareStatement(updateQuery)) {
             statement.setString(1, "CLOSED");
@@ -169,7 +148,7 @@ public class RequestDAOImpl implements RequestDAO {
             databaseConnection.connection().commit();
         } catch (SQLException e) {
             try {
-                databaseConnection.connection().rollback(save);
+                databaseConnection.connection().rollback();
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }

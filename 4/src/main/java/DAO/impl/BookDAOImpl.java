@@ -69,8 +69,6 @@ public class BookDAOImpl implements BookDAO {
     }
 
     private void setAmount(long book_id, int amount, String dateType, LocalDateTime dateSet) throws SQLException {
-        Savepoint save = databaseConnection.connection().setSavepoint();
-
         try (PreparedStatement preparedStatement = databaseConnection.connection().prepareStatement
                 ("UPDATE library SET amount = ?, " + dateType + " = ? WHERE book_id = ?")) {
 
@@ -83,7 +81,7 @@ public class BookDAOImpl implements BookDAO {
             }
             databaseConnection.connection().commit();
         } catch (SQLException e) {
-            databaseConnection.connection().rollback(save);
+            databaseConnection.connection().rollback();
             throw e;
         }
     }
@@ -152,13 +150,6 @@ public class BookDAOImpl implements BookDAO {
 
     @Override
     public void importBook(Book book) throws IllegalArgumentException {
-        Savepoint save;
-        try {
-            save = databaseConnection.connection().setSavepoint();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
         String query = "INSERT INTO library (book_id, name, author, publicationDate, " +
                 "amount, price, lastDeliveredDate, lastSaleDate, status) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) " +
@@ -186,13 +177,12 @@ public class BookDAOImpl implements BookDAO {
             preparedStatement.setString(9, book.getStatus().toString());
 
             if (preparedStatement.executeUpdate() == 0) {
-                databaseConnection.connection().rollback(save);
                 throw new SQLException("Ошибка бд при изменении количества книг: ни одна книга не изменена");
             }
             databaseConnection.connection().commit();
         } catch (SQLException e) {
             try {
-                databaseConnection.connection().rollback(save);
+                databaseConnection.connection().rollback();
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }

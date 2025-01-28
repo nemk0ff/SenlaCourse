@@ -281,7 +281,7 @@ public class MainManagerImpl implements MainManager {
             // При копировании меняется состав заказа, нужно закрыть старые запросы
             requestDAO.closeRequests(findOrder.get().getBooks());
             // Перезаписываем заказ
-            findOrder.get().copyOf(order);
+            orderDAO.rewriteOrder(order);
         } else {
             orderDAO.addOrder(order);
         }
