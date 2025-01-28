@@ -3,14 +3,14 @@ package DAO;
 import model.impl.Book;
 import sorting.BookSort;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface BookDAO {
-    void add(long book_id, int amount, LocalDate deliveredDate) throws IllegalArgumentException;
+    void add(long book_id, int amount, LocalDateTime deliveredDate) throws IllegalArgumentException;
 
-    void writeOff(long book_id, int amount, LocalDate saleDate) throws IllegalArgumentException;
+    void writeOff(long book_id, int amount, LocalDateTime saleDate) throws IllegalArgumentException;
 
     List<Book> getAllBooks(BookSort sortType);
 

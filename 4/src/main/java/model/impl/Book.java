@@ -4,7 +4,7 @@ import lombok.Data;
 import model.BookStatus;
 import model.Item;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Data
@@ -15,12 +15,12 @@ public class Book implements Item {
     private Integer publicationDate;
     private Integer amount;
     private Double price;
-    private LocalDate lastDeliveredDate;
-    private LocalDate lastSaleDate;
+    private LocalDateTime lastDeliveredDate;
+    private LocalDateTime lastSaleDate;
     private BookStatus status;
 
     public Book(Long id, String name, String author, Integer publicationDate, Integer amount, Double price,
-                LocalDate lastDeliveredDate, LocalDate lastSaleDate, BookStatus status) {
+                LocalDateTime lastDeliveredDate, LocalDateTime lastSaleDate, BookStatus status) {
         this.id = id;
         this.author = author;
         this.name = name;
@@ -33,7 +33,7 @@ public class Book implements Item {
     }
 
     public Book(Long id, String name, String author, Integer publicationDate, Integer amount, Double price,
-                LocalDate lastDeliveredDate, LocalDate lastSaleDate) {
+                LocalDateTime lastDeliveredDate, LocalDateTime lastSaleDate) {
         this.id = id;
         this.author = author;
         this.name = name;
@@ -83,17 +83,6 @@ public class Book implements Item {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    public void copyOf(Book book) {
-        this.name = book.name;
-        this.author = book.author;
-        this.amount = book.amount;
-        this.price = book.price;
-        this.publicationDate = book.publicationDate;
-        this.lastDeliveredDate = book.lastDeliveredDate;
-        this.lastSaleDate = book.lastSaleDate;
-        this.status = amount > 0 ? BookStatus.AVAILABLE : BookStatus.NOT_AVAILABLE;
     }
 
     @Override

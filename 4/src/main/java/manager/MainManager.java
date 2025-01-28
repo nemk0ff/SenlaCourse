@@ -6,13 +6,13 @@ import model.Item;
 import model.OrderStatus;
 import model.impl.Request;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public interface MainManager {
-    void addBook(long bookId, Integer amount, LocalDate addDate) throws IllegalArgumentException;
+    void addBook(long bookId, Integer amount, LocalDateTime addDate) throws IllegalArgumentException;
 
-    void writeOff(long bookId, Integer amount, LocalDate saleDate) throws IllegalArgumentException;
+    void writeOff(long bookId, Integer amount, LocalDateTime saleDate) throws IllegalArgumentException;
 
     Optional<Book> getBook(long bookId);
 
@@ -37,7 +37,7 @@ public interface MainManager {
     void importBook(Book book) throws IllegalArgumentException;
 
 
-    void createOrder(Map<Long, Integer> booksIds, String clientName, LocalDate createDate);
+    void createOrder(Map<Long, Integer> booksIds, String clientName, LocalDateTime createDate);
 
     void cancelOrder(long orderId);
 
@@ -53,11 +53,11 @@ public interface MainManager {
 
     List<Order> getAllOrdersByStatus();
 
-    List<Order> getCompletedOrdersByDate(LocalDate begin, LocalDate end);
+    List<Order> getCompletedOrdersByDate(LocalDateTime begin, LocalDateTime end);
 
-    List<Order> getCompletedOrdersByPrice(LocalDate begin, LocalDate end);
+    List<Order> getCompletedOrdersByPrice(LocalDateTime begin, LocalDateTime end);
 
-    Long getCountCompletedOrders(LocalDate begin, LocalDate end);
+    Long getCountCompletedOrders(LocalDateTime begin, LocalDateTime end);
 
     void importOrder(Order order);
 
@@ -77,7 +77,7 @@ public interface MainManager {
     void importRequest(Request request);
 
 
-    Double getEarnedSum(LocalDate begin, LocalDate end);
+    Double getEarnedSum(LocalDateTime begin, LocalDateTime end);
 
     <T extends Item> void importItem(T Item);
 }

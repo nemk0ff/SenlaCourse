@@ -11,8 +11,7 @@ import model.impl.Book;
 import sorting.BookSort;
 
 import java.sql.*;
-import java.time.LocalDate;
-import java.time.Period;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +33,7 @@ public class BookDAOImpl implements BookDAO {
     }
 
     @Override
-    public void add(long book_id, int amount, LocalDate deliveredDate) throws IllegalArgumentException {
+    public void add(long book_id, int amount, LocalDateTime deliveredDate) throws IllegalArgumentException {
         Optional<Book> ourBook = getBookById(book_id);
         if (ourBook.isEmpty()) {
             throw new IllegalArgumentException("Такой книги нет в магазине");
@@ -51,7 +50,7 @@ public class BookDAOImpl implements BookDAO {
     }
 
     @Override
-    public void writeOff(long book_id, int amount, LocalDate saleDate) throws IllegalArgumentException {
+    public void writeOff(long book_id, int amount, LocalDateTime saleDate) throws IllegalArgumentException {
         Optional<Book> ourBook = getBookById(book_id);
         if (ourBook.isEmpty()) {
             throw new IllegalArgumentException("Такой книги нет в магазине");
@@ -69,14 +68,14 @@ public class BookDAOImpl implements BookDAO {
         }
     }
 
-    private void setAmount(long book_id, int amount, String dateType, LocalDate dateSet) throws SQLException {
+    private void setAmount(long book_id, int amount, String dateType, LocalDateTime dateSet) throws SQLException {
         Savepoint save = databaseConnection.connection().setSavepoint();
 
         try (PreparedStatement preparedStatement = databaseConnection.connection().prepareStatement
                 ("UPDATE library SET amount = ?, " + dateType + " = ? WHERE book_id = ?")) {
 
             preparedStatement.setInt(1, amount);
-            preparedStatement.setDate(2, Date.valueOf(dateSet));
+            preparedStatement.setTimestamp(2, Timestamp.valueOf(dateSet));
             preparedStatement.setLong(3, book_id);
 
             if (preparedStatement.executeUpdate() == 0) {
@@ -220,8 +219,8 @@ public class BookDAOImpl implements BookDAO {
                     results.getInt(4),
                     results.getInt(5),
                     results.getDouble(6),
-                    results.getObject(7, LocalDate.class),
-                    results.getObject(8, LocalDate.class),
+                    results.getObject(7, LocalDateTime.class),
+                    results.getObject(8, LocalDateTime.class),
                     getStatusFromString(results.getString(9), results.getInt(5))));
         } catch (SQLException e) {
             return Optional.empty();

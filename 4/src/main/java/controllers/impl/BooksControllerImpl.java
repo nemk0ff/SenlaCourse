@@ -10,7 +10,7 @@ import manager.MainManagerImpl;
 import model.impl.Book;
 import view.impl.BooksMenuImpl;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -98,7 +98,7 @@ public class BooksControllerImpl implements BooksController {
             booksMenu.showGetAmountBooks("Сколько книг добавить? Введите число: ");
             int amount = (int) getNumberFromConsole();
 
-            mainManager.addBook(bookId, amount, LocalDate.now());
+            mainManager.addBook(bookId, amount, LocalDateTime.now());
             booksMenu.showSuccess("Добавлено " + amount + " книг №" + bookId);
         } catch (IllegalArgumentException e) {
             booksMenu.showError(e.getMessage());
@@ -114,7 +114,7 @@ public class BooksControllerImpl implements BooksController {
             booksMenu.showGetAmountBooks("Сколько книг списать? Введите число: ");
             int amount = (int) getNumberFromConsole();
 
-            mainManager.writeOff(id, amount, LocalDate.now());
+            mainManager.writeOff(id, amount, LocalDateTime.now());
             booksMenu.showSuccess("Списание книг произведено успешно!");
         } catch (IllegalArgumentException e) {
             booksMenu.showError(e.getMessage());

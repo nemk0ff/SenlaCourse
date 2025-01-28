@@ -3,7 +3,7 @@ package DAO;
 import model.impl.Order;
 import sorting.OrderSort;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,11 +12,11 @@ public interface OrderDAO {
 
     void addOrder(Order order);
 
-    List<Order> getAllOrders(OrderSort sortType, LocalDate begin, LocalDate end);
+    List<Order> getAllOrders(OrderSort sortType, LocalDateTime begin, LocalDateTime end);
 
     Optional<Order> getOrderById(long order_id);
 
-    Double getEarnedSum(LocalDate begin, LocalDate end);
+    Double getEarnedSum(LocalDateTime begin, LocalDateTime end);
 
-    Long getCountCompletedOrders(LocalDate begin, LocalDate end);
+    Long getCountCompletedOrders(LocalDateTime begin, LocalDateTime end);
 }

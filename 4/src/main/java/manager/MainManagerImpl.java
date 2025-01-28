@@ -15,7 +15,7 @@ import sorting.BookSort;
 import sorting.OrderSort;
 import sorting.RequestSort;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,7 +36,7 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public void addBook(long id, Integer amount, LocalDate deliveredDate) throws IllegalArgumentException {
+    public void addBook(long id, Integer amount, LocalDateTime deliveredDate) throws IllegalArgumentException {
         bookDAO.add(id, amount, deliveredDate);
         if (markOrdersCompleted) {
             updateOrders(deliveredDate);
@@ -44,7 +44,7 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public void writeOff(long id, Integer amount, LocalDate writeOffDate) throws IllegalArgumentException {
+    public void writeOff(long id, Integer amount, LocalDateTime writeOffDate) throws IllegalArgumentException {
         bookDAO.writeOff(id, amount, writeOffDate);
         updateOrders(writeOffDate);
     }
@@ -107,17 +107,17 @@ public class MainManagerImpl implements MainManager {
     @Override
     public void importBook(Book book) throws IllegalArgumentException {
         bookDAO.importBook(book);
-        updateOrders(LocalDate.now());
+        updateOrders(LocalDateTime.now());
     }
 
 
-    private void updateOrders(LocalDate updateDate) {
+    private void updateOrders(LocalDateTime updateDate) {
         for (Order order : getAllOrders()) {
             updateOrder(order, updateDate);
         }
     }
 
-    private void updateOrder(Order order, LocalDate updateDate) {
+    private void updateOrder(Order order, LocalDateTime updateDate) {
         // Если все книги для заказа есть, то мы завершаем заказ
         if (order.getStatus() == OrderStatus.NEW) {
             for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
@@ -130,7 +130,7 @@ public class MainManagerImpl implements MainManager {
         }
     }
 
-    private void completeOrder(Order order, LocalDate completeDate) {
+    private void completeOrder(Order order, LocalDateTime completeDate) {
         orderDAO.setOrderStatus(order.getId(), "COMPLETED");
 
         requestDAO.closeRequests(order.getBooks());
@@ -146,7 +146,7 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public void createOrder(Map<Long, Integer> booksIds, String clientName, LocalDate orderDate) {
+    public void createOrder(Map<Long, Integer> booksIds, String clientName, LocalDateTime orderDate) {
         Order newOrder = new Order(booksIds, getPrice(booksIds.keySet().stream().toList()),
                 OrderStatus.NEW, orderDate, clientName);
 
@@ -196,22 +196,22 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public List<Order> getCompletedOrdersByDate(LocalDate begin, LocalDate end) {
+    public List<Order> getCompletedOrdersByDate(LocalDateTime begin, LocalDateTime end) {
         return orderDAO.getAllOrders(OrderSort.COMPLETED_BY_DATE, begin, end);
     }
 
     @Override
-    public List<Order> getCompletedOrdersByPrice(LocalDate begin, LocalDate end) {
+    public List<Order> getCompletedOrdersByPrice(LocalDateTime begin, LocalDateTime end) {
         return orderDAO.getAllOrders(OrderSort.COMPLETED_BY_PRICE, begin, end);
     }
 
     @Override
-    public Double getEarnedSum(LocalDate begin, LocalDate end) {
+    public Double getEarnedSum(LocalDateTime begin, LocalDateTime end) {
         return orderDAO.getEarnedSum(begin, end);
     }
 
     @Override
-    public Long getCountCompletedOrders(LocalDate begin, LocalDate end) {
+    public Long getCountCompletedOrders(LocalDateTime begin, LocalDateTime end) {
         return orderDAO.getCountCompletedOrders(begin, end);
     }
 
@@ -260,7 +260,7 @@ public class MainManagerImpl implements MainManager {
         }
         // Если все книги есть, то мы их списываем и закрываем заказ
         if (completed) {
-            completeOrder(order, LocalDate.now());
+            completeOrder(order, LocalDateTime.now());
         }
     }
 

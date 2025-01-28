@@ -4,7 +4,7 @@ import model.Item;
 import model.OrderStatus;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 
@@ -14,12 +14,12 @@ public class Order implements Item {
     private OrderStatus status;
     private Map<Long, Integer> books;
     private Double price;
-    private LocalDate orderDate;
-    private LocalDate completeDate;
+    private LocalDateTime orderDate;
+    private LocalDateTime completeDate;
     private String clientName;
 
     // Для создания заказа магазина
-    public Order(Map<Long, Integer> books, double price, OrderStatus status, LocalDate orderDate, String clientName) {
+    public Order(Map<Long, Integer> books, double price, OrderStatus status, LocalDateTime orderDate, String clientName) {
         this.books = books;
         this.status = status;
         this.orderDate = orderDate;
@@ -29,8 +29,8 @@ public class Order implements Item {
     }
 
     // Для создания импортируемого заказа
-    public Order(long id, OrderStatus status, double price, LocalDate orderDate,
-                 LocalDate completeDate, String clientName, Map<Long, Integer> books) {
+    public Order(long id, OrderStatus status, double price, LocalDateTime orderDate,
+                 LocalDateTime completeDate, String clientName, Map<Long, Integer> books) {
         this.id = id;
         this.clientName = clientName;
         this.price = price;

@@ -9,7 +9,7 @@ import sorting.BookSort;
 import sorting.OrderSort;
 
 import java.sql.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class OrderDAOImpl implements OrderDAO {
@@ -31,7 +31,7 @@ public class OrderDAOImpl implements OrderDAO {
         String updateQuery = "UPDATE orders SET status = ?, completeDate = ? WHERE order_id = ?";
         try (PreparedStatement statement = databaseConnection.connection().prepareStatement(updateQuery)) {
             statement.setString(1, status);
-            statement.setString(2, LocalDate.now().toString());
+            statement.setString(2, LocalDateTime.now().toString());
             statement.setLong(3, orderId);
 
             if (statement.executeUpdate() == 0) {
@@ -100,7 +100,7 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     @Override
-    public List<Order> getAllOrders(OrderSort sortType, LocalDate begin, LocalDate end) {
+    public List<Order> getAllOrders(OrderSort sortType, LocalDateTime begin, LocalDateTime end) {
         List<Order> allOrders = new ArrayList<>();
 
         String query = getQuery(sortType, begin, end);
@@ -118,7 +118,7 @@ public class OrderDAOImpl implements OrderDAO {
         return allOrders;
     }
 
-    private String getQuery(OrderSort sortType, LocalDate begin, LocalDate end) {
+    private String getQuery(OrderSort sortType, LocalDateTime begin, LocalDateTime end) {
         return switch (sortType) {
             case OrderSort.COMPLETE_DATE -> "SELECT * FROM orders ORDER BY completeDate";
             case OrderSort.PRICE -> "SELECT * FROM orders ORDER BY price";
@@ -146,7 +146,7 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     @Override
-    public Double getEarnedSum(LocalDate begin, LocalDate end) {
+    public Double getEarnedSum(LocalDateTime begin, LocalDateTime end) {
         String query = "SELECT SUM(price) FROM orders WHERE completeDate >= '" + begin + "' AND completeDate <= '" + end + "'";
 
         try (Statement statement = databaseConnection.connection().createStatement();
@@ -159,7 +159,7 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     @Override
-    public Long getCountCompletedOrders(LocalDate begin, LocalDate end) {
+    public Long getCountCompletedOrders(LocalDateTime begin, LocalDateTime end) {
         String query = "SELECT COUNT(*) FROM orders WHERE completeDate >= '" + begin + "' AND completeDate <= '" + end + "'";
 
         try (Statement statement = databaseConnection.connection().createStatement();
@@ -180,8 +180,8 @@ public class OrderDAOImpl implements OrderDAO {
             return Optional.of(new Order(resultOrder.getLong(1),
                     getStatusFromString(resultOrder.getString(2)),
                     resultOrder.getDouble(3),
-                    resultOrder.getObject(4, LocalDate.class),
-                    resultOrder.getObject(5, LocalDate.class),
+                    resultOrder.getObject(4, LocalDateTime.class),
+                    resultOrder.getObject(5, LocalDateTime.class),
                     resultOrder.getString(6),
                     books));
         } catch (Exception e) {

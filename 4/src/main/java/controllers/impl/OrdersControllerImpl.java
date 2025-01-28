@@ -12,7 +12,7 @@ import model.OrderStatus;
 import view.impl.OrdersMenuImpl;
 
 import java.time.DateTimeException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class OrdersControllerImpl implements OrdersController {
@@ -141,7 +141,7 @@ public class OrdersControllerImpl implements OrdersController {
     @Override
     public void createOrder() {
         try {
-            mainManager.createOrder(getBooksFromConsole(), getClientNameFromConsole(), LocalDate.now());
+            mainManager.createOrder(getBooksFromConsole(), getClientNameFromConsole(), LocalDateTime.now());
         } catch (Exception e) {
             ordersMenu.showError(e.getMessage());
         }
@@ -267,17 +267,17 @@ public class OrdersControllerImpl implements OrdersController {
         }
     }
 
-    private LocalDate getBeginDate() {
+    private LocalDateTime getBeginDate() {
         ordersMenu.showGetBeginDate();
         return getDateFromConsole();
     }
 
-    private LocalDate getEndDate() {
+    private LocalDateTime getEndDate() {
         ordersMenu.showGetEndDate();
         return getDateFromConsole();
     }
 
-    private LocalDate getDateFromConsole() {
+    private LocalDateTime getDateFromConsole() {
         ordersMenu.showGetYear();
         int year = scanner.nextInt();
 
@@ -288,7 +288,7 @@ public class OrdersControllerImpl implements OrdersController {
         int day = scanner.nextInt();
 
         try {
-            return LocalDate.of(year, month, day);
+            return LocalDateTime.of(year, month, day, 0, 0, 0);
         } catch (DateTimeException e) {
             ordersMenu.showError("Некорректный формат даты. Попробуйте ещё раз");
             return getDateFromConsole();

@@ -11,7 +11,7 @@ import view.impl.ImportExportMenuImpl;
 import view.ImportExportMenu;
 
 import java.io.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
@@ -32,10 +32,10 @@ public class ImportController {
         int publicationYear = Integer.parseInt(parts[3].trim());
         int amount = Integer.parseInt(parts[4].trim());
         double price = Double.parseDouble(parts[5].trim());
-        LocalDate lastDeliveredDate = parts[6].trim().equals("null") ?
-                null : LocalDate.parse(parts[6].trim(), dateFormatter);
-        LocalDate lastSaleDate = parts[7].trim().equals("null") ?
-                null : LocalDate.parse(parts[7].trim(), dateFormatter);
+        LocalDateTime lastDeliveredDate = parts[6].trim().equals("null") ?
+                null : LocalDateTime.parse(parts[6].trim(), dateFormatter);
+        LocalDateTime lastSaleDate = parts[7].trim().equals("null") ?
+                null : LocalDateTime.parse(parts[7].trim(), dateFormatter);
 
         return new Book(id, name, author, publicationYear, amount, price, lastDeliveredDate, lastSaleDate);
     }
@@ -60,10 +60,10 @@ public class ImportController {
         String name = parts[1].trim();
         double price = Double.parseDouble(parts[2].trim());
         OrderStatus status = OrderStatus.valueOf(parts[3].trim());
-        LocalDate orderDate = parts[4].trim().equals("null") ?
-                null : LocalDate.parse(parts[4].trim(), dateFormatter);
-        LocalDate completeDate = parts[5].trim().equals("null") ?
-                null : LocalDate.parse(parts[5].trim(), dateFormatter);
+        LocalDateTime orderDate = parts[4].trim().equals("null") ?
+                null : LocalDateTime.parse(parts[4].trim(), dateFormatter);
+        LocalDateTime completeDate = parts[5].trim().equals("null") ?
+                null : LocalDateTime.parse(parts[5].trim(), dateFormatter);
 
         Map<Long, Integer> books = new HashMap<>();
         for (int i = 6; i < parts.length; i += 2) {
