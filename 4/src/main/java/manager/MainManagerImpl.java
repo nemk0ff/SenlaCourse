@@ -1,32 +1,35 @@
-package managers.impl;
+package manager;
 
+import DAO.impl.BookDAOImpl;
+import DAO.impl.OrderDAOImpl;
+import DAO.impl.RequestDAOImpl;
 import annotations.ConfigProperty;
 import annotations.DIComponentDependency;
 import config.ConfigurationManager;
 import lombok.Data;
-import managers.MainManager;
+import model.RequestStatus;
 import model.impl.*;
 import model.Item;
 import model.OrderStatus;
+import sorting.BookSort;
+import sorting.OrderSort;
+import sorting.RequestSort;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Data
 public class MainManagerImpl implements MainManager {
-    @ConfigProperty(propertyName = "book.stale.months", type = int.class)
-    private int staleBookMonths;
-
     @ConfigProperty(propertyName = "mark.orders.completed", type = boolean.class)
     private boolean markOrdersCompleted;
 
     @DIComponentDependency
-    LibraryManagerImpl libraryManager;
+    BookDAOImpl bookDAO;
     @DIComponentDependency
-    OrdersManagerImpl ordersManager;
+    OrderDAOImpl orderDAO;
+    @DIComponentDependency
+    RequestDAOImpl requestDAO;
 
     public MainManagerImpl() {
         ConfigurationManager.configure(this);
@@ -34,7 +37,7 @@ public class MainManagerImpl implements MainManager {
 
     @Override
     public void addBook(long id, Integer amount, LocalDate deliveredDate) throws IllegalArgumentException {
-        libraryManager.add(id, amount, deliveredDate);
+        bookDAO.add(id, amount, deliveredDate);
         if (markOrdersCompleted) {
             updateOrders(deliveredDate);
         }
@@ -42,74 +45,48 @@ public class MainManagerImpl implements MainManager {
 
     @Override
     public void writeOff(long id, Integer amount, LocalDate writeOffDate) throws IllegalArgumentException {
-        libraryManager.writeOff(id, amount, writeOffDate);
+        bookDAO.writeOff(id, amount, writeOffDate);
         updateOrders(writeOffDate);
     }
 
     @Override
     public Optional<Book> getBook(long id) {
-        return libraryManager.getBook(id);
+        return bookDAO.getBookById(id);
     }
 
     @Override
     public List<Book> getAllBooks() {
-        return libraryManager.getAllBooks();
-    }
-
-    private List<Book> sortBooks(List<Book> books, Comparator<Book> comparator) {
-        if (books.isEmpty()) {
-            return books;
-        }
-        List<Book> sortedBooks = new ArrayList<>(books);
-        sortedBooks.sort(comparator);
-        return sortedBooks;
+        return bookDAO.getAllBooks(BookSort.ID);
     }
 
     @Override
-    public List<Book> getAllBooksByAlphabet() {
-        return sortBooks(getAllBooks(), Comparator.comparing(Book::getName));
+    public List<Book> getAllBooksByName() {
+        return bookDAO.getAllBooks(BookSort.NAME);
     }
 
     @Override
     public List<Book> getAllBooksByDate() {
-        return sortBooks(getAllBooks(), Comparator.comparing(Book::getPublicationDate));
+        return bookDAO.getAllBooks(BookSort.PUBLICATION_DATE);
     }
 
     @Override
     public List<Book> getAllBooksByPrice() {
-        return sortBooks(getAllBooks(), Comparator.comparing(Book::getPrice));
+        return bookDAO.getAllBooks(BookSort.PRICE);
     }
 
     @Override
     public List<Book> getAllBooksByAvailable() {
-        return sortBooks(getAllBooks(), Comparator.comparing(Book::getStatus));
-    }
-
-    private List<Book> getBooks(List<Long> booksIds) {
-        return libraryManager.getBooks(booksIds);
-    }
-
-    private Stream<Book> getStaleBooks() throws IllegalArgumentException {
-        return getAllBooks().stream()
-                .filter(book -> book.getAmount() > 0)
-                .filter(book -> (book.getLastSaleDate() == null && Period.between(book.getLastDeliveredDate(),
-                        LocalDate.now()).getMonths() >= staleBookMonths)
-                        || (book.getLastSaleDate() != null && Period.between(book.getLastSaleDate(),
-                        LocalDate.now()).getMonths() >= staleBookMonths));
+        return bookDAO.getAllBooks(BookSort.STATUS);
     }
 
     @Override
     public List<Book> getAllStaleBooksByDate() throws IllegalArgumentException {
-        return getStaleBooks()
-                .sorted(Comparator.comparing(Book::getLastDeliveredDate))
-                .toList();
+        return bookDAO.getAllBooks(BookSort.STALE_BY_DATE);
     }
 
     @Override
     public List<Book> getAllStaleBooksByPrice() throws IllegalArgumentException {
-        return getStaleBooks()
-                .sorted(Comparator.comparing(Book::getPrice))
-                .toList();
+        return bookDAO.getAllBooks(BookSort.STALE_BY_PRICE);
     }
 
     @Override
@@ -124,18 +101,18 @@ public class MainManagerImpl implements MainManager {
 
     @Override
     public boolean containsBook(long bookId) {
-        return libraryManager.containsBook(bookId);
+        return bookDAO.containsBook(bookId);
     }
 
     @Override
     public void importBook(Book book) throws IllegalArgumentException {
-        libraryManager.importBook(book);
+        bookDAO.importBook(book);
         updateOrders(LocalDate.now());
     }
 
 
     private void updateOrders(LocalDate updateDate) {
-        for (Order order : getOrders()) {
+        for (Order order : getAllOrders()) {
             updateOrder(order, updateDate);
         }
     }
@@ -154,18 +131,18 @@ public class MainManagerImpl implements MainManager {
     }
 
     private void completeOrder(Order order, LocalDate completeDate) {
-        ordersManager.setOrderStatus(order.getId(), OrderStatus.COMPLETED);
+        orderDAO.setOrderStatus(order.getId(), "COMPLETED");
 
-        ordersManager.closeRequests(order.getBooks());
+        requestDAO.closeRequests(order.getBooks());
 
         for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
-            libraryManager.writeOff(entry.getKey(), entry.getValue(), completeDate);
+            bookDAO.writeOff(entry.getKey(), entry.getValue(), completeDate);
         }
     }
 
     @Override
     public void createRequest(long bookId, int amount) {
-        ordersManager.addRequest(bookId, amount);
+        requestDAO.addRequest(bookId, amount);
     }
 
     @Override
@@ -175,117 +152,91 @@ public class MainManagerImpl implements MainManager {
 
         createRequests(newOrder);
 
-        ordersManager.addOrder(newOrder);
+        orderDAO.addOrder(newOrder);
     }
 
     @Override
-    public void cancelOrder(long orderId) {
-        ordersManager.cancelOrder(orderId);
+    public void cancelOrder(long order_id) throws IllegalArgumentException {
+        Optional<Order> order = orderDAO.getOrderById(order_id);
+        if (order.isEmpty()) {
+            throw new IllegalArgumentException("Заказ " + order_id + " не найден");
+        }
+        if (order.get().getStatus() == OrderStatus.NEW) {
+            orderDAO.setOrderStatus(order_id, "CANCELED");
+            requestDAO.closeRequests(order.get().getBooks());
+        } else {
+            throw new IllegalArgumentException("Невозможно отменить заказ, статус которого не NEW");
+        }
     }
 
     @Override
     public void setOrderStatus(long orderId, OrderStatus status) {
-        ordersManager.setOrderStatus(orderId, status);
+        orderDAO.setOrderStatus(orderId, status.toString());
     }
 
 
     @Override
-    public List<Order> getOrders() {
-        return ordersManager.getOrders();
+    public List<Order> getAllOrders() {
+        return orderDAO.getAllOrders(OrderSort.ID, null, null);
     }
 
     @Override
-    public List<Order> getOrdersByDate() {
-        return sortOrders(getOrders(), Comparator.comparing(Order::getCompleteDate,
-                Comparator.nullsFirst(Comparator.naturalOrder())));
+    public List<Order> getAllOrdersByDate() {
+        return orderDAO.getAllOrders(OrderSort.COMPLETE_DATE, null, null);
     }
 
     @Override
-    public List<Order> getOrdersByPrice() {
-        return sortOrders(getOrders(), Comparator.comparing(Order::getPrice));
+    public List<Order> getAllOrdersByPrice() {
+        return orderDAO.getAllOrders(OrderSort.PRICE, null, null);
     }
 
     @Override
-    public List<Order> getOrdersByStatus() {
-        return sortOrders(getOrders(), Comparator.comparing(Order::getStatus));
-    }
-
-    private List<Order> sortOrders(List<Order> orders, Comparator<Order> comparator) {
-        List<Order> sortedOrders = new ArrayList<>(orders);
-        sortedOrders.sort(comparator);
-        return sortedOrders;
-    }
-
-    @Override
-    public List<Request> getRequests() {
-        return ordersManager.getRequests();
-    }
-
-    private Map<Book, Long> groupRequestsByBook(List<Request> requests) {
-        return requests.stream()
-                .map(request -> getBook(request.getBookId()).map(book -> Map.entry(book, request.getBookId())))
-                .filter(Optional::isPresent).map(Optional::get)
-                .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.counting()));
-    }
-
-    @Override
-    public LinkedHashMap<Book, Long> getRequestsByCount() {
-        return groupRequestsByBook(getRequests()).entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (e1, e2) -> e1,
-                        LinkedHashMap::new));
-    }
-
-    @Override
-    public LinkedHashMap<Book, Long> getRequestsByPrice() {
-        return groupRequestsByBook(getRequests()).entrySet().stream()
-                .sorted(Comparator.comparing(entry -> entry.getKey().getPrice()))
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (e1, e2) -> e1,
-                        LinkedHashMap::new));
+    public List<Order> getAllOrdersByStatus() {
+        return orderDAO.getAllOrders(OrderSort.STATUS, null, null);
     }
 
     @Override
     public List<Order> getCompletedOrdersByDate(LocalDate begin, LocalDate end) {
-        return filterCompletedOrdersInRange(begin, end)
-                .sorted(Comparator.comparing(Order::getCompleteDate))
-                .toList();
+        return orderDAO.getAllOrders(OrderSort.COMPLETED_BY_DATE, begin, end);
     }
 
     @Override
     public List<Order> getCompletedOrdersByPrice(LocalDate begin, LocalDate end) {
-        return filterCompletedOrdersInRange(begin, end)
-                .sorted(Comparator.comparing(Order::getPrice))
-                .toList();
+        return orderDAO.getAllOrders(OrderSort.COMPLETED_BY_PRICE, begin, end);
     }
 
     @Override
     public Double getEarnedSum(LocalDate begin, LocalDate end) {
-        return filterCompletedOrdersInRange(begin, end)
-                .mapToDouble(Order::getPrice)
-                .sum();
+        return orderDAO.getEarnedSum(begin, end);
     }
 
     @Override
     public Long getCountCompletedOrders(LocalDate begin, LocalDate end) {
-        return filterCompletedOrdersInRange(begin, end)
-                .count();
-    }
-
-    private Stream<Order> filterCompletedOrdersInRange(LocalDate begin, LocalDate end) {
-        return getOrders().stream()
-                .filter(Order::isCompleted)
-                .filter(order -> !order.getCompleteDate().isBefore(begin) && !order.getCompleteDate().isAfter(end));
+        return orderDAO.getCountCompletedOrders(begin, end);
     }
 
     @Override
     public Optional<Order> getOrder(Long orderId) {
-        return ordersManager.getOrder(orderId);
+        return orderDAO.getOrderById(orderId);
+    }
+
+    @Override
+    public List<Request> getRequests() {
+        return requestDAO.getAllRequests(RequestSort.ID);
+    }
+
+    @Override
+    public LinkedHashMap<Long, Long> getRequestsByCount() {
+        return requestDAO.getRequests(RequestSort.COUNT);
+    }
+
+    @Override
+    public LinkedHashMap<Long, Long> getRequestsByPrice() {
+        return requestDAO.getRequests(RequestSort.PRICE);
+    }
+
+    private List<Book> getBooks(List<Long> booksIds) {
+        return bookDAO.getBooks(booksIds);
     }
 
     public double getPrice(List<Long> booksIds) {
@@ -315,7 +266,7 @@ public class MainManagerImpl implements MainManager {
 
     @Override
     public Optional<Request> getRequest(long requestId) {
-        return ordersManager.getRequest(requestId);
+        return requestDAO.getRequestById(requestId);
     }
 
     @Override
@@ -328,11 +279,11 @@ public class MainManagerImpl implements MainManager {
         Optional<Order> findOrder = getOrder(order.getId());
         if (findOrder.isPresent()) {
             // При копировании меняется состав заказа, нужно закрыть старые запросы
-            ordersManager.closeRequests(findOrder.get().getBooks());
+            requestDAO.closeRequests(findOrder.get().getBooks());
             // Перезаписываем заказ
             findOrder.get().copyOf(order);
         } else {
-            ordersManager.addOrder(order);
+            orderDAO.addOrder(order);
         }
         // Открываем новые запросы, соответствующие составу импортируемого заказа
         createRequests(order);
@@ -348,7 +299,7 @@ public class MainManagerImpl implements MainManager {
         if (findRequest.isPresent()) {
             throw new IllegalArgumentException("Запрос [" + request.getId() + "] уже есть в магазине");
         } else {
-            ordersManager.importRequest(request);
+            requestDAO.importRequest(request);
         }
     }
 

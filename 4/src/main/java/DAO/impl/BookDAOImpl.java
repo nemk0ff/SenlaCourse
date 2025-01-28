@@ -1,24 +1,31 @@
 package DAO.impl;
 
 import DAO.BookDAO;
+import annotations.ConfigProperty;
 import annotations.DIComponentDependency;
+import config.ConfigurationManager;
 import config.DatabaseConnection;
 import lombok.Data;
 import model.BookStatus;
 import model.impl.Book;
+import sorting.BookSort;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Data
 public class BookDAOImpl implements BookDAO {
+    @ConfigProperty(propertyName = "book.stale.months", type = int.class)
+    private int staleBookMonths;
     @DIComponentDependency
     DatabaseConnection databaseConnection;
 
     public BookDAOImpl() {
+        ConfigurationManager.configure(this);
     }
 
     @Override
@@ -83,11 +90,12 @@ public class BookDAOImpl implements BookDAO {
     }
 
     @Override
-    public List<Book> getAllBooks() {
+    public List<Book> getAllBooks(BookSort sortType) {
         List<Book> books = new ArrayList<>();
 
-        try (PreparedStatement preparedStatement = databaseConnection.connection().prepareStatement
-                ("SELECT * FROM library")) {
+        String query = getQuery(sortType);
+
+        try (PreparedStatement preparedStatement = databaseConnection.connection().prepareStatement(query)) {
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 getBook(resultSet).ifPresent(books::add);
@@ -96,6 +104,24 @@ public class BookDAOImpl implements BookDAO {
             return new ArrayList<>();
         }
         return books;
+    }
+
+    private String getQuery(BookSort sortType) {
+        return switch (sortType) {
+            case BookSort.ID -> "SELECT * FROM library ORDER BY book_id";
+            case BookSort.NAME -> "SELECT * FROM library ORDER BY name";
+            case BookSort.PUBLICATION_DATE -> "SELECT * FROM library ORDER BY publicationDate";
+            case BookSort.PRICE -> "SELECT * FROM library ORDER BY price";
+            case BookSort.STATUS -> "SELECT * FROM library ORDER BY status";
+            case STALE_BY_DATE -> "SELECT * FROM library WHERE " +
+                    "(lastSaleDate IS NULL AND DATEDIFF(CURDATE(), lastDeliveredDate) >= " + staleBookMonths + ") " +
+                    "OR (lastSaleDate IS NOT NULL AND DATEDIFF(CURDATE(), lastSaleDate) >= " + staleBookMonths + ") " +
+                    "ORDER BY lastDeliveredDate";
+            case STALE_BY_PRICE -> "SELECT * FROM library WHERE " +
+                    "(lastSaleDate IS NULL AND DATEDIFF(CURDATE(), lastDeliveredDate) >= " + staleBookMonths + ") " +
+                    "OR (lastSaleDate IS NOT NULL AND DATEDIFF(CURDATE(), lastSaleDate) >= " + staleBookMonths + ") " +
+                    "ORDER BY price";
+        };
     }
 
     @Override
@@ -187,7 +213,7 @@ public class BookDAOImpl implements BookDAO {
     }
 
     private Optional<Book> getBook(ResultSet results) {
-        try{
+        try {
             return Optional.of(new Book(results.getLong(1),
                     results.getString(2),
                     results.getString(3),

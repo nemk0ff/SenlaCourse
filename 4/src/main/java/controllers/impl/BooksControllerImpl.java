@@ -6,7 +6,7 @@ import controllers.BooksController;
 import constants.IOConstants;
 import controllers.impl.IOControllers.ExportController;
 import controllers.impl.IOControllers.ImportController;
-import managers.impl.MainManagerImpl;
+import manager.MainManagerImpl;
 import model.impl.Book;
 import view.impl.BooksMenuImpl;
 
@@ -50,7 +50,7 @@ public class BooksControllerImpl implements BooksController {
                 showBookDetails();
                 yield Action.CONTINUE;
             case 4:
-                getBooksByAlphabet();
+                getBooksByName();
                 yield Action.CONTINUE;
             case 5:
                 getBooksByDate();
@@ -147,9 +147,9 @@ public class BooksControllerImpl implements BooksController {
     }
 
     @Override
-    public void getBooksByAlphabet() {
+    public void getBooksByName() {
         try {
-            booksMenu.showBooks(mainManager.getAllBooksByAlphabet());
+            booksMenu.showBooks(mainManager.getAllBooksByName());
         } catch (Exception e) {
             booksMenu.showError(e.getMessage());
         }

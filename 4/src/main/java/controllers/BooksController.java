@@ -7,7 +7,7 @@ public interface BooksController extends Controller {
 
     void showBookDetails();
 
-    void getBooksByAlphabet();
+    void getBooksByName();
 
     void getBooksByDate();
 

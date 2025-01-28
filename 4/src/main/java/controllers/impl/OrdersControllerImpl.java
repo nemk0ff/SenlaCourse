@@ -6,7 +6,7 @@ import constants.IOConstants;
 import controllers.impl.IOControllers.ExportController;
 import controllers.impl.IOControllers.ImportController;
 import controllers.OrdersController;
-import managers.impl.MainManagerImpl;
+import manager.MainManagerImpl;
 import model.impl.Order;
 import model.OrderStatus;
 import view.impl.OrdersMenuImpl;
@@ -150,7 +150,7 @@ public class OrdersControllerImpl implements OrdersController {
     @Override
     public void cancelOrder() {
         try {
-            ordersMenu.showOrders(mainManager.getOrders());
+            ordersMenu.showOrders(mainManager.getAllOrders());
             ordersMenu.showGetId("Введите id заказа, который хотите отменить: ");
             mainManager.cancelOrder(getNumberFromConsole());
             ordersMenu.showSuccess("Заказ отменен");
@@ -207,7 +207,7 @@ public class OrdersControllerImpl implements OrdersController {
     @Override
     public void getOrdersByDate() {
         try {
-            ordersMenu.showOrders(mainManager.getOrdersByDate());
+            ordersMenu.showOrders(mainManager.getAllOrdersByDate());
         } catch (Exception e) {
             ordersMenu.showError(e.getMessage());
         }
@@ -216,7 +216,7 @@ public class OrdersControllerImpl implements OrdersController {
     @Override
     public void getOrdersByPrice() {
         try {
-            ordersMenu.showOrders(mainManager.getOrdersByPrice());
+            ordersMenu.showOrders(mainManager.getAllOrdersByPrice());
         } catch (Exception e) {
             ordersMenu.showError(e.getMessage());
         }
@@ -225,7 +225,7 @@ public class OrdersControllerImpl implements OrdersController {
     @Override
     public void getOrdersByStatus() {
         try {
-            ordersMenu.showOrders(mainManager.getOrdersByStatus());
+            ordersMenu.showOrders(mainManager.getAllOrdersByStatus());
         } catch (Exception e) {
             ordersMenu.showError(e.getMessage());
         }
@@ -316,7 +316,7 @@ public class OrdersControllerImpl implements OrdersController {
     public void exportOrder() {
         String exportString;
         try {
-            ordersMenu.showOrders(mainManager.getOrders());
+            ordersMenu.showOrders(mainManager.getAllOrders());
             ordersMenu.showGetId("Введите id заказа, который хотите экспортировать: ");
             long exportId = getNumberFromConsole();
 
@@ -325,7 +325,7 @@ public class OrdersControllerImpl implements OrdersController {
             ordersMenu.showError(e.getMessage());
             return;
         }
-        ordersMenu.showOrders(mainManager.getOrders());
+        ordersMenu.showOrders(mainManager.getAllOrders());
         ExportController.exportItemToFile(exportString, IOConstants.EXPORT_ORDER_PATH, IOConstants.ORDER_HEADER);
         ordersMenu.showSuccess("Экспорт выполнен успешно");
     }
@@ -353,7 +353,7 @@ public class OrdersControllerImpl implements OrdersController {
     @Override
     public void exportAll() {
         try {
-            ExportController.exportAll(mainManager.getOrders(),
+            ExportController.exportAll(mainManager.getAllOrders(),
                     IOConstants.EXPORT_ORDER_PATH, IOConstants.ORDER_HEADER);
         } catch (Exception e) {
             ordersMenu.showError(e.getMessage());

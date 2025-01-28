@@ -4,8 +4,8 @@ import model.impl.Book;
 import model.impl.Request;
 import view.RequestsMenu;
 
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RequestsMenuImpl implements RequestsMenu {
 
@@ -28,10 +28,10 @@ public class RequestsMenuImpl implements RequestsMenu {
     }
 
     @Override
-    public void showRequests(LinkedHashMap<Book, Long> requests) {
+    public void showRequests(Map<Long, Long> requests) {
         System.out.println("======= ОТКРЫТЫЕ ЗАПРОСЫ НА КНИГИ =======");
         requests.forEach((key, value) -> {
-            System.out.println("Книга: " + key.getInfoAbout());
+            System.out.println("Книга: №" + key);
             System.out.println("Количество запросов: " + value);
             System.out.println();
         });

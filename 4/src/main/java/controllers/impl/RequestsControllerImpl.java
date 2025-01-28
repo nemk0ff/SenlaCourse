@@ -6,7 +6,7 @@ import constants.IOConstants;
 import controllers.impl.IOControllers.ExportController;
 import controllers.impl.IOControllers.ImportController;
 import controllers.RequestsController;
-import managers.impl.MainManagerImpl;
+import manager.MainManagerImpl;
 import model.impl.Request;
 import view.impl.RequestsMenuImpl;
 

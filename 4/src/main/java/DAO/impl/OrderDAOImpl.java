@@ -5,6 +5,8 @@ import annotations.DIComponentDependency;
 import config.DatabaseConnection;
 import model.OrderStatus;
 import model.impl.Order;
+import sorting.BookSort;
+import sorting.OrderSort;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -98,19 +100,35 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     @Override
-    public List<Order> getAllOrders() {
+    public List<Order> getAllOrders(OrderSort sortType, LocalDate begin, LocalDate end) {
         List<Order> allOrders = new ArrayList<>();
 
+        String query = getQuery(sortType, begin, end);
+
         try (Statement statement = databaseConnection.connection().createStatement();
-             ResultSet resultSetOrders = statement.executeQuery("SELECT order_id FROM orders")) {
+             ResultSet resultSetOrders = statement.executeQuery(query)) {
             while (resultSetOrders.next()) {
                 long orderId = resultSetOrders.getLong("order_id");
-                getOrderById(orderId).ifPresent(allOrders::add);
+                Optional<Order> order = getOrderById(orderId);
+                order.ifPresent(allOrders::add);
             }
         } catch (Exception e) {
             return new ArrayList<>();
         }
         return allOrders;
+    }
+
+    private String getQuery(OrderSort sortType, LocalDate begin, LocalDate end) {
+        return switch (sortType) {
+            case OrderSort.COMPLETE_DATE -> "SELECT * FROM orders ORDER BY completeDate";
+            case OrderSort.PRICE -> "SELECT * FROM orders ORDER BY price";
+            case OrderSort.STATUS -> "SELECT * FROM orders ORDER BY status";
+            case OrderSort.COMPLETED_BY_DATE -> "SELECT * FROM orders WHERE completeDate >= " + begin +
+                    " AND completeDate <= " + end + " ORDER BY completeDate";
+            case OrderSort.COMPLETED_BY_PRICE -> "SELECT * FROM orders WHERE completeDate >= " + begin +
+                    " AND completeDate <= " + end + " ORDER BY price";
+            default -> "SELECT * FROM orders ORDER BY order_id";
+        };
     }
 
     @Override
@@ -124,6 +142,38 @@ public class OrderDAOImpl implements OrderDAO {
             return getOrder(resultOrder, orderedBooks);
         } catch (Exception e) {
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public Double getEarnedSum(LocalDate begin, LocalDate end) {
+        String query = "SELECT SUM(price) FROM orders WHERE completeDate >= " + begin + " AND completeDate <= " + end;
+
+        try (Statement statement = databaseConnection.connection().createStatement();
+             ResultSet result = statement.executeQuery(query)) {
+            if (result.wasNull()) {
+                throw new SQLException("Ошибка при получении заработанной суммы за период времени");
+            }
+            result.next();
+            return result.getDouble(1);
+        } catch (SQLException e) {
+            return 0.0;
+        }
+    }
+
+    @Override
+    public Long getCountCompletedOrders(LocalDate begin, LocalDate end) {
+        String query = "SELECT COUNT(*) FROM orders WHERE completeDate >= " + begin + " AND completeDate <= " + end;
+
+        try (Statement statement = databaseConnection.connection().createStatement();
+             ResultSet result = statement.executeQuery(query)) {
+            if (result.wasNull()) {
+                throw new SQLException("Ошибка при получении количества выполненных заказов за период времени");
+            }
+            result.next();
+            return result.getLong(1);
+        } catch (SQLException e) {
+            return 0L;
         }
     }
 

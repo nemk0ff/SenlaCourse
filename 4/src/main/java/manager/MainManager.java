@@ -1,4 +1,4 @@
-package managers;
+package manager;
 
 import model.impl.Book;
 import model.impl.Order;
@@ -6,7 +6,6 @@ import model.Item;
 import model.OrderStatus;
 import model.impl.Request;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -19,7 +18,7 @@ public interface MainManager {
 
     List<Book> getAllBooks();
 
-    List<Book> getAllBooksByAlphabet();
+    List<Book> getAllBooksByName();
 
     List<Book> getAllBooksByDate();
 
@@ -46,13 +45,13 @@ public interface MainManager {
 
     Optional<Order> getOrder(Long orderId);
 
-    List<Order> getOrders();
+    List<Order> getAllOrders();
 
-    List<Order> getOrdersByDate();
+    List<Order> getAllOrdersByDate();
 
-    List<Order> getOrdersByPrice();
+    List<Order> getAllOrdersByPrice();
 
-    List<Order> getOrdersByStatus();
+    List<Order> getAllOrdersByStatus();
 
     List<Order> getCompletedOrdersByDate(LocalDate begin, LocalDate end);
 
@@ -71,9 +70,9 @@ public interface MainManager {
 
     List<Request> getRequests();
 
-    LinkedHashMap<Book, Long> getRequestsByCount();
+    LinkedHashMap<Long, Long> getRequestsByCount();
 
-    LinkedHashMap<Book, Long> getRequestsByPrice();
+    LinkedHashMap<Long, Long> getRequestsByPrice();
 
     void importRequest(Request request);
 

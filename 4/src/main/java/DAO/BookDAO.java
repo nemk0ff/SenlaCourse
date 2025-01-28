@@ -1,6 +1,7 @@
 package DAO;
 
 import model.impl.Book;
+import sorting.BookSort;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,7 +12,7 @@ public interface BookDAO {
 
     void writeOff(long book_id, int amount, LocalDate saleDate) throws IllegalArgumentException;
 
-    List<Book> getAllBooks();
+    List<Book> getAllBooks(BookSort sortType);
 
     List<Book> getBooks(List<Long> bookIds);
 
