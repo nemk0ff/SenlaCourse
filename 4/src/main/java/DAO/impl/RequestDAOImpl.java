@@ -30,6 +30,7 @@ public class RequestDAOImpl implements RequestDAO {
                 getRequest(resultSet).ifPresent(requests::add);
             }
         } catch (SQLException e) {
+            System.err.println(e.getMessage());
             return new ArrayList<>();
         }
         return requests;
@@ -54,7 +55,7 @@ public class RequestDAOImpl implements RequestDAO {
 
     private String getQuery(RequestSort sortType) {
         return switch (sortType) {
-            case RequestSort.ID -> "SELECT * FROM requests ORDER BY id";
+            case RequestSort.ID -> "SELECT * FROM requests ORDER BY request_id";
             case RequestSort.COUNT -> "SELECT book_id, COUNT(*) as count FROM requests WHERE status = 'OPEN' " +
                     "GROUP BY book_id ORDER BY count";
             case RequestSort.PRICE -> "SELECT l.book_id, COUNT(*) FROM requests r JOIN library l " +
@@ -88,14 +89,12 @@ public class RequestDAOImpl implements RequestDAO {
 
     @Override
     public void addRequest(long book_id, int amount) {
-        String insertOrderQuery = "INSERT INTO requests (request_id, book_id, amount, status) VALUES (?, ?, ?, ?)";
+        String insertOrderQuery = "INSERT INTO requests (book_id, amount, status) VALUES (?, ?, ?)";
 
         try (PreparedStatement orderStatement = databaseConnection.connection().prepareStatement(insertOrderQuery)) {
-            long newId = getNewRequestId();
-            orderStatement.setLong(1, newId);
-            orderStatement.setLong(2, book_id);
-            orderStatement.setInt(3, amount);
-            orderStatement.setString(4, "OPEN");
+            orderStatement.setLong(1, book_id);
+            orderStatement.setInt(2, amount);
+            orderStatement.setString(3, "OPEN");
 
             if (orderStatement.executeUpdate() == 0) {
                 throw new RuntimeException("Ошибка бд при создании запроса: ни одна строка не изменена");
@@ -113,13 +112,12 @@ public class RequestDAOImpl implements RequestDAO {
 
     @Override
     public void importRequest(Request request) {
-        String query = "INSERT INTO requests (request_id, book_id, amount, status) VALUES (?, ?, ?, ?) ";
+        String query = "INSERT INTO requests (request_id, book_id, amount, status) VALUES (?, ?, ?) ";
 
         try (PreparedStatement preparedStatement = databaseConnection.connection().prepareStatement(query)) {
-            preparedStatement.setLong(1, request.getId());
-            preparedStatement.setLong(2, request.getBookId());
-            preparedStatement.setInt(3, request.getAmount());
-            preparedStatement.setString(4, request.getStatus().toString());
+            preparedStatement.setLong(1, request.getBookId());
+            preparedStatement.setInt(2, request.getAmount());
+            preparedStatement.setString(3, request.getStatus().toString());
 
             if (preparedStatement.executeUpdate() == 0) {
                 throw new RuntimeException("Ошибка бд при импорте запроса: ни одна строка не изменена");
@@ -182,13 +180,5 @@ public class RequestDAOImpl implements RequestDAO {
             }
         }
         return null;
-    }
-
-    private long getNewRequestId() throws SQLException {
-        try (Statement statement = databaseConnection.connection().createStatement()) {
-            ResultSet resultOrder = statement.executeQuery("SELECT MAX(request_id) FROM requests");
-            resultOrder.next();
-            return resultOrder.getLong(1) + 1;
-        }
     }
 }

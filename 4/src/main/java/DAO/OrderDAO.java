@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface OrderDAO {
     void setOrderStatus(long orderId, String status);
 
-    void addOrder(Order order);
+    long addOrder(Order order);
 
     void rewriteOrder(Order order);
 

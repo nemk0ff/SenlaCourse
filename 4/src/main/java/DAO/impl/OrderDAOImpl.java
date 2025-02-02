@@ -26,9 +26,7 @@ public class OrderDAOImpl implements OrderDAO {
             statement.setString(2, LocalDateTime.now().toString());
             statement.setLong(3, orderId);
 
-            if (statement.executeUpdate() == 0) {
-                throw new RuntimeException("Ошибка бд при изменении статуса заказа: ни одна строка не изменена");
-            }
+            statement.executeUpdate();
             databaseConnection.connection().commit();
         } catch (SQLException e) {
             try {
@@ -68,7 +66,7 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     @Override
-    public void addOrder(Order order) {
+    public long addOrder(Order order) {
         Savepoint save;
         try {
             save = databaseConnection.connection().setSavepoint();
@@ -76,23 +74,31 @@ public class OrderDAOImpl implements OrderDAO {
             throw new RuntimeException(e);
         }
 
-        String insertOrderQuery = "INSERT INTO orders (order_id, status, price, orderDate, completeDate, clientName) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        String insertOrderQuery = "INSERT INTO orders (status, price, orderDate, completeDate, clientName) " +
+                "VALUES (?, ?, ?, ?, ?)";
         String insertOrderedBooksQuery = "INSERT INTO ordered_books (order_id, book_id, amount) VALUES (?, ?, ?)";
 
-        try (PreparedStatement orderStatement = databaseConnection.connection().prepareStatement(insertOrderQuery);
+        try (PreparedStatement orderStatement = databaseConnection.connection()
+                .prepareStatement(insertOrderQuery, Statement.RETURN_GENERATED_KEYS);
              PreparedStatement orderedBooksStatement = databaseConnection.connection()
                      .prepareStatement(insertOrderedBooksQuery)) {
-            long newId = getNewOrderId();
-            orderStatement.setLong(1, newId);
-            orderStatement.setString(2, order.getStatus().toString());
-            orderStatement.setDouble(3, order.getPrice());
-            orderStatement.setObject(4, order.getOrderDate());
-            orderStatement.setObject(5, order.getCompleteDate());
-            orderStatement.setString(6, order.getClientName());
+            orderStatement.setString(1, order.getStatus().toString());
+            orderStatement.setDouble(2, order.getPrice());
+            orderStatement.setObject(3, order.getOrderDate());
+            orderStatement.setObject(4, order.getCompleteDate());
+            orderStatement.setString(5, order.getClientName());
 
             if (orderStatement.executeUpdate() == 0) {
-                throw new RuntimeException("Ошибка бд при добавлении заказа: ни одна строка не изменена");
+                throw new RuntimeException("Ошибка бд при добавлении заказа: заказ не добавлен");
+            }
+
+            long newId;
+            try (ResultSet generatedKeys = orderStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    newId = generatedKeys.getLong(1);
+                } else {
+                    throw new RuntimeException("Ошибка бд при добавлении заказа: не удалось получить order_id");
+                }
             }
 
             for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
@@ -108,6 +114,7 @@ public class OrderDAOImpl implements OrderDAO {
                 }
             }
             databaseConnection.connection().commit();
+            return newId;
         } catch (SQLException e) {
             try {
                 databaseConnection.connection().rollback(save);
@@ -215,13 +222,5 @@ public class OrderDAOImpl implements OrderDAO {
             }
         }
         return null;
-    }
-
-    private long getNewOrderId() throws SQLException {
-        try (Statement statement = databaseConnection.connection().createStatement()) {
-            ResultSet resultOrder = statement.executeQuery("SELECT MAX(order_id) FROM orders");
-            resultOrder.next();
-            return resultOrder.getLong(1) + 1;
-        }
     }
 }

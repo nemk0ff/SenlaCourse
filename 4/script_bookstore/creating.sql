@@ -2,7 +2,7 @@ CREATE DATABASE bookstore;
 USE bookstore;
 
 CREATE TABLE library (
-    book_id BIGINT NOT NULL,
+    book_id BIGINT NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     author VARCHAR(255) NOT NULL,
     publicationDate INT,
@@ -15,7 +15,7 @@ CREATE TABLE library (
 );
 
 CREATE TABLE orders (
-    order_id BIGINT NOT NULL,
+    order_id BIGINT NOT NULL AUTO_INCREMENT,
     status VARCHAR(10) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     orderDate TIMESTAMP NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE orders (
 );
 
 CREATE TABLE requests (
-    request_id BIGINT NOT NULL,
+    request_id BIGINT NOT NULL AUTO_INCREMENT,
     book_id BIGINT NOT NULL,
     amount INT NOT NULL,
     status VARCHAR(10) NOT NULL,
@@ -33,11 +33,11 @@ CREATE TABLE requests (
 );
 
 CREATE TABLE ordered_books (
-	order_id BIGINT NOT NULL,
+    order_id BIGINT NOT NULL,
     book_id BIGINT NOT NULL,
     amount INT NOT NULL,
     PRIMARY KEY (book_id, order_id),
     FOREIGN KEY (book_id) REFERENCES library(book_id),
-	FOREIGN KEY (order_id) REFERENCES orders(order_id)
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
 );
 

@@ -13,14 +13,17 @@ import view.ImportExportMenu;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 import java.util.function.Function;
 
 public class ImportController {
     private static final ImportExportMenu menu = new ImportExportMenuImpl();
-
-
-    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+    public static final DateTimeFormatter flexibleDateTimeFormatter = new DateTimeFormatterBuilder()
+            .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
+            .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
+            .toFormatter();
+    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     public static Book bookParser(String[] parts) {
         if (parts.length != 8) {
@@ -33,9 +36,9 @@ public class ImportController {
         int amount = Integer.parseInt(parts[4].trim());
         double price = Double.parseDouble(parts[5].trim());
         LocalDateTime lastDeliveredDate = parts[6].trim().equals("null") ?
-                null : LocalDateTime.parse(parts[6].trim(), dateTimeFormatter);
+                null : LocalDateTime.parse(parts[6].trim(), flexibleDateTimeFormatter);
         LocalDateTime lastSaleDate = parts[7].trim().equals("null") ?
-                null : LocalDateTime.parse(parts[7].trim(), dateTimeFormatter);
+                null : LocalDateTime.parse(parts[7].trim(), flexibleDateTimeFormatter);
 
         return new Book(id, name, author, publicationYear, amount, price, lastDeliveredDate, lastSaleDate);
     }
@@ -61,9 +64,9 @@ public class ImportController {
         double price = Double.parseDouble(parts[2].trim());
         OrderStatus status = OrderStatus.valueOf(parts[3].trim());
         LocalDateTime orderDate = parts[4].trim().equals("null") ?
-                null : LocalDateTime.parse(parts[4].trim(), dateTimeFormatter);
+                null : LocalDateTime.parse(parts[4].trim(), flexibleDateTimeFormatter);
         LocalDateTime completeDate = parts[5].trim().equals("null") ?
-                null : LocalDateTime.parse(parts[5].trim(), dateTimeFormatter);
+                null : LocalDateTime.parse(parts[5].trim(), flexibleDateTimeFormatter);
 
         Map<Long, Integer> books = new HashMap<>();
         for (int i = 6; i < parts.length; i += 2) {

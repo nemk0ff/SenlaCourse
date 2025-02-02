@@ -37,7 +37,7 @@ public interface MainManager {
     void importBook(Book book) throws IllegalArgumentException;
 
 
-    void createOrder(Map<Long, Integer> booksIds, String clientName, LocalDateTime createDate);
+    long createOrder(Map<Long, Integer> booksIds, String clientName, LocalDateTime createDate);
 
     void cancelOrder(long orderId);
 

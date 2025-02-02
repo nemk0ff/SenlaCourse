@@ -146,13 +146,13 @@ public class MainManagerImpl implements MainManager {
     }
 
     @Override
-    public void createOrder(Map<Long, Integer> booksIds, String clientName, LocalDateTime orderDate) {
+    public long createOrder(Map<Long, Integer> booksIds, String clientName, LocalDateTime orderDate) {
         Order newOrder = new Order(booksIds, getPrice(booksIds.keySet().stream().toList()),
                 OrderStatus.NEW, orderDate, clientName);
 
         createRequests(newOrder);
 
-        orderDAO.addOrder(newOrder);
+        return orderDAO.addOrder(newOrder);
     }
 
     @Override

@@ -173,7 +173,7 @@ public class BookDAOImpl implements BookDAO {
             preparedStatement.setInt(5, book.getAmount());
             preparedStatement.setDouble(6, book.getPrice());
             preparedStatement.setString(7, book.getLastDeliveredDate().toString());
-            preparedStatement.setString(8, book.getLastSaleDate().toString());
+            preparedStatement.setObject(8, book.getLastSaleDate());
             preparedStatement.setString(9, book.getStatus().toString());
 
             if (preparedStatement.executeUpdate() == 0) {

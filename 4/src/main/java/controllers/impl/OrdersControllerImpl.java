@@ -141,7 +141,8 @@ public class OrdersControllerImpl implements OrdersController {
     @Override
     public void createOrder() {
         try {
-            mainManager.createOrder(getBooksFromConsole(), getClientNameFromConsole(), LocalDateTime.now());
+            long id = mainManager.createOrder(getBooksFromConsole(), getClientNameFromConsole(), LocalDateTime.now());
+            ordersMenu.showSuccess("Заказ создан. id заказа: " + id);
         } catch (Exception e) {
             ordersMenu.showError(e.getMessage());
         }
