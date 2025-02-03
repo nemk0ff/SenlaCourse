@@ -112,7 +112,7 @@ public class RequestDAOImpl implements RequestDAO {
 
     @Override
     public void importRequest(Request request) {
-        String query = "INSERT INTO requests (request_id, book_id, amount, status) VALUES (?, ?, ?) ";
+        String query = "INSERT INTO requests (book_id, amount, status) VALUES (?, ?, ?) ";
 
         try (PreparedStatement preparedStatement = databaseConnection.connection().prepareStatement(query)) {
             preparedStatement.setLong(1, request.getBookId());
