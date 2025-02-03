@@ -1,68 +1,48 @@
 package model.impl;
 
-import DTO.BookDTO;
 import lombok.Data;
 import model.BookStatus;
 import model.Item;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Data
 public class Book implements Item {
-    static Long counter = 0L;
-
     private final Long id;
     private String name;
     private String author;
     private Integer publicationDate;
-    private LocalDate lastDeliveredDate;
-    private LocalDate lastSaleDate;
-    private Double price;
-    private BookStatus status;
     private Integer amount;
+    private Double price;
+    private LocalDateTime lastDeliveredDate;
+    private LocalDateTime lastSaleDate;
+    private BookStatus status;
 
-    // Конструктор для создания книги, которая лежит в магазине
-    public Book(String name, String author, Integer amount, Double price,
-                Integer publicationDate, LocalDate lastDeliveredDate, LocalDate lastSaleDate) {
-        counter++;
-        id = counter;
-
-        this.name = name;
-        this.author = author;
-        this.amount = amount;
-        this.price = price;
-        this.publicationDate = publicationDate;
-        this.lastDeliveredDate = lastDeliveredDate;
-        this.lastSaleDate = lastSaleDate;
-
-        this.status = amount > 0 ? BookStatus.AVAILABLE : BookStatus.NOT_AVAILABLE;
-    }
-
-    // Конструктор для книг, которые импортируются
-    public Book(long id, String name, String author, int amount, double price, int publicationDate,
-                LocalDate lastDeliveredDate, LocalDate lastSaleDate) {
+    public Book(Long id, String name, String author, Integer publicationDate, Integer amount, Double price,
+                LocalDateTime lastDeliveredDate, LocalDateTime lastSaleDate, BookStatus status) {
         this.id = id;
-        this.name = name;
         this.author = author;
+        this.name = name;
+        this.publicationDate = publicationDate;
         this.amount = amount;
         this.price = price;
+        this.lastDeliveredDate = lastDeliveredDate;
+        this.lastSaleDate = lastSaleDate;
+        this.status = status;
+    }
+
+    public Book(Long id, String name, String author, Integer publicationDate, Integer amount, Double price,
+                LocalDateTime lastDeliveredDate, LocalDateTime lastSaleDate) {
+        this.id = id;
+        this.author = author;
+        this.name = name;
         this.publicationDate = publicationDate;
+        this.amount = amount;
+        this.price = price;
         this.lastDeliveredDate = lastDeliveredDate;
         this.lastSaleDate = lastSaleDate;
         this.status = amount > 0 ? BookStatus.AVAILABLE : BookStatus.NOT_AVAILABLE;
-    }
-
-    public Book(BookDTO dto) {
-        this.id = dto.id();
-        this.name = dto.name();
-        this.author = dto.author();
-        this.amount = dto.amount();
-        this.price = dto.price();
-        this.publicationDate = dto.publicationDate();
-        this.lastDeliveredDate = dto.lastDeliveredDate();
-        this.lastSaleDate = dto.lastSaleDate();
-        this.status = dto.status();
     }
 
     public void setAmount(Integer amount) {
@@ -103,17 +83,6 @@ public class Book implements Item {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    public void copyOf(Book book) {
-        this.name = book.name;
-        this.author = book.author;
-        this.amount = book.amount;
-        this.price = book.price;
-        this.publicationDate = book.publicationDate;
-        this.lastDeliveredDate = book.lastDeliveredDate;
-        this.lastSaleDate = book.lastSaleDate;
-        this.status = amount > 0 ? BookStatus.AVAILABLE : BookStatus.NOT_AVAILABLE;
     }
 
     @Override

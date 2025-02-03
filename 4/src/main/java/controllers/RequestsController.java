@@ -14,4 +14,6 @@ public interface RequestsController extends Controller {
     void importRequest();
 
     void importAll();
+
+    void exportAll();
 }

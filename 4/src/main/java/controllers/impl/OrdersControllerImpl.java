@@ -6,13 +6,13 @@ import constants.IOConstants;
 import controllers.impl.IOControllers.ExportController;
 import controllers.impl.IOControllers.ImportController;
 import controllers.OrdersController;
-import managers.impl.MainManagerImpl;
+import manager.MainManagerImpl;
 import model.impl.Order;
 import model.OrderStatus;
 import view.impl.OrdersMenuImpl;
 
 import java.time.DateTimeException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class OrdersControllerImpl implements OrdersController {
@@ -85,8 +85,7 @@ public class OrdersControllerImpl implements OrdersController {
                 importAll();
                 yield Action.CONTINUE;
             case 15:
-                ExportController.exportAll(mainManager.getOrders(),
-                        IOConstants.EXPORT_ORDER_PATH, IOConstants.ORDER_HEADER);
+                exportAll();
                 yield Action.CONTINUE;
             case 16:
                 yield Action.MAIN_MENU;
@@ -98,15 +97,13 @@ public class OrdersControllerImpl implements OrdersController {
         };
     }
 
-    @Override
-    public String getClientNameFromConsole() {
+    private String getClientNameFromConsole() {
         ordersMenu.showGetClientName();
         return scanner.nextLine().trim();
     }
 
-    @Override
-    public Map<Long, Integer> getBooksFromConsole() {
-        ordersMenu.showBooks(mainManager.getBooks());
+    private Map<Long, Integer> getBooksFromConsole() {
+        ordersMenu.showBooks(mainManager.getAllBooks());
         ordersMenu.showGetAmountBooks("Сколько уникальных книг вы хотите заказать? Введите число: ");
         int count = (int) getNumberFromConsole();
 
@@ -136,36 +133,45 @@ public class OrdersControllerImpl implements OrdersController {
         return booksIds;
     }
 
-    @Override
-    public long getBookFromConsole(int index) {
+    private long getBookFromConsole(int index) {
         ordersMenu.showGetBookId(index);
         return getNumberFromConsole();
     }
 
     @Override
     public void createOrder() {
-        mainManager.createOrder(getBooksFromConsole(), getClientNameFromConsole(), LocalDate.now());
+        try {
+            long id = mainManager.createOrder(getBooksFromConsole(), getClientNameFromConsole(), LocalDateTime.now());
+            ordersMenu.showSuccess("Заказ создан. id заказа: " + id);
+        } catch (Exception e) {
+            ordersMenu.showError(e.getMessage());
+        }
     }
 
     @Override
     public void cancelOrder() {
-        ordersMenu.showOrders(mainManager.getOrders());
-        ordersMenu.showGetId("Введите id заказа, который хотите отменить: ");
-        if (mainManager.cancelOrder(getNumberFromConsole())) {
+        try {
+            ordersMenu.showOrders(mainManager.getAllOrders());
+            ordersMenu.showGetId("Введите id заказа, который хотите отменить: ");
+            mainManager.cancelOrder(getNumberFromConsole());
             ordersMenu.showSuccess("Заказ отменен");
-        } else {
-            ordersMenu.showError("С таким id нет заказа, который можно отменить");
+        } catch (Exception e) {
+            ordersMenu.showError(e.getMessage());
         }
     }
 
     @Override
     public void showOrderDetails() {
         ordersMenu.showGetId("Введите Id заказа: ");
-        Optional<Order> maybeOrder = mainManager.getOrder(getNumberFromConsole());
-        if (maybeOrder.isEmpty()) {
-            ordersMenu.showError("Заказ не найден");
-        } else {
-            ordersMenu.showOrder(maybeOrder.get());
+        try {
+            Optional<Order> maybeOrder = mainManager.getOrder(getNumberFromConsole());
+            if (maybeOrder.isEmpty()) {
+                ordersMenu.showError("Заказ не найден");
+            } else {
+                ordersMenu.showOrder(maybeOrder.get());
+            }
+        } catch (Exception e) {
+            ordersMenu.showError(e.getMessage());
         }
     }
 
@@ -176,15 +182,15 @@ public class OrdersControllerImpl implements OrdersController {
 
         OrderStatus newStatus = getStatusFromConsole();
 
-        if (mainManager.setOrderStatus(orderId, newStatus)) {
+        try {
+            mainManager.setOrderStatus(orderId, newStatus);
             ordersMenu.showSuccess("Статус заказа изменен");
-        } else {
-            ordersMenu.showError("Статус заказа не изменен. Статус можно менять только с NEW на не NEW");
+        } catch (Exception e) {
+            ordersMenu.showError(e.getMessage());
         }
     }
 
-    @Override
-    public OrderStatus getStatusFromConsole() {
+    private OrderStatus getStatusFromConsole() {
         ordersMenu.showGetNewStatus();
         String new_status = scanner.nextLine().trim();
 
@@ -201,53 +207,78 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public void getOrdersByDate() {
-        ordersMenu.showOrders(mainManager.getOrdersByDate());
+        try {
+            ordersMenu.showOrders(mainManager.getAllOrdersByDate());
+        } catch (Exception e) {
+            ordersMenu.showError(e.getMessage());
+        }
     }
 
     @Override
     public void getOrdersByPrice() {
-        ordersMenu.showOrders(mainManager.getOrdersByPrice());
+        try {
+            ordersMenu.showOrders(mainManager.getAllOrdersByPrice());
+        } catch (Exception e) {
+            ordersMenu.showError(e.getMessage());
+        }
     }
 
     @Override
     public void getOrdersByStatus() {
-        ordersMenu.showOrders(mainManager.getOrdersByStatus());
+        try {
+            ordersMenu.showOrders(mainManager.getAllOrdersByStatus());
+        } catch (Exception e) {
+            ordersMenu.showError(e.getMessage());
+        }
     }
 
     @Override
     public void getCountCompletedOrders() {
-        ordersMenu.showCountCompletedOrders(mainManager.getCountCompletedOrders(getBeginDate(), getEndDate()));
+        try {
+            ordersMenu.showCountCompletedOrders(mainManager.getCountCompletedOrders(getBeginDate(), getEndDate()));
+        } catch (Exception e) {
+            ordersMenu.showError(e.getMessage());
+        }
     }
 
     @Override
     public void getEarnedSum() {
-        ordersMenu.showEarnedSum(mainManager.getEarnedSum(getBeginDate(), getEndDate()));
+        try {
+            ordersMenu.showEarnedSum(mainManager.getEarnedSum(getBeginDate(), getEndDate()));
+        } catch (Exception e) {
+            ordersMenu.showError(e.getMessage());
+        }
     }
 
     @Override
     public void getCompletedOrdersByDate() {
-        ordersMenu.showOrders(mainManager.getCompletedOrdersByDate(getBeginDate(), getEndDate()));
+        try {
+            ordersMenu.showOrders(mainManager.getCompletedOrdersByDate(getBeginDate(), getEndDate()));
+        } catch (Exception e) {
+            ordersMenu.showError(e.getMessage());
+        }
     }
 
     @Override
     public void getCompletedOrdersByPrice() {
-        ordersMenu.showOrders(mainManager.getCompletedOrdersByPrice(getBeginDate(), getEndDate()));
+        try {
+            ordersMenu.showOrders(mainManager.getCompletedOrdersByPrice(getBeginDate(), getEndDate()));
+        } catch (Exception e) {
+            ordersMenu.showError(e.getMessage());
+        }
     }
 
-    @Override
-    public LocalDate getBeginDate() {
+    private LocalDateTime getBeginDate() {
         ordersMenu.showGetBeginDate();
         return getDateFromConsole();
     }
 
-    @Override
-    public LocalDate getEndDate() {
+    private LocalDateTime getEndDate() {
         ordersMenu.showGetEndDate();
         return getDateFromConsole();
     }
 
-    @Override
-    public LocalDate getDateFromConsole() {
+    private LocalDateTime getDateFromConsole() {
         ordersMenu.showGetYear();
         int year = scanner.nextInt();
 
@@ -258,7 +289,7 @@ public class OrdersControllerImpl implements OrdersController {
         int day = scanner.nextInt();
 
         try {
-            return LocalDate.of(year, month, day);
+            return LocalDateTime.of(year, month, day, 0, 0, 0);
         } catch (DateTimeException e) {
             ordersMenu.showError("Некорректный формат даты. Попробуйте ещё раз");
             return getDateFromConsole();
@@ -274,7 +305,7 @@ public class OrdersControllerImpl implements OrdersController {
                 mainManager.importItem(findOrder.get());
                 ordersMenu.showSuccessImport();
                 findOrder.ifPresent(ordersMenu::showItem);
-            } catch (IllegalArgumentException e) {
+            } catch (Exception e) {
                 ordersMenu.showError(e.getMessage());
             }
         } else {
@@ -284,19 +315,18 @@ public class OrdersControllerImpl implements OrdersController {
 
     @Override
     public void exportOrder() {
-        ordersMenu.showOrders(mainManager.getOrders());
-        ordersMenu.showGetId("Введите id заказа, который хотите экспортировать: ");
-        long exportId = getNumberFromConsole();
-
         String exportString;
         try {
+            ordersMenu.showOrders(mainManager.getAllOrders());
+            ordersMenu.showGetId("Введите id заказа, который хотите экспортировать: ");
+            long exportId = getNumberFromConsole();
+
             exportString = getExportString(exportId);
         } catch (IllegalArgumentException e) {
-            ordersMenu.showError("Заказ для экспорта не найден");
+            ordersMenu.showError(e.getMessage());
             return;
         }
-
-        ordersMenu.showOrders(mainManager.getOrders());
+        ordersMenu.showOrders(mainManager.getAllOrders());
         ExportController.exportItemToFile(exportString, IOConstants.EXPORT_ORDER_PATH, IOConstants.ORDER_HEADER);
         ordersMenu.showSuccess("Экспорт выполнен успешно");
     }
@@ -312,7 +342,7 @@ public class OrdersControllerImpl implements OrdersController {
                 try {
                     mainManager.importItem(importedOrder);
                     ordersMenu.showMessage("Импортирован: " + importedOrder.getInfoAbout());
-                } catch (IllegalArgumentException e) {
+                } catch (Exception e) {
                     ordersMenu.showError("Заказ не импортирован. " + e.getMessage());
                 }
             }
@@ -321,12 +351,22 @@ public class OrdersControllerImpl implements OrdersController {
         }
     }
 
+    @Override
+    public void exportAll() {
+        try {
+            ExportController.exportAll(mainManager.getAllOrders(),
+                    IOConstants.EXPORT_ORDER_PATH, IOConstants.ORDER_HEADER);
+        } catch (Exception e) {
+            ordersMenu.showError(e.getMessage());
+        }
+    }
+
     public String getExportString(long id) {
         Optional<Order> order = mainManager.getOrder(id);
         if (order.isPresent()) {
             return order.get().toString();
         }
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Заказ №" + id + " не найден");
     }
 
     private long getNumberFromConsole() {

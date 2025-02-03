@@ -15,6 +15,4 @@ public class IOConstants {
 
     public static final String IMPORT_REQUEST_PATH = "4/src/main/resources/io/Import/importRequests.csv";
     public static final String EXPORT_REQUEST_PATH = "4/src/main/resources/io/Export/exportRequests.csv";
-
-    public static final String SERIALIZATION_PATH = "4/src/main/resources/io/serialization.json";
 }
