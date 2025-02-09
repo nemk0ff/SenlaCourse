@@ -1,0 +1,59 @@
+2025-02-09 02:16:36 INFO  Menu:showSuccessImport:59 - Импорт выполнен успешно: class model.impl.Book, id: 7
+2025-02-09 11:21:29 INFO  Menu:showSuccess:24 - Выполнено: Добавлено 2 книг №9
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [1]   Анна Каренина,  Л.Н.Толстой,  1884,  1150.0,  4,  AVAILABLE,  2025-01-09T12:34:56,  2025-01-28T16:14:23
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [2]   Капитанская дочка,  А.С.Пушкин,  1836,  200.0,  2,  AVAILABLE,  2025-01-09T17:55:11,  2025-02-02T23:19:43
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [3]   Дубровский,  А.С.Пушкин,  1833,  450.0,  0,  NOT_AVAILABLE,  2024-10-20T22:12:34,  2025-01-08T16:20:55
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [4]   Пиковая дама,  А.С.Пушкин,  1833,  975.0,  1,  AVAILABLE,  2024-04-05T13:03:45,  2024-02-23T11:11:22
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [5]   Обломов,  Иван Гончаров,  1859,  12.0,  2,  AVAILABLE,  2025-01-08T07:30,  2025-02-02T23:19:43
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [6]   Детство,  Лев Толстой,  1852,  9.5,  0,  NOT_AVAILABLE,  2023-10-25T15:10:12,  not been sold yet
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [7]   Муму,  Иван Тургенев,  1854,  8.0,  0,  NOT_AVAILABLE,  2023-11-20T09:05:23,  2025-02-02T23:38:15
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [8]   Отцы и дети,  Иван Тургенев,  1862,  11.5,  7,  AVAILABLE,  2024-01-15T10:23:45,  2025-02-02T23:45:07
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [9]   Мёртвые души,  Н.В.Гоголь,  1842,  350.0,  0,  NOT_AVAILABLE,  2024-01-11T18:50,  not been sold yet
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [10]   Ревизор,  Н.В.Гоголь,  1835,  875.0,  3,  AVAILABLE,  2025-01-08T08:40,  not been sold yet
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [16]   Космос,  Карл Саган,  1980,  27.0,  1,  NOT_AVAILABLE,  2025-02-08T17:07:30,  not been sold yet
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [17]   Краткая история времени,  Стивен Хокинг,  1988,  15.99,  5,  AVAILABLE,  2024-01-15T14:30,  2025-01-08T11:30
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [18]   Геном,  Мэтт Ридли,  1999,  21.2,  9,  AVAILABLE,  2024-02-25T19:20,  2025-01-09T17:00
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [19]   Физика невозможного,  Митио Каку,  2008,  29.0,  4,  AVAILABLE,  2025-01-08T09:22,  not been sold yet
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [22]   Краткая история времени,  Стивен Хокинг,  1988,  15.99,  5,  AVAILABLE,  2024-01-15T14:30,  2025-01-08T11:30
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [23]   Геном,  Мэтт Ридли,  1999,  21.2,  9,  AVAILABLE,  2024-02-25T19:20,  2025-01-09T17:00
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [25]   Физика невозможного,  Митио Каку,  2008,  29.0,  4,  AVAILABLE,  2025-01-08T09:22,  not been sold yet
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [31]   Структура научных революций,  Томас Кун,  1962,  18.75,  9,  AVAILABLE,  2025-01-09T12:25,  2025-01-08T18:00
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [42]   Sapiens. Краткая история человечества,  Юваль Ной Харари,  2011,  22.5,  3,  AVAILABLE,  2023-12-20T15:22:33,  2024-02-10T09:30
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [53]   Космос,  Карл Саган,  1980,  27.0,  1,  AVAILABLE,  2025-01-28T16:14:23,  2025-01-28T16:14:28
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [11]   Sapiens. Краткая история человечества,  Юваль Ной Харари,  2011,  22.5,  3,  AVAILABLE,  2023-12-20T15:22:33,  2024-02-10T09:30
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [12]   Черный лебедь,  Нассим Николас Талеб,  2007,  19.0,  5,  AVAILABLE,  2024-01-05T06:15:45,  2024-01-30T14:05
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [13]   Эйнштейн. Его жизнь и Вселенная,  Уолтер Айзексон,  2007,  25.5,  4,  AVAILABLE,  2025-01-08T21:10:11,  2024-02-28T17:20
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [14]   Искусственный интеллект. Этапы. Угрозы. Стратегии,  Стюарт Рассел,  2010,  32.0,  8,  AVAILABLE,  2024-03-01T12:00,  not been sold yet
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [15]   Думай медленно… Решай быстро,  Даниэль Канеман,  2011,  23.5,  4,  AVAILABLE,  2023-12-01T16:45,  2024-02-15T13:15
+2025-02-09 11:56:57 INFO  Menu:showSuccessImport:37 - Выполнен импорт книги: [20]   Структура научных революций,  Томас Кун,  1962,  18.75,  10,  AVAILABLE,  2025-02-02T23:20:39,  2025-02-02T23:20:26
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [1]   Анна Каренина,  Л.Н.Толстой,  1884,  1150.0,  4,  AVAILABLE,  2025-01-09T12:34:56,  2025-01-28T16:14:23
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [2]   Капитанская дочка,  А.С.Пушкин,  1836,  200.0,  2,  AVAILABLE,  2025-01-09T17:55:11,  2025-02-02T23:19:43
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [3]   Дубровский,  А.С.Пушкин,  1833,  450.0,  0,  NOT_AVAILABLE,  2024-10-20T22:12:34,  2025-01-08T16:20:55
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [4]   Пиковая дама,  А.С.Пушкин,  1833,  975.0,  1,  AVAILABLE,  2024-04-05T13:03:45,  2024-02-23T11:11:22
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [5]   Обломов,  Иван Гончаров,  1859,  12.0,  2,  AVAILABLE,  2025-01-08T07:30,  2025-02-02T23:19:43
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [6]   Детство,  Лев Толстой,  1852,  9.5,  0,  NOT_AVAILABLE,  2023-10-25T15:10:12,  not been sold yet
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [7]   Муму,  Иван Тургенев,  1854,  8.0,  0,  NOT_AVAILABLE,  2023-11-20T09:05:23,  2025-02-02T23:38:15
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [8]   Отцы и дети,  Иван Тургенев,  1862,  11.5,  7,  AVAILABLE,  2024-01-15T10:23:45,  2025-02-02T23:45:07
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [9]   Мёртвые души,  Н.В.Гоголь,  1842,  350.0,  0,  NOT_AVAILABLE,  2024-01-11T18:50,  not been sold yet
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [10]   Ревизор,  Н.В.Гоголь,  1835,  875.0,  3,  AVAILABLE,  2025-01-08T08:40,  not been sold yet
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [11]   Sapiens. Краткая история человечества,  Юваль Ной Харари,  2011,  22.5,  3,  AVAILABLE,  2023-12-20T15:22:33,  2024-02-10T09:30
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [12]   Черный лебедь,  Нассим Николас Талеб,  2007,  19.0,  5,  AVAILABLE,  2024-01-05T06:15:45,  2024-01-30T14:05
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [13]   Эйнштейн. Его жизнь и Вселенная,  Уолтер Айзексон,  2007,  25.5,  4,  AVAILABLE,  2025-01-08T21:10:11,  2024-02-28T17:20
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [14]   Искусственный интеллект. Этапы. Угрозы. Стратегии,  Стюарт Рассел,  2010,  32.0,  8,  AVAILABLE,  2024-03-01T12:00,  not been sold yet
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [15]   Думай медленно… Решай быстро,  Даниэль Канеман,  2011,  23.5,  4,  AVAILABLE,  2023-12-01T16:45,  2024-02-15T13:15
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [16]   Космос,  Карл Саган,  1980,  27.0,  1,  NOT_AVAILABLE,  2025-02-08T17:07:30,  not been sold yet
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [17]   Краткая история времени,  Стивен Хокинг,  1988,  15.99,  5,  AVAILABLE,  2024-01-15T14:30,  2025-01-08T11:30
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [18]   Геном,  Мэтт Ридли,  1999,  21.2,  9,  AVAILABLE,  2024-02-25T19:20,  2025-01-09T17:00
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [19]   Физика невозможного,  Митио Каку,  2008,  29.0,  4,  AVAILABLE,  2025-01-08T09:22,  not been sold yet
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [20]   Структура научных революций,  Томас Кун,  1962,  18.75,  10,  AVAILABLE,  2025-02-02T23:20:39,  2025-02-02T23:20:26
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [22]   Краткая история времени,  Стивен Хокинг,  1988,  15.99,  5,  AVAILABLE,  2024-01-15T14:30,  2025-01-08T11:30
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [23]   Геном,  Мэтт Ридли,  1999,  21.2,  9,  AVAILABLE,  2024-02-25T19:20,  2025-01-09T17:00
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [25]   Физика невозможного,  Митио Каку,  2008,  29.0,  4,  AVAILABLE,  2025-01-08T09:22,  not been sold yet
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [31]   Структура научных революций,  Томас Кун,  1962,  18.75,  9,  AVAILABLE,  2025-01-09T12:25,  2025-01-08T18:00
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [42]   Sapiens. Краткая история человечества,  Юваль Ной Харари,  2011,  22.5,  3,  AVAILABLE,  2023-12-20T15:22:33,  2024-02-10T09:30
+2025-02-09 11:57:48 INFO  ImportExportMenuImpl:showSuccessExport:30 - Выполнен экспорт: [53]   Космос,  Карл Саган,  1980,  27.0,  1,  AVAILABLE,  2025-01-28T16:14:23,  2025-01-28T16:14:28
+2025-02-09 12:10:22 INFO  Menu:showSuccess:28 - Выполнено: Заказ создан: [17]  Ирина Павлова,  51.5,  NEW,  2025-02-09T12:10:22.544001500,  not been completed yet
+2025-02-09 12:16:59 INFO  Menu:showSuccess:28 - Выполнено: Заказ №16 отменен
+2025-02-09 12:23:27 INFO  Menu:showError:20 - Ошибка: java.sql.SQLException: Generated keys not requested. You need to specify Statement.RETURN_GENERATED_KEYS to Statement.executeUpdate(), Statement.executeLargeUpdate() or Connection.prepareStatement().
+2025-02-09 12:24:31 INFO  Menu:showSuccess:28 - Выполнено: Запрос №75 на 2 книг 14 успешно создан
+2025-02-09 12:25:06 INFO  Menu:showSuccess:28 - Выполнено: Списано 1 книг №42

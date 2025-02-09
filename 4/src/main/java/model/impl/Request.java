@@ -1,56 +1,36 @@
 package model.impl;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import model.Item;
 import model.RequestStatus;
 
+/**
+ * {@code Request} - Класс, представляющий запрос на книги магазина.
+ * Реализует интерфейс {@link Item}.
+ */
 @Data
+@AllArgsConstructor
 public class Request implements Item {
-    private static long counter = 0L;
+  private static long counter = 0L;
 
-    private final long id;
-    private final long bookId;
-    private final int amount;
-    private RequestStatus status;
+  private final long id;
+  private final long bookId;
+  private final int amount;
+  private RequestStatus status;
 
-    // Конструктор для запросов, которые создаются в логике магазина
-    public Request(long bookId, int amount) {
-        this.bookId = bookId;
-        this.amount = amount;
-        status = RequestStatus.OPEN;
+  @Override
+  public long getId() {
+    return id;
+  }
 
-        counter++;
-        id = counter;
-    }
+  @Override
+  public String getInfoAbout() {
+    return "[" + id + "]   книга №" + bookId + ", количество: " + amount + ",  статус:" + status;
+  }
 
-    // Конструктор для запросов, которые импортируются
-    public Request(long id, long bookId, int amount, RequestStatus status) {
-        this.id = id;
-        this.bookId = bookId;
-        this.amount = amount;
-        this.status = status;
-    }
-
-    public static void setCounter(long counter){
-        Request.counter = counter;
-    }
-
-    @Override
-    public long getId() {
-        return id;
-    }
-
-    public void closeRequest() {
-        status = RequestStatus.CLOSED;
-    }
-
-    @Override
-    public String getInfoAbout() {
-        return "[" + id + "]   книга №" + bookId + ", количество: " + amount + ",  статус:" + status;
-    }
-
-    @Override
-    public String toString() {
-        return id + "," + bookId + "," + status.toString();
-    }
+  @Override
+  public String toString() {
+    return id + "," + bookId + "," + status.toString();
+  }
 }

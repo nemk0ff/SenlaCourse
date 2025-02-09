@@ -1,38 +1,37 @@
 package controllers;
 
-import model.OrderStatus;
-
-import java.time.LocalDate;
-import java.util.Map;
-
+/**
+ * {@code OrdersController} - Интерфейс, определяющий поведение для контроллера, управляющего
+ * операциями, связанными с заказами.
+ */
 public interface OrdersController extends Controller {
-    void createOrder();
+  void createOrder();
 
-    void cancelOrder();
+  void cancelOrder();
 
-    void showOrderDetails();
+  void showOrderDetails();
 
-    void setOrderStatus();
+  void setOrderStatus();
 
-    void getOrdersByDate();
+  void getOrdersByDate();
 
-    void getOrdersByPrice();
+  void getOrdersByPrice();
 
-    void getOrdersByStatus();
+  void getOrdersByStatus();
 
-    void getCompletedOrdersByDate();
+  void getCompletedOrdersByDate();
 
-    void getCompletedOrdersByPrice();
+  void getCompletedOrdersByPrice();
 
-    void getCountCompletedOrders();
+  void getCountCompletedOrders();
 
-    void getEarnedSum();
+  void getEarnedSum();
 
-    void importAll();
+  void importAll();
 
-    void exportAll();
+  void exportAll();
 
-    void importOrder();
+  void importOrder();
 
-    void exportOrder();
+  void exportOrder();
 }

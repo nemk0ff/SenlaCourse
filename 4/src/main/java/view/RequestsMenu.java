@@ -1,12 +1,17 @@
 package view;
 
-import model.impl.Request;
-
 import java.util.List;
 import java.util.Map;
+import model.impl.Request;
 
+/**
+ * {@code RequestsMenu} - Интерфейс, расширяющий {@link Menu} и определяющий
+ * методы для отображения информации о запросах пользователю.
+ */
 public interface RequestsMenu extends Menu {
-    void showRequests(Map<Long, Long> requests);
+  void showRequests(Map<Long, Long> requests);
 
-    void showRequests(List<Request> requests);
+  void showRequests(List<Request> requests);
+
+  void showSuccessImport(Request request);
 }

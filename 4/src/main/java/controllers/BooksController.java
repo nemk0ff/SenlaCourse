@@ -1,29 +1,33 @@
 package controllers;
 
+/**
+ * {@code OrdersController} - Интерфейс, определяющий поведение для контроллера, управляющего
+ * операциями, связанными с книгами.
+ */
 public interface BooksController extends Controller {
-    void addBook();
+  void addBook();
 
-    void writeOff();
+  void writeOff();
 
-    void showBookDetails();
+  void showBookDetails();
 
-    void getBooksByName();
+  void getBooksByName();
 
-    void getBooksByDate();
+  void getBooksByDate();
 
-    void getBooksByPrice();
+  void getBooksByPrice();
 
-    void getBooksByAvailable();
+  void getBooksByAvailable();
 
-    void getStaleBooksByDate();
+  void getStaleBooksByDate();
 
-    void getStaleBooksByPrice();
+  void getStaleBooksByPrice();
 
-    void importAll();
+  void importAll();
 
-    void exportAll();
+  void exportAll();
 
-    void importBook();
+  void importBook();
 
-    void exportBook();
+  void exportBook();
 }

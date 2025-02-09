@@ -1,19 +1,23 @@
 package controllers;
 
+/**
+ * {@code OrdersController} - Интерфейс, определяющий поведение для контроллера, управляющего
+ * операциями, связанными с запросами.
+ */
 public interface RequestsController extends Controller {
-    void createRequest();
+  void createRequest();
 
-    void getRequestsByCount();
+  void getRequestsByCount();
 
-    void getRequestsByPrice();
+  void getRequestsByPrice();
 
-    void getAllRequests();
+  void getAllRequests();
 
-    void exportRequest();
+  void exportRequest();
 
-    void importRequest();
+  void importRequest();
 
-    void importAll();
+  void importAll();
 
-    void exportAll();
+  void exportAll();
 }

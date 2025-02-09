@@ -1,5 +1,12 @@
 package controllers;
 
+/**
+ * {@code Action} - Перечисление, представляющее возможные действия пользователя
+ * в приложении. Используется для управления потоком выполнения программы
+ * на основе выбора пользователя.
+ */
 public enum Action {
-    CONTINUE, EXIT, MAIN_MENU
+  CONTINUE,
+  EXIT,
+  MAIN_MENU
 }

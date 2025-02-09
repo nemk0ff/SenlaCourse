@@ -1,0 +1,247 @@
+package dao.impl;
+
+import annotations.ComponentDependency;
+import config.DatabaseConnection;
+import dao.OrderDao;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import lombok.NoArgsConstructor;
+import model.OrderStatus;
+import model.impl.Order;
+import sorting.OrderSort;
+
+/**
+ * {@code OrderDaoImpl} - Реализация интерфейса {@link OrderDao}, предоставляющая методы для
+ * взаимодействия с базой данных для управления информацией о заказах.
+ */
+@NoArgsConstructor
+public class OrderDaoImpl implements OrderDao {
+  @ComponentDependency
+  DatabaseConnection databaseConnection;
+
+  @Override
+  public void setOrderStatus(long orderId, String status) {
+    String updateQuery = "UPDATE orders SET status = ?, completeDate = ? WHERE order_id = ?";
+    try (PreparedStatement statement =
+             databaseConnection.connection().prepareStatement(updateQuery)) {
+      statement.setString(1, status);
+      statement.setString(2, LocalDateTime.now().toString());
+      statement.setLong(3, orderId);
+
+      statement.executeUpdate();
+      databaseConnection.connection().commit();
+    } catch (SQLException e) {
+      try {
+        databaseConnection.connection().rollback();
+      } catch (SQLException ex) {
+        throw new RuntimeException(ex);
+      }
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public void rewriteOrder(Order order) {
+    String updateQuery = "UPDATE orders SET status = ?, price = ?, orderDate = ?, "
+        + "completeDate = ?, clientName = ? WHERE order_id = ?";
+    try (PreparedStatement statement =
+             databaseConnection.connection().prepareStatement(updateQuery)) {
+      statement.setString(1, order.getStatus().toString());
+      statement.setDouble(2, order.getPrice());
+      statement.setTimestamp(3, Timestamp.valueOf(order.getOrderDate()));
+      if (order.getCompleteDate() != null) {
+        statement.setTimestamp(4, Timestamp.valueOf(order.getCompleteDate()));
+      } else {
+        statement.setNull(4, Types.TIMESTAMP);
+      }
+      statement.setString(5, order.getClientName());
+      statement.setLong(5, order.getId());
+
+      databaseConnection.connection().commit();
+    } catch (SQLException e) {
+      try {
+        databaseConnection.connection().rollback();
+      } catch (SQLException ex) {
+        throw new RuntimeException(ex);
+      }
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public long addOrder(Order order) {
+    Savepoint save;
+    try {
+      save = databaseConnection.connection().setSavepoint();
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+
+    String insertOrderQuery =
+        "INSERT INTO orders (status, price, orderDate, completeDate, clientName) "
+            + "VALUES (?, ?, ?, ?, ?)";
+    String insertOrderedBooksQuery =
+        "INSERT INTO ordered_books (order_id, book_id, amount) VALUES (?, ?, ?)";
+
+    try (PreparedStatement orderStatement = databaseConnection.connection()
+        .prepareStatement(insertOrderQuery, Statement.RETURN_GENERATED_KEYS);
+         PreparedStatement orderedBooksStatement = databaseConnection.connection()
+             .prepareStatement(insertOrderedBooksQuery)) {
+      orderStatement.setString(1, order.getStatus().toString());
+      orderStatement.setDouble(2, order.getPrice());
+      orderStatement.setObject(3, order.getOrderDate());
+      orderStatement.setObject(4, order.getCompleteDate());
+      orderStatement.setString(5, order.getClientName());
+
+      if (orderStatement.executeUpdate() == 0) {
+        throw new RuntimeException("Ошибка бд при добавлении заказа: заказ не добавлен");
+      }
+
+      long newId;
+      try (ResultSet generatedKeys = orderStatement.getGeneratedKeys()) {
+        if (generatedKeys.next()) {
+          newId = generatedKeys.getLong(1);
+        } else {
+          throw new RuntimeException("Ошибка бд при добавлении заказа: "
+              + "не удалось получить order_id");
+        }
+      }
+
+      for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
+        orderedBooksStatement.setLong(1, newId);
+        orderedBooksStatement.setLong(2, entry.getKey());
+        orderedBooksStatement.setInt(3, entry.getValue());
+        orderedBooksStatement.addBatch();
+      }
+      int[] batchResults = orderedBooksStatement.executeBatch();
+      for (int rowsAffected : batchResults) {
+        if (rowsAffected == 0) {
+          throw new RuntimeException("Ошибка бд при обновлении списка заказанных книг: "
+              + "ни одна строка не изменена");
+        }
+      }
+      databaseConnection.connection().commit();
+      return newId;
+    } catch (SQLException e) {
+      try {
+        databaseConnection.connection().rollback(save);
+      } catch (SQLException ex) {
+        throw new RuntimeException(ex);
+      }
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public List<Order> getAllOrders(OrderSort sortType, LocalDateTime begin, LocalDateTime end) {
+    List<Order> allOrders = new ArrayList<>();
+
+    String query = getQuery(sortType, begin, end);
+
+    try (Statement statement = databaseConnection.connection().createStatement();
+         ResultSet resultSetOrders = statement.executeQuery(query)) {
+      while (resultSetOrders.next()) {
+        long orderId = resultSetOrders.getLong("order_id");
+        Optional<Order> order = getOrderById(orderId);
+        order.ifPresent(allOrders::add);
+      }
+    } catch (Exception e) {
+      return new ArrayList<>();
+    }
+    return allOrders;
+  }
+
+  private String getQuery(OrderSort sortType, LocalDateTime begin, LocalDateTime end) {
+    return switch (sortType) {
+      case OrderSort.COMPLETE_DATE -> "SELECT * FROM orders ORDER BY completeDate";
+      case OrderSort.PRICE -> "SELECT * FROM orders ORDER BY price";
+      case OrderSort.STATUS -> "SELECT * FROM orders ORDER BY status";
+      case OrderSort.COMPLETED_BY_DATE -> "SELECT * FROM orders WHERE completeDate >= '" + begin
+          + "' AND completeDate <= '" + end + "' ORDER BY completeDate";
+      case OrderSort.COMPLETED_BY_PRICE -> "SELECT * FROM orders WHERE completeDate >= '" + begin
+          + "' AND completeDate <= '" + end + "' ORDER BY price";
+      default -> "SELECT * FROM orders ORDER BY order_id";
+    };
+  }
+
+  @Override
+  public Optional<Order> getOrderById(long orderId) {
+    try (Statement OrdersStatement = databaseConnection.connection().createStatement();
+         Statement OrderedBooksStatement = databaseConnection.connection().createStatement()) {
+      ResultSet resultOrder =
+          OrdersStatement.executeQuery("SELECT * FROM orders WHERE order_id = " + orderId);
+      resultOrder.next();
+      ResultSet orderedBooks = OrderedBooksStatement
+          .executeQuery("SELECT * FROM ordered_books WHERE order_id = " + orderId);
+      return getOrder(resultOrder, orderedBooks);
+    } catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  public Double getEarnedSum(LocalDateTime begin, LocalDateTime end) {
+    String query = "SELECT SUM(price) FROM orders WHERE completeDate >= '"
+            + begin + "' AND completeDate <= '" + end + "'";
+
+    try (Statement statement = databaseConnection.connection().createStatement();
+         ResultSet result = statement.executeQuery(query)) {
+      result.next();
+      return result.getDouble(1);
+    } catch (SQLException e) {
+      return 0.0;
+    }
+  }
+
+  @Override
+  public Long getCountCompletedOrders(LocalDateTime begin, LocalDateTime end) {
+    String query = "SELECT COUNT(*) FROM orders WHERE completeDate >= '"
+        + begin + "' AND completeDate <= '" + end + "'";
+
+    try (Statement statement = databaseConnection.connection().createStatement();
+         ResultSet result = statement.executeQuery(query)) {
+      result.next();
+      return result.getLong(1);
+    } catch (SQLException e) {
+      return 0L;
+    }
+  }
+
+  private Optional<Order> getOrder(ResultSet resultOrder, ResultSet orderedBooks) {
+    Map<Long, Integer> books = new HashMap<>();
+    try {
+      while (orderedBooks.next()) {
+        books.put(orderedBooks.getLong(2), orderedBooks.getInt(3));
+      }
+      return Optional.of(new Order(resultOrder.getLong(1),
+          getStatusFromString(resultOrder.getString(2)),
+          resultOrder.getDouble(3),
+          resultOrder.getObject(4, LocalDateTime.class),
+          resultOrder.getObject(5, LocalDateTime.class),
+          resultOrder.getString(6),
+          books));
+    } catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  private OrderStatus getStatusFromString(String input) {
+    for (OrderStatus status : OrderStatus.values()) {
+      if (status.name().equalsIgnoreCase(input)) {
+        return status;
+      }
+    }
+    return null;
+  }
+}
