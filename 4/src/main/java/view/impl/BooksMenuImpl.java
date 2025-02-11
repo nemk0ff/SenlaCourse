@@ -1,6 +1,5 @@
 package view.impl;
 
-import model.impl.Book;
 import view.BooksMenu;
 
 /**
@@ -29,10 +28,5 @@ public class BooksMenuImpl implements BooksMenu {
     System.out.println("13. Экспортировать все книги");
     System.out.println("14. Вернуться в главное меню");
     System.out.println("15. Выйти из программы");
-  }
-
-  @Override
-  public void showSuccessImport(Book book) {
-    log.info("Выполнен импорт книги: {}", book.getInfoAbout());
   }
 }

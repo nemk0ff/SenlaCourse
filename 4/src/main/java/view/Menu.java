@@ -36,8 +36,8 @@ public interface Menu {
     System.out.println("Введите id книги №" + (index + 1) + ": ");
   }
 
-  default void showGetAmountBooks(String message) {
-    System.out.println(message);
+  default void showGetAmountBooks() {
+    System.out.print("Введите количество книг: ");
   }
 
   /**

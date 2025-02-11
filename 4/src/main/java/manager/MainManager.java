@@ -72,7 +72,7 @@ public interface MainManager {
 
   long createRequest(long bookId, int amount);
 
-  void createRequests(Order order);
+  void createRequests(long orderId);
 
   Optional<Request> getRequest(long requestId);
 

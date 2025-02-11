@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import model.impl.Book;
 import sorting.BookSort;
 
@@ -22,6 +23,7 @@ import sorting.BookSort;
  * {@code BookDaoImpl} - Реализация интерфейса {@link BookDao}, предоставляющая методы для
  * взаимодействия с базой данных для управления информацией о книгах.
  */
+@Slf4j
 @Data
 public class BookDaoImpl implements BookDao {
   @ConfigProperty(propertyName = "book.stale.months", type = int.class)
@@ -31,16 +33,21 @@ public class BookDaoImpl implements BookDao {
 
   public BookDaoImpl() {
     ConfigurationManager.configure(this);
+    log.debug("BookDaoImpl инициализирован, staleBookMonths = {}", staleBookMonths);
   }
 
   @Override
   public boolean containsBook(long bookId) {
-    return getBookById(bookId).isPresent();
+    log.debug("Проверяем, существует ли книга [{}]...", bookId);
+    boolean contains = getBookById(bookId).isPresent();
+    log.debug("Книга [{}] существует: {}.", bookId, contains);
+    return contains;
   }
 
   @Override
   public void add(long bookId, int amount, LocalDateTime deliveredDate)
       throws IllegalArgumentException {
+    log.debug("Добавляем {} книг [{}]...", amount, bookId);
     Optional<Book> ourBook = getBookById(bookId);
     if (ourBook.isEmpty()) {
       throw new IllegalArgumentException("Такой книги нет в магазине");
@@ -51,57 +58,75 @@ public class BookDaoImpl implements BookDao {
     int newAmount = ourBook.get().getAmount() + amount;
     try {
       setAmount(bookId, newAmount, "lastDeliveredDate", deliveredDate);
+      log.info("Успешно добавлено {} книг [{}], дата поставки: {}",
+          amount, bookId, deliveredDate);
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Не удалось установить количество для книги ["
+          + bookId + "] : " + e.getMessage(), e);
     }
   }
 
   @Override
   public void writeOff(long bookId, int amount, LocalDateTime saleDate)
       throws IllegalArgumentException {
+    log.info("Списываем {} книг [{}]...", amount, bookId);
     Optional<Book> ourBook = getBookById(bookId);
     if (ourBook.isEmpty()) {
-      throw new IllegalArgumentException("Такой книги нет в магазине");
+      throw new IllegalArgumentException("Попытка списать книги с несуществующим id: " + bookId);
     } else if (ourBook.get().getAmount() < amount) {
-      throw new IllegalArgumentException("На складе нет столько книг, чтобы их списать");
+      throw new IllegalArgumentException("Попытка списать " + amount + " книг [" + bookId
+          + "],но доступно только " + ourBook.get().getAmount());
     } else if (amount <= 0) {
-      throw new IllegalArgumentException("Количество книг для списания должно быть положительным");
+      throw new IllegalArgumentException("Попытка списать неположительное количество ("
+          + amount + ") книг [" + bookId + "]");
     }
 
     int newAmount = ourBook.get().getAmount() - amount;
     try {
       setAmount(bookId, newAmount, "lastSaleDate", saleDate);
+      log.info("Списано {} книг [{}], дата продажи: {}", amount, bookId, saleDate);
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Не удалось установить количество для книги ["
+          + bookId + "]: " + e.getMessage(), e);
     }
   }
 
   private void setAmount(long bookId, int amount, String dateType, LocalDateTime dateSet)
       throws SQLException {
+    log.debug("Устанавливаем количество {} для книги [{}], тип даты {}, дата установки {}...",
+        amount, bookId, dateType, dateSet);
+
+    String query = "UPDATE library SET amount = ?, " + dateType + " = ? WHERE book_id = ?";
     try (PreparedStatement preparedStatement = databaseConnection.connection()
-        .prepareStatement("UPDATE library SET amount = ?, "
-            + dateType + " = ? WHERE book_id = ?")) {
+        .prepareStatement(query)) {
 
       preparedStatement.setInt(1, amount);
       preparedStatement.setTimestamp(2, Timestamp.valueOf(dateSet));
       preparedStatement.setLong(3, bookId);
 
+      logQuery(query);
       if (preparedStatement.executeUpdate() == 0) {
-        throw new SQLException("Ошибка бд при добавлении книги в базу данных: "
-            + "ни одна строка не изменена");
+        throw new SQLException("Ошибка БД при обновлении количества книг в базе данных: "
+            + "ни одна строка не изменена. bookId=" + bookId + ", amount=" + amount
+            + ", dateType=" + dateType + ", dateSet=" + dateSet);
       }
       databaseConnection.connection().commit();
+      log.debug("Успешно обновлено количество книг [{}]. Теперь на складе {} книг",
+          bookId, amount);
     } catch (SQLException e) {
-      databaseConnection.connection().rollback();
-      throw e;
+      rollbackTransaction(e);
+      throw new RuntimeException("Не удалось установить количество для книги ["
+          + bookId + "]: " + e.getMessage(), e);
     }
   }
 
   @Override
   public List<Book> getAllBooks(BookSort sortType) {
+    log.debug("Получаем все книги, отсортированные по {}...", sortType);
     List<Book> books = new ArrayList<>();
 
     String query = getQuery(sortType);
+    logQuery(query);
 
     try (PreparedStatement preparedStatement =
              databaseConnection.connection().prepareStatement(query)) {
@@ -109,8 +134,9 @@ public class BookDaoImpl implements BookDao {
       while (resultSet.next()) {
         getBook(resultSet).ifPresent(books::add);
       }
+      log.info("Успешно получено {} книг, отсортированных по {}", books.size(), sortType);
     } catch (SQLException e) {
-      return new ArrayList<>();
+      throw new RuntimeException("Ошибка при получении всех книг: " + e.getMessage(), e);
     }
     return books;
   }
@@ -139,6 +165,8 @@ public class BookDaoImpl implements BookDao {
 
   @Override
   public List<Book> getBooks(List<Long> bookIds) {
+    log.debug("Получаем книги [{}]...", bookIds);
+
     List<Book> books = new ArrayList<>();
 
     StringBuilder partOfQuery = new StringBuilder();
@@ -149,23 +177,28 @@ public class BookDaoImpl implements BookDao {
       }
     }
 
+    String query = "SELECT * FROM library WHERE book_id IN (" + partOfQuery + ")";
     try (PreparedStatement statement = databaseConnection.connection()
-        .prepareStatement("SELECT * FROM library WHERE book_id IN (" + partOfQuery + ")")) {
+        .prepareStatement(query)) {
       for (int i = 0; i < bookIds.size(); i++) {
         statement.setLong(i + 1, bookIds.get(i));
       }
+      logQuery(query);
       ResultSet resultSet = statement.executeQuery();
       while (resultSet.next()) {
         getBook(resultSet).ifPresent(books::add);
       }
+      log.debug("Успешно получено {} книг [{}]", books.size(), bookIds);
     } catch (SQLException e) {
-      return new ArrayList<>();
+      throw new RuntimeException("Ошибка при получении книг ["
+          + bookIds + "]: " + e.getMessage(), e);
     }
     return books;
   }
 
   @Override
   public void importBook(Book book) throws IllegalArgumentException {
+    log.info("Импортируем книгу: {}...", book.getInfoAbout());
     String query = "INSERT INTO library (book_id, name, author, publicationDate, "
         + "amount, price, lastDeliveredDate, lastSaleDate, status) "
         + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) " + "AS new_values "
@@ -188,36 +221,40 @@ public class BookDaoImpl implements BookDao {
       preparedStatement.setObject(8, book.getLastSaleDate());
       preparedStatement.setString(9, book.getStatus().toString());
 
+      logQuery(query);
       if (preparedStatement.executeUpdate() == 0) {
-        throw new SQLException("Ошибка бд при изменении количества книг: "
-            + "ни одна книга не изменена");
+        throw new SQLException("Ошибка БД при импорте/обновлении книги: "
+            + "не удалось изменить ни одну строку. book=" + book.getInfoAbout());
       }
       databaseConnection.connection().commit();
+      log.info("Книга успешно импортирована: {}", book.getInfoAbout());
     } catch (SQLException e) {
-      try {
-        databaseConnection.connection().rollback();
-      } catch (SQLException ex) {
-        throw new RuntimeException(ex);
-      }
-      throw new RuntimeException(e);
+      rollbackTransaction(e);
+      throw new RuntimeException("Не удалось импортировать книгу: " + book.getInfoAbout(), e);
     }
   }
 
   @Override
   public Optional<Book> getBookById(long bookId) {
+    log.debug("Получаем книгу по id: {}...", bookId);
+    String query = "SELECT * FROM library WHERE book_id = " + bookId;
     try (Statement statement = databaseConnection.connection().createStatement()) {
-      ResultSet results =
-          statement.executeQuery("SELECT * FROM library WHERE book_id = " + bookId);
-      results.next();
+      logQuery(query);
+      ResultSet results = statement.executeQuery(query);
+      if (!results.next()) {
+        log.debug("Книга [{}] не найдена", bookId);
+        return Optional.empty();
+      }
       return getBook(results);
     } catch (SQLException e) {
-      return Optional.empty();
+      throw new RuntimeException("Ошибка при получении книги по id "
+          + bookId + " :" + e.getMessage(), e);
     }
   }
 
   private Optional<Book> getBook(ResultSet results) {
     try {
-      return Optional.of(new Book(results.getLong(1),
+      Book book = new Book(results.getLong(1),
           results.getString(2),
           results.getString(3),
           results.getInt(4),
@@ -225,9 +262,26 @@ public class BookDaoImpl implements BookDao {
           results.getDouble(6),
           results.getObject(7, LocalDateTime.class),
           results.getObject(8, LocalDateTime.class),
-          Book.getStatusFromString(results.getString(9), results.getInt(5))));
+          Book.getStatusFromString(results.getString(9), results.getInt(5)));
+      log.debug("Книга успешно извлечена из ResultSet: {}", book);
+      return Optional.of(book);
     } catch (SQLException e) {
-      return Optional.empty();
+      throw new RuntimeException("Ошибка при извлечении книги из ResultSet: " + e.getMessage(), e);
+    }
+  }
+
+  private void logQuery(String query) {
+    log.debug("Выполняем SQL запрос: {}", query);
+  }
+
+  private void rollbackTransaction(Exception e) {
+    log.warn("Откатываем транзакцию из-за SQLException: {}...", e.getMessage());
+    try {
+      databaseConnection.connection().rollback();
+      log.debug("Транзакция успешно отменена");
+    } catch (Exception ex) {
+      throw new RuntimeException("Ошибка при откате транзакции после SQLException: "
+          + e.getMessage(), ex);
     }
   }
 }

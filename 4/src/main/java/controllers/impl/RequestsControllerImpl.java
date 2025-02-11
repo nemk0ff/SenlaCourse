@@ -9,6 +9,7 @@ import controllers.impl.importexport.ImportController;
 import java.util.List;
 import java.util.Optional;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import manager.MainManagerImpl;
 import model.impl.Request;
 import view.impl.RequestsMenuImpl;
@@ -17,6 +18,7 @@ import view.impl.RequestsMenuImpl;
  * {@code RequestsControllerImpl} - Реализация интерфейса {@link RequestsController},
  * представляющая собой контроллер для управления запросами.
  */
+@Slf4j
 @NoArgsConstructor
 public class RequestsControllerImpl implements RequestsController {
   @ComponentDependency
@@ -82,13 +84,16 @@ public class RequestsControllerImpl implements RequestsController {
       requestsMenu.showBooks(mainManager.getAllBooks());
       requestsMenu.showGetId("Введите id книги, на которую хотите создать запрос: ");
       long bookId = getNumberFromConsole();
+      if (mainManager.getBook(bookId).isEmpty()) {
+        throw new IllegalArgumentException("Книга с id " + bookId + " не найдена в магазине");
+      }
       requestsMenu.showMessage("На сколько книг создать запрос? ");
       int amount = (int) getNumberFromConsole();
       long id = mainManager.createRequest(bookId, amount);
       requestsMenu.showSuccess("Запрос №" + id + " на " + amount + " книг " + bookId + " успешно"
           + " создан");
     } catch (Exception e) {
-      requestsMenu.showError(e.getMessage());
+      log.warn("При создании запроса произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -97,7 +102,7 @@ public class RequestsControllerImpl implements RequestsController {
     try {
       requestsMenu.showRequests(mainManager.getRequestsByCount());
     } catch (Exception e) {
-      requestsMenu.showError(e.getMessage());
+      log.warn("При получении запросов произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -106,7 +111,7 @@ public class RequestsControllerImpl implements RequestsController {
     try {
       requestsMenu.showRequests(mainManager.getRequestsByPrice());
     } catch (Exception e) {
-      requestsMenu.showError(e.getMessage());
+      log.warn("При получении запросов произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -115,7 +120,7 @@ public class RequestsControllerImpl implements RequestsController {
     try {
       requestsMenu.showRequests(mainManager.getRequests());
     } catch (Exception e) {
-      requestsMenu.showError(e.getMessage());
+      log.warn("При получении запросов произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -132,7 +137,7 @@ public class RequestsControllerImpl implements RequestsController {
         requestsMenu.showErrorImport();
       }
     } catch (Exception e) {
-      requestsMenu.showError(e.getMessage());
+      log.warn("При импорте запроса произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -146,9 +151,8 @@ public class RequestsControllerImpl implements RequestsController {
 
       ExportController.exportItemToFile(exportRequest, FileConstants.EXPORT_REQUEST_PATH,
           FileConstants.REQUEST_HEADER);
-      requestsMenu.showSuccess("Экспорт выполнен успешно");
     } catch (Exception e) {
-      requestsMenu.showError("Не удалось найти запрос для экспорта");
+      log.warn("При экспорте запроса произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -162,13 +166,12 @@ public class RequestsControllerImpl implements RequestsController {
         requestsMenu.showMessage("Результат импортирования:");
         for (Request importedRequest : importedRequests) {
           mainManager.importItem(importedRequest);
-          requestsMenu.showMessage("Импортирован: " + importedRequest.getInfoAbout());
         }
       } else {
         requestsMenu.showError("Импорт не выполнен: запросы для импорта не найдены");
       }
     } catch (Exception e) {
-      requestsMenu.showError("Не удалось выполнить импорт: " + e.getMessage());
+      log.warn("При импорте запросов произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -178,7 +181,7 @@ public class RequestsControllerImpl implements RequestsController {
       ExportController.exportAll(mainManager.getRequests(),
           FileConstants.EXPORT_REQUEST_PATH, FileConstants.REQUEST_HEADER);
     } catch (Exception e) {
-      requestsMenu.showError("Не удалось выполнить экспорт: " + e.getMessage());
+      log.warn("При экспорте запросов произошла ошибка: {}", e.getMessage(), e);
     }
   }
 

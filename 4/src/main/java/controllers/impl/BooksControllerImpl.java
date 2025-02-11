@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import manager.MainManagerImpl;
 import model.impl.Book;
 import view.impl.BooksMenuImpl;
@@ -21,6 +22,7 @@ import view.impl.BooksMenuImpl;
  * выполнения операций над книгами и отображение результатов пользователю
  * через меню {@link BooksMenuImpl}.
  */
+@Slf4j
 @NoArgsConstructor
 public class BooksControllerImpl implements BooksController {
   @ComponentDependency
@@ -98,15 +100,14 @@ public class BooksControllerImpl implements BooksController {
   public void addBook() {
     try {
       booksMenu.showBooks(mainManager.getAllBooks());
-
       long bookId = getBookId();
-      booksMenu.showGetAmountBooks("Сколько книг добавить? Введите число: ");
+
+      booksMenu.showGetAmountBooks();
       int amount = (int) getNumberFromConsole();
 
       mainManager.addBook(bookId, amount, LocalDateTime.now());
-      booksMenu.showSuccess("Добавлено " + amount + " книг №" + bookId);
-    } catch (IllegalArgumentException e) {
-      booksMenu.showError(e.getMessage());
+    } catch (Exception e) {
+      log.error("При добавлении книг произошла ошибка:", e);
     }
   }
 
@@ -114,15 +115,14 @@ public class BooksControllerImpl implements BooksController {
   public void writeOff() {
     try {
       booksMenu.showBooks(mainManager.getAllBooks());
-
       long id = getBookId();
-      booksMenu.showGetAmountBooks("Сколько книг списать? Введите число: ");
+
+      booksMenu.showGetAmountBooks();
       int amount = (int) getNumberFromConsole();
 
       mainManager.writeOff(id, amount, LocalDateTime.now());
-      booksMenu.showSuccess("Списано " + amount + " книг №" + id);
-    } catch (IllegalArgumentException e) {
-      booksMenu.showError(e.getMessage());
+    } catch (Exception e) {
+      log.error("При списании книг произошла ошибка: ", e);
     }
   }
 
@@ -131,78 +131,57 @@ public class BooksControllerImpl implements BooksController {
     try {
       mainManager.getBook(getBookId()).ifPresent(booksMenu::showItem);
     } catch (Exception e) {
-      booksMenu.showError(e.getMessage());
+      log.error("При получении книги произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
   private long getBookId() {
-    try {
-      booksMenu.showGetId("Введите id книги: ");
-      long book = getNumberFromConsole();
+    booksMenu.showGetId("Введите id книги: ");
+    long book = getNumberFromConsole();
 
-      while (!mainManager.containsBook(book)) {
-        booksMenu.showError("Не удалось найти книгу №" + book + " в магазине");
-        book = getNumberFromConsole();
-      }
-      return book;
-    } catch (Exception e) {
-      booksMenu.showError(e.getMessage());
+    while (!mainManager.containsBook(book)) {
+      booksMenu.showMessage("Книга не найдена. Проверьте id книги и введите его заново: ");
+      book = getNumberFromConsole();
     }
-    return getBookId();
+    return book;
+  }
+
+  private void showBooks(List<Book> books) {
+    try {
+      booksMenu.showBooks(books);
+    } catch (Exception e) {
+      log.error("При выводе книг произошла ошибка: {}", e.getMessage(), e);
+    }
   }
 
   @Override
   public void getBooksByName() {
-    try {
-      booksMenu.showBooks(mainManager.getAllBooksByName());
-    } catch (Exception e) {
-      booksMenu.showError(e.getMessage());
-    }
+    showBooks(mainManager.getAllBooksByName());
   }
 
   @Override
   public void getBooksByDate() {
-    try {
-      booksMenu.showBooks(mainManager.getAllBooksByDate());
-    } catch (Exception e) {
-      booksMenu.showError(e.getMessage());
-    }
+    showBooks(mainManager.getAllBooksByDate());
   }
 
   @Override
   public void getBooksByPrice() {
-    try {
-      booksMenu.showBooks(mainManager.getAllBooksByPrice());
-    } catch (Exception e) {
-      booksMenu.showError(e.getMessage());
-    }
+    showBooks(mainManager.getAllBooksByPrice());
   }
 
   @Override
   public void getBooksByAvailable() {
-    try {
-      booksMenu.showBooks(mainManager.getAllBooksByAvailable());
-    } catch (Exception e) {
-      booksMenu.showError(e.getMessage());
-    }
+    showBooks(mainManager.getAllBooksByAvailable());
   }
 
   @Override
   public void getStaleBooksByDate() {
-    try {
-      booksMenu.showBooks(mainManager.getAllStaleBooksByDate());
-    } catch (Exception e) {
-      booksMenu.showError(e.getMessage());
-    }
+    showBooks(mainManager.getAllStaleBooksByDate());
   }
 
   @Override
   public void getStaleBooksByPrice() {
-    try {
-      booksMenu.showBooks(mainManager.getAllStaleBooksByPrice());
-    } catch (Exception e) {
-      booksMenu.showError(e.getMessage());
-    }
+    showBooks(mainManager.getAllStaleBooksByPrice());
   }
 
   @Override
@@ -212,13 +191,11 @@ public class BooksControllerImpl implements BooksController {
           ImportController::bookParser);
       if (findBook.isPresent()) {
         mainManager.importItem(findBook.get());
-        booksMenu.showSuccessImport(findBook.get());
-        findBook.ifPresent(booksMenu::showItem);
       } else {
         booksMenu.showErrorImport();
       }
-    } catch (IllegalArgumentException e) {
-      booksMenu.showError(e.getMessage());
+    } catch (Exception e) {
+      log.error("При импорте книги произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -233,8 +210,8 @@ public class BooksControllerImpl implements BooksController {
 
       ExportController.exportItemToFile(exportBook,
           FileConstants.EXPORT_BOOK_PATH, FileConstants.BOOK_HEADER);
-    } catch (IllegalArgumentException e) {
-      booksMenu.showError(e.getMessage());
+    } catch (Exception e) {
+      log.error("Ошибка при экспорте: {}", e.getMessage(), e);
     }
   }
 
@@ -244,14 +221,14 @@ public class BooksControllerImpl implements BooksController {
       List<Book> importedBooks = ImportController.importAllItemsFromFile(
           FileConstants.IMPORT_BOOK_PATH, ImportController::bookParser);
       if (!importedBooks.isEmpty()) {
+        log.info("Формируем из импортированных данных книги...");
         importedBooks.forEach(mainManager::importItem);
-        booksMenu.showMessage("Все книги успешно импортированы:");
-        importedBooks.forEach(booksMenu::showSuccessImport);
+        log.info("Импорт всех книг выполнен.");
       } else {
-        booksMenu.showError("Не удалось импортировать книги из файла.");
+        booksMenu.showError("Не удалось импортировать книги из файла. Возможно, файл пуст");
       }
     } catch (Exception e) {
-      booksMenu.showError(e.getMessage());
+      log.error("Ошибка при импорте: {}", e.getMessage(), e);
     }
   }
 
@@ -280,7 +257,7 @@ public class BooksControllerImpl implements BooksController {
         answer = InputUtils.getNumberFromConsole();
         break;
       } catch (NumberFormatException e) {
-        booksMenu.showInputError(e.getMessage());
+        log.warn("Ошибка при попытке ввести число. Попробуйте еще раз: ");
       }
     }
     return answer;

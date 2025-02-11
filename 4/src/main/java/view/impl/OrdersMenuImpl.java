@@ -95,16 +95,6 @@ public class OrdersMenuImpl implements OrdersMenu {
   }
 
   @Override
-  public void showCountCompletedOrders(Long count) {
-    System.out.println("Количество выполненных заказов : " + count);
-  }
-
-  @Override
-  public void showEarnedSum(Double sum) {
-    System.out.println("Сумма заработанных средств : " + sum);
-  }
-
-  @Override
   public void showSuccessImport(Order order) {
     log.info("Выполнен импорт заказа: {}", order.getInfoAbout());
   }

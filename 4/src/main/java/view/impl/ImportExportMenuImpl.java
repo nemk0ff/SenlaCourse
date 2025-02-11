@@ -25,16 +25,6 @@ public class ImportExportMenuImpl implements ImportExportMenu {
   }
 
   @Override
-  public void showSuccessExport(String str) {
-    log.info("Выполнен экспорт: {}", str);
-  }
-
-  @Override
-  public void showExportError(String message) {
-    log.error("Ошибка при экспорте: {}", message);
-  }
-
-  @Override
   public void showImportError(String message) {
     log.error("Ошибка при импорте: {}", message);
   }

@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * {@code ConfigurationManager} - Класс для автоматической настройки полей объекта
  * с использованием значений из конфигурационных файлов.
  */
+@Slf4j
 public class ConfigurationManager {
 
   /**
@@ -20,8 +22,11 @@ public class ConfigurationManager {
    */
   public static void configure(Object target) {
     Class<?> clazz = target.getClass();
+    log.debug("Конфигурация объекта класса: {}...", clazz.getName());
+
     for (Field field : clazz.getDeclaredFields()) {
       if (field.isAnnotationPresent(ConfigProperty.class)) {
+        log.debug("Обнаружено поле с аннотацией ConfigProperty: {}", field.getName());
         ConfigProperty annotation = field.getAnnotation(ConfigProperty.class);
         String configFileName = annotation.configFileName();
         String propertyName = annotation.propertyName();
@@ -30,6 +35,7 @@ public class ConfigurationManager {
         if (propertyName.isEmpty()) {
           propertyName = clazz.getSimpleName() + "." + field.getName();
         }
+        log.debug("Используемое имя свойства: {}", propertyName);
 
         try {
           Properties properties = loadProperties(configFileName);
@@ -39,13 +45,23 @@ public class ConfigurationManager {
             field.setAccessible(true);
             Object convertedValue = convertValue(propertyValue, targetType);
             field.set(target, convertedValue);
+            log.debug("В поле {} успешно заинжекчено значение: {}",
+                field.getName(), convertedValue);
+          } else {
+            log.warn("Свойство {} не найдено в файле конфигурации {}",
+                propertyName, configFileName);
           }
         } catch (IOException | IllegalAccessException e) {
-          throw new RuntimeException("Error configuring field: " + field.getName()
-              + " : " + e.getMessage());
+          String errorMessage = "Ошибка при конфигурировании поля: "
+              + field.getName() + " : " + e.getMessage();
+          log.error(errorMessage, e);
+          throw new RuntimeException(errorMessage);
         }
+      } else {
+        log.debug("Поле {} не имеет аннотации ConfigProperty, пропускаем", field.getName());
       }
     }
+    log.debug("Конфигурирование объекта класса {} завершено.", clazz.getName());
   }
 
 
@@ -54,7 +70,7 @@ public class ConfigurationManager {
     try (InputStream input = ConfigurationManager.class.getClassLoader()
         .getResourceAsStream(configFileName)) {
       if (input == null) {
-        throw new IOException("Configuration file not found: " + configFileName);
+        throw new IOException("Файл конфигурирования не найден: " + configFileName);
       }
       properties.load(input);
     }

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import lombok.extern.slf4j.Slf4j;
 import model.BookStatus;
 import model.Item;
 import model.OrderStatus;
@@ -27,6 +28,7 @@ import view.impl.ImportExportMenuImpl;
  * {@code ImportController} - Класс, предоставляющий статические методы для импорта
  * данных из файлов.
  */
+@Slf4j
 public class ImportController {
   private static final ImportExportMenu menu = new ImportExportMenuImpl();
   public static final DateTimeFormatter flexibleDateTimeFormatter = new DateTimeFormatterBuilder()
@@ -147,6 +149,7 @@ public class ImportController {
    */
   public static <T extends Item> List<T>
       importAllItemsFromFile(String importPath, Function<String[], T> parser) {
+    log.info("Импортируем данные из файла: {}...", importPath);
     List<T> items = new ArrayList<>();
     try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
       reader.readLine();
@@ -160,6 +163,7 @@ public class ImportController {
       menu.showImportError("IOException при чтении файла: " + e.getMessage());
       return new ArrayList<>();
     }
+    log.info("Выполнен импорт данных из файла: {}.", importPath);
     return items;
   }
 

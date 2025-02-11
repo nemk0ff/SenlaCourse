@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import model.Item;
 import model.OrderStatus;
 import model.impl.Book;
@@ -25,6 +26,7 @@ import sorting.RequestSort;
  * {@code MainManagerImpl} - Реализация интерфейса {@link MainManager}, предоставляющая методы
  * для управления основными операциями приложения.
  */
+@Slf4j
 @Data
 public class MainManagerImpl implements MainManager {
   @ConfigProperty(propertyName = "mark.orders.completed", type = boolean.class)
@@ -39,6 +41,7 @@ public class MainManagerImpl implements MainManager {
 
   public MainManagerImpl() {
     ConfigurationManager.configure(this);
+    log.debug("MainManagerImpl инициализирован, markOrdersCompleted = {}", markOrdersCompleted);
   }
 
   @Override
@@ -46,7 +49,9 @@ public class MainManagerImpl implements MainManager {
       throws IllegalArgumentException {
     bookDao.add(id, amount, deliveredDate);
     if (markOrdersCompleted) {
+      log.info("Обновляем заказы после добавления книги...");
       updateOrders(deliveredDate);
+      log.info("Все заказы успешно обновлены после добавления книги [{}].", id);
     }
   }
 
@@ -115,26 +120,37 @@ public class MainManagerImpl implements MainManager {
   @Override
   public void importBook(Book book) throws IllegalArgumentException {
     bookDao.importBook(book);
+    log.info("Обновляем заказы после импорта книги...");
     updateOrders(LocalDateTime.now());
+    log.info("Все заказы успешно обновлены после импорта книги [{}].", book.getId());
   }
 
 
   private void updateOrders(LocalDateTime updateDate) {
     for (Order order : getAllOrders()) {
+      log.debug("Обновляем заказ: {}...", order.getInfoAbout());
       updateOrder(order, updateDate);
+      log.debug("Заказ успешно обновлен: {}.", order.getInfoAbout());
     }
   }
 
   private void updateOrder(Order order, LocalDateTime updateDate) {
-    // Если все книги для заказа есть, то мы завершаем заказ
     if (order.getStatus() == OrderStatus.NEW) {
       for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
         Optional<Book> optionalBook = getBook(entry.getKey());
-        if (optionalBook.isEmpty() || optionalBook.get().getAmount() < entry.getValue()) {
+        if (optionalBook.isEmpty()) {
+          log.debug("В заказе [{}] есть {} книг [{}], но на складе таких книг нет",
+              order.getId(), entry.getValue(), entry.getValue());
+          return;
+        } else if (optionalBook.get().getAmount() < entry.getValue()) {
+          log.debug("В заказе [{}] есть {} книг [{}], но на складе таких книг только {}",
+              order.getId(), entry.getValue(), entry.getValue(), optionalBook.get().getAmount());
           return;
         }
       }
+      log.info("Есть все необходимые книги для заказа [{}], выполняем заказ...", order.getId());
       completeOrder(order, updateDate);
+      log.info("Заказ [{}] успешно выполнен.", order.getId());
     }
   }
 
@@ -156,23 +172,24 @@ public class MainManagerImpl implements MainManager {
   @Override
   public Order createOrder(Map<Long, Integer> booksIds, String clientName,
                            LocalDateTime orderDate) {
-    Order newOrder = new Order(booksIds, getPrice(booksIds.keySet().stream().toList()),
-        OrderStatus.NEW, orderDate, clientName);
+    long newOrderId = orderDao.addOrder(new Order(booksIds,
+        getPrice(booksIds.keySet().stream().toList()), OrderStatus.NEW, orderDate, clientName));
 
-    createRequests(newOrder);
-    newOrder.setId(orderDao.addOrder(newOrder));
-    return newOrder;
+    createRequests(newOrderId);
+    return orderDao.getOrderById(newOrderId).orElse(new Order());
   }
 
   @Override
   public void cancelOrder(long orderId) throws IllegalArgumentException {
+    log.debug("Отменяем заказ [{}]...", orderId);
     Optional<Order> order = orderDao.getOrderById(orderId);
     if (order.isEmpty()) {
-      throw new IllegalArgumentException("Заказ " + orderId + " не найден");
+      throw new IllegalArgumentException("Заказ [" + orderId + "] не найден");
     }
     if (order.get().getStatus() == OrderStatus.NEW) {
       orderDao.setOrderStatus(orderId, "CANCELED");
       requestDao.closeRequests(order.get().getBooks());
+      log.info("Заказ [{}] успешно отменен", orderId);
     } else {
       throw new IllegalArgumentException("Невозможно отменить заказ, статус которого не NEW");
     }
@@ -181,6 +198,9 @@ public class MainManagerImpl implements MainManager {
   @Override
   public void setOrderStatus(long orderId, OrderStatus status) {
     orderDao.setOrderStatus(orderId, status.toString());
+    if (status == OrderStatus.NEW) {
+      createRequests(orderId);
+    }
   }
 
 
@@ -258,18 +278,26 @@ public class MainManagerImpl implements MainManager {
   }
 
   @Override
-  public void createRequests(Order order) {
+  public void createRequests(long orderId) {
+    log.info("Создание запросов для заказа [{}]...", orderId);
+    Optional<Order> order = getOrder(orderId);
+    if (order.isEmpty()) {
+      throw new RuntimeException("Не удалось создать запросы для заказа " + orderId
+          + " : заказ с таким id не найден");
+    }
     boolean completed = true;
-    for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
+    for (Map.Entry<Long, Integer> entry : order.get().getBooks().entrySet()) {
       Optional<Book> book = getBook(entry.getKey());
       createRequest(entry.getKey(), entry.getValue());
       if (book.isPresent() && !isAvailable(entry.getKey(), entry.getValue())) {
         completed = false;
       }
     }
-    // Если все книги есть, то мы их списываем и закрываем заказ
+    log.info("Созданы запросы для заказа [{}].", orderId);
     if (completed) {
-      completeOrder(order, LocalDateTime.now());
+      log.info("При создании заказа [{}] обнаружено, что все книги есть в наличии. Выполняем "
+          + "заказ...", orderId);
+      completeOrder(order.get(), LocalDateTime.now());
     }
   }
 
@@ -280,7 +308,6 @@ public class MainManagerImpl implements MainManager {
 
   @Override
   public void importOrder(Order order) throws IllegalArgumentException {
-    // Если импортируем заказ на книгу, которой нет в магазине вообще
     if (!containsBooks((order).getBooks().keySet().stream().toList())) {
       throw new IllegalArgumentException("В импортируемом заказе " + order.getId()
           + " есть несуществующие книги");
@@ -288,27 +315,25 @@ public class MainManagerImpl implements MainManager {
 
     Optional<Order> findOrder = getOrder(order.getId());
     if (findOrder.isPresent()) {
-      // При копировании меняется состав заказа, нужно закрыть старые запросы
       requestDao.closeRequests(findOrder.get().getBooks());
-      // Перезаписываем заказ
       orderDao.rewriteOrder(order);
     } else {
       orderDao.addOrder(order);
     }
-    // Открываем новые запросы, соответствующие составу импортируемого заказа
-    createRequests(order);
+    createRequests(order.getId());
   }
 
   @Override
   public void importRequest(Request request) throws IllegalArgumentException {
-    // Если импортируем запрос на книгу, которой нет в магазине вообще
+    log.info("Импорт запроса {}...", request.getId());
     if (!containsBook((request).getBookId())) {
-      throw new IllegalArgumentException("Запрос " + request.getId()
-          + " - запрос на книгу, которой не существует");
+      log.warn("Ошибка при импорте: Запрос [{}] - запрос на книгу, которой не существует",
+          request.getId());
+      return;
     }
     Optional<Request> findRequest = getRequest(request.getId());
     if (findRequest.isPresent()) {
-      throw new IllegalArgumentException("Запрос [" + request.getId() + "] уже есть в магазине");
+      log.warn("Ошибка при импорте: Запрос [{}] уже есть в магазине", request.getId());
     } else {
       requestDao.importRequest(request);
     }

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import manager.MainManagerImpl;
 import model.OrderStatus;
 import model.impl.Order;
@@ -22,6 +23,7 @@ import view.impl.OrdersMenuImpl;
  * {@code OrdersControllerImpl} - Реализация интерфейса {@link OrdersController},
  * представляющая собой контроллер для управления заказами.
  */
+@Slf4j
 @NoArgsConstructor
 public class OrdersControllerImpl implements OrdersController {
   @ComponentDependency
@@ -109,7 +111,7 @@ public class OrdersControllerImpl implements OrdersController {
 
   private Map<Long, Integer> getBooksFromConsole() {
     ordersMenu.showBooks(mainManager.getAllBooks());
-    ordersMenu.showGetAmountBooks("Сколько уникальных книг вы хотите заказать? Введите число: ");
+    ordersMenu.showGetAmountBooks();
     int count = (int) getNumberFromConsole();
 
     long tempId;
@@ -131,7 +133,7 @@ public class OrdersControllerImpl implements OrdersController {
         }
       }
 
-      ordersMenu.showGetAmountBooks("Сколько книг [" + tempId + "] вам нужно? Введите число: ");
+      ordersMenu.showGetAmountBooks();
       tempAmount = (int) getNumberFromConsole();
       booksIds.put(tempId, tempAmount);
     }
@@ -146,11 +148,11 @@ public class OrdersControllerImpl implements OrdersController {
   @Override
   public void createOrder() {
     try {
-      Order newOrder = mainManager.createOrder(getBooksFromConsole(),
+      Order createdOrder = mainManager.createOrder(getBooksFromConsole(),
           getClientNameFromConsole(), LocalDateTime.now());
-      ordersMenu.showSuccess("Заказ создан: " + newOrder.getInfoAbout());
+      ordersMenu.showSuccess("Заказ создан: " + createdOrder.getInfoAbout());
     } catch (Exception e) {
-      ordersMenu.showError(e.getMessage());
+      log.warn("При создании заказа произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -161,9 +163,8 @@ public class OrdersControllerImpl implements OrdersController {
       ordersMenu.showGetId("Введите id заказа, который хотите отменить: ");
       long id = getNumberFromConsole();
       mainManager.cancelOrder(id);
-      ordersMenu.showSuccess("Заказ №" + id + " отменен");
     } catch (Exception e) {
-      ordersMenu.showError(e.getMessage());
+      log.warn("При отмене заказа произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -179,7 +180,7 @@ public class OrdersControllerImpl implements OrdersController {
         ordersMenu.showOrder(maybeOrder.get());
       }
     } catch (Exception e) {
-      ordersMenu.showError(e.getMessage());
+      log.warn("При поиске заказа произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -194,7 +195,7 @@ public class OrdersControllerImpl implements OrdersController {
       mainManager.setOrderStatus(orderId, newStatus);
       ordersMenu.showSuccess("Статус заказа №" + orderId + " изменен на " + newStatus);
     } catch (Exception e) {
-      ordersMenu.showError(e.getMessage());
+      log.warn("При изменении статуса заказа произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -209,42 +210,37 @@ public class OrdersControllerImpl implements OrdersController {
       ordersMenu.showGetNewStatus();
       newStatus = scanner.nextLine().trim();
     }
-
     return OrderStatus.valueOf(newStatus.toUpperCase());
+  }
+
+  private void showOrders(List<Order> orders, String methodName) {
+    try {
+      ordersMenu.showOrders(orders);
+    } catch (Exception e) {
+      log.warn("При выводе заказов, отсортированных по {}, произошла ошибка: {}",
+          methodName, e.getMessage(), e);
+    }
   }
 
   @Override
   public void getOrdersByDate() {
-    try {
-      ordersMenu.showOrders(mainManager.getAllOrdersByDate());
-    } catch (Exception e) {
-      ordersMenu.showError(e.getMessage());
-    }
+    showOrders(mainManager.getAllOrdersByDate(), "дате");
   }
 
   @Override
   public void getOrdersByPrice() {
-    try {
-      ordersMenu.showOrders(mainManager.getAllOrdersByPrice());
-    } catch (Exception e) {
-      ordersMenu.showError(e.getMessage());
-    }
+    showOrders(mainManager.getAllOrdersByPrice(), "цене");
   }
 
   @Override
   public void getOrdersByStatus() {
-    try {
-      ordersMenu.showOrders(mainManager.getAllOrdersByStatus());
-    } catch (Exception e) {
-      ordersMenu.showError(e.getMessage());
-    }
+    showOrders(mainManager.getAllOrdersByStatus(), "статусу");
   }
 
   @Override
   public void getCountCompletedOrders() {
     try {
-      ordersMenu.showCountCompletedOrders(
-          mainManager.getCountCompletedOrders(getBeginDate(), getEndDate()));
+      mainManager.getCountCompletedOrders(getBeginDate(), getEndDate());
     } catch (Exception e) {
       ordersMenu.showError(e.getMessage());
     }
@@ -253,9 +249,9 @@ public class OrdersControllerImpl implements OrdersController {
   @Override
   public void getEarnedSum() {
     try {
-      ordersMenu.showEarnedSum(mainManager.getEarnedSum(getBeginDate(), getEndDate()));
+      mainManager.getEarnedSum(getBeginDate(), getEndDate());
     } catch (Exception e) {
-      ordersMenu.showError(e.getMessage());
+      log.warn("При получении заработанной суммы произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -264,7 +260,8 @@ public class OrdersControllerImpl implements OrdersController {
     try {
       ordersMenu.showOrders(mainManager.getCompletedOrdersByDate(getBeginDate(), getEndDate()));
     } catch (Exception e) {
-      ordersMenu.showError(e.getMessage());
+      log.warn("При получении количества выполненных заказов произошла ошибка: {}",
+          e.getMessage(), e);
     }
   }
 
@@ -273,7 +270,8 @@ public class OrdersControllerImpl implements OrdersController {
     try {
       ordersMenu.showOrders(mainManager.getCompletedOrdersByPrice(getBeginDate(), getEndDate()));
     } catch (Exception e) {
-      ordersMenu.showError(e.getMessage());
+      log.warn("При получении количества выполненных заказов произошла ошибка: {}",
+          e.getMessage(), e);
     }
   }
 
@@ -318,7 +316,7 @@ public class OrdersControllerImpl implements OrdersController {
         ordersMenu.showErrorImport();
       }
     } catch (Exception e) {
-      ordersMenu.showError(e.getMessage());
+      log.warn("При импорте заказа произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -331,12 +329,10 @@ public class OrdersControllerImpl implements OrdersController {
       long exportId = getNumberFromConsole();
       exportOrder = getExportOrder(exportId);
 
-      ordersMenu.showOrders(mainManager.getAllOrders());
       ExportController.exportItemToFile(exportOrder,
           FileConstants.EXPORT_ORDER_PATH, FileConstants.ORDER_HEADER);
-      ordersMenu.showSuccess("Экспорт выполнен успешно");
     } catch (IllegalArgumentException e) {
-      ordersMenu.showError(e.getMessage());
+      log.warn("При экспорте заказа произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -351,11 +347,12 @@ public class OrdersControllerImpl implements OrdersController {
           mainManager.importItem(importedOrder);
           ordersMenu.showMessage("Импортирован: " + importedOrder.getInfoAbout());
         }
+        log.info("Все заказы успешно импортированы.");
       } else {
-        ordersMenu.showError("Не удалось импортировать заказы из файла.");
+        log.warn("Не удалось импортировать заказы. Возможно, файл пуст.");
       }
     } catch (Exception e) {
-      ordersMenu.showError("Заказ не импортирован. " + e.getMessage());
+      log.warn("При импорте заказов произошла ошибка: {}", e.getMessage(), e);
     }
   }
 
@@ -365,7 +362,7 @@ public class OrdersControllerImpl implements OrdersController {
       ExportController.exportAll(mainManager.getAllOrders(),
           FileConstants.EXPORT_ORDER_PATH, FileConstants.ORDER_HEADER);
     } catch (Exception e) {
-      ordersMenu.showError(e.getMessage());
+      log.warn("При экспорте заказов произошла ошибка: {}", e.getMessage(), e);
     }
   }
 

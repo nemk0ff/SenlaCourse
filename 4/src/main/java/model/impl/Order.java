@@ -4,12 +4,14 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import model.Item;
 import model.OrderStatus;
 
 /**
  * {@code Order} - Класс, представляющий заказ в магазине.  Реализует интерфейс {@link Item}.
  */
+@NoArgsConstructor
 @Data
 public class Order implements Item {
   private Long id = 0L;

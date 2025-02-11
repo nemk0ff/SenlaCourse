@@ -7,22 +7,22 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import model.Item;
-import view.ImportExportMenu;
-import view.impl.ImportExportMenuImpl;
 
 /**
  * {@code ExportController} - Класс, предоставляющий статические методы для экспорта
  * данных в файлы.
  */
+@Slf4j
 public class ExportController {
-  private static final ImportExportMenu menu = new ImportExportMenuImpl();
-
   /**
    * Экспортирует все элементы из заданной коллекции в файл, расположенный по указанному пути.
    */
   public static <T extends Item> void exportAll(List<T> items, String exportPath, String header) {
+    log.info("Выполняется экспорт объектов в файл {}...", exportPath);
     items.forEach(item -> exportItemToFile(item, exportPath, header));
+    log.info("Выполнен экспорт объектов в файл {}.", exportPath);
   }
 
   /**
@@ -31,6 +31,8 @@ public class ExportController {
    * Иначе строка с таким id будет обновлена
    */
   public static <T extends Item> void exportItemToFile(T item, String exportPath, String header) {
+    log.info("Выполняется экспорт объекта: {}...", item.getInfoAbout());
+
     String exportString = item.toString();
     List<String> newFileStrings = new ArrayList<>();
     newFileStrings.add(header);
@@ -54,8 +56,8 @@ public class ExportController {
         }
       }
     } catch (IOException e) {
-      menu.showExportError("IOException: " + e.getMessage());
-      return;
+      throw new RuntimeException("При экспорте " + item.getInfoAbout()
+          + "возникла ошибка: " + e.getMessage(), e);
     }
 
     if (!isUpdated) {
@@ -68,9 +70,9 @@ public class ExportController {
         writer.newLine();
       }
     } catch (IOException e) {
-      menu.showExportError("IOException: " + e.getMessage());
-      return;
+      throw new RuntimeException("При экспорте " + item.getInfoAbout()
+          + "возникла ошибка: " + e.getMessage(), e);
     }
-    menu.showSuccessExport(item.getInfoAbout());
+    log.info("Экспорт выполнен успешно: {}", item.getInfoAbout());
   }
 }

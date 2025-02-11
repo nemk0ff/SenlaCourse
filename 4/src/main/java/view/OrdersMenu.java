@@ -1,7 +1,6 @@
 package view;
 
 import java.util.List;
-import model.impl.Book;
 import model.impl.Order;
 
 /**
@@ -26,10 +25,6 @@ public interface OrdersMenu extends Menu {
   void showGetClientName();
 
   void showGetNewStatus();
-
-  void showCountCompletedOrders(Long count);
-
-  void showEarnedSum(Double sum);
 
   void showSuccessImport(Order order);
 }
