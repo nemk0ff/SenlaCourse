@@ -50,5 +50,4 @@ public class RequestsMenuImpl implements RequestsMenu {
   public void showSuccessImport(Request request) {
     log.info("Выполнен импорт запроса: {}", request.getInfoAbout());
   }
-
 }

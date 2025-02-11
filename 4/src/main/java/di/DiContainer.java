@@ -12,7 +12,7 @@ import java.util.function.Supplier;
  * Позволяет регистрировать и получать бины (beans) и автоматически внедрять зависимости,
  * отмеченные аннотацией {@link ComponentDependency}.
  */
-public class DiContainer {
+public final class DiContainer {
   private static DiContainer instance;
   private final Map<Class<?>, Object> beans = new HashMap<>();
 

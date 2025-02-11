@@ -202,10 +202,10 @@ public class OrderDaoImpl implements OrderDao {
     String orderQuery = "SELECT * FROM orders WHERE order_id = " + orderId;
     String orderedBooksQuery = "SELECT * FROM ordered_books WHERE order_id = " + orderId;
 
-    try (Statement OrdersStatement = databaseConnection.connection().createStatement();
-         Statement OrderedBooksStatement = databaseConnection.connection().createStatement()) {
+    try (Statement ordersStatement = databaseConnection.connection().createStatement();
+         Statement orderedBooksStatement = databaseConnection.connection().createStatement()) {
       logQuery(orderQuery);
-      ResultSet resultOrder = OrdersStatement.executeQuery(orderQuery);
+      ResultSet resultOrder = ordersStatement.executeQuery(orderQuery);
 
       if (!resultOrder.next()) {
         log.debug("Заказ [{}] не найден", orderId);
@@ -213,7 +213,7 @@ public class OrderDaoImpl implements OrderDao {
       }
 
       logQuery(orderedBooksQuery);
-      ResultSet orderedBooks = OrderedBooksStatement
+      ResultSet orderedBooks = orderedBooksStatement
           .executeQuery(orderedBooksQuery);
 
       return getOrder(resultOrder, orderedBooks);
@@ -281,7 +281,6 @@ public class OrderDaoImpl implements OrderDao {
           books);
       log.debug("Заказ успешно сформирован из ResultSet: {}", order.getInfoAbout());
       return Optional.of(order);
-
     } catch (SQLException e) {
       throw new RuntimeException("Ошибка при формировании заказа из ResultSet: " + e.getMessage());
     }
