@@ -103,16 +103,6 @@ public class MainManagerImpl implements MainManager {
   }
 
   @Override
-  public boolean containsBooks(List<Long> booksIds) {
-    for (long id : booksIds) {
-      if (!containsBook(id)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  @Override
   public boolean containsBook(long bookId) {
     return bookDao.containsBook(bookId);
   }
@@ -308,11 +298,6 @@ public class MainManagerImpl implements MainManager {
 
   @Override
   public void importOrder(Order order) throws IllegalArgumentException {
-    if (!containsBooks((order).getBooks().keySet().stream().toList())) {
-      throw new IllegalArgumentException("В импортируемом заказе " + order.getId()
-          + " есть несуществующие книги");
-    }
-
     Optional<Order> findOrder = getOrder(order.getId());
     if (findOrder.isPresent()) {
       requestDao.closeRequests(findOrder.get().getBooks());

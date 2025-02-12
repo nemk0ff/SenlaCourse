@@ -38,8 +38,6 @@ public interface MainManager {
 
   List<Book> getAllStaleBooksByPrice();
 
-  boolean containsBooks(List<Long> booksIds) throws IllegalArgumentException;
-
   boolean containsBook(long bookId) throws IllegalArgumentException;
 
   void importBook(Book book) throws IllegalArgumentException;
