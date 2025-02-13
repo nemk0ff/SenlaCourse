@@ -1,0 +1,174 @@
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:25 - Конфигурация объекта класса: manager.MainManagerImpl...
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:61 - Поле log не имеет аннотации ConfigProperty, пропускаем
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:29 - Обнаружено поле с аннотацией ConfigProperty: markOrdersCompleted
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:38 - Используемое имя свойства: mark.orders.completed
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:48 - В поле markOrdersCompleted успешно заинжекчено значение: true
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:61 - Поле bookDao не имеет аннотации ConfigProperty, пропускаем
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:61 - Поле orderDao не имеет аннотации ConfigProperty, пропускаем
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:61 - Поле requestDao не имеет аннотации ConfigProperty, пропускаем
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:64 - Конфигурирование объекта класса manager.MainManagerImpl завершено.
+2025-02-12 14:16:10 DEBUG MainManagerImpl:<init>:44 - MainManagerImpl инициализирован, markOrdersCompleted = true
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:25 - Конфигурация объекта класса: dao.impl.BookDaoImpl...
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:61 - Поле log не имеет аннотации ConfigProperty, пропускаем
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:29 - Обнаружено поле с аннотацией ConfigProperty: staleBookMonths
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:38 - Используемое имя свойства: book.stale.months
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:48 - В поле staleBookMonths успешно заинжекчено значение: 4
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:61 - Поле databaseConnection не имеет аннотации ConfigProperty, пропускаем
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:64 - Конфигурирование объекта класса dao.impl.BookDaoImpl завершено.
+2025-02-12 14:16:10 DEBUG BookDaoImpl:<init>:36 - BookDaoImpl инициализирован, staleBookMonths = 4
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:25 - Конфигурация объекта класса: config.DatabaseConnection...
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:29 - Обнаружено поле с аннотацией ConfigProperty: databaseUrl
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:38 - Используемое имя свойства: db.url
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:48 - В поле databaseUrl успешно заинжекчено значение: jdbc:mysql://localhost:3306/bookstore
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:29 - Обнаружено поле с аннотацией ConfigProperty: databaseUser
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:38 - Используемое имя свойства: db.user
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:48 - В поле databaseUser успешно заинжекчено значение: root
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:29 - Обнаружено поле с аннотацией ConfigProperty: databasePassword
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:38 - Используемое имя свойства: db.password
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:48 - В поле databasePassword успешно заинжекчено значение: 12345
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:61 - Поле connection не имеет аннотации ConfigProperty, пропускаем
+2025-02-12 14:16:10 DEBUG ConfigurationManager:configure:64 - Конфигурирование объекта класса config.DatabaseConnection завершено.
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getAllBooks:125 - Получаем все книги, отсортированные по ID...
+2025-02-12 14:16:16 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library ORDER BY book_id
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 1,Анна Каренина,Л.Н.Толстой,1884,2,1150.0,2025-01-09T12:34:56,2025-02-11T12:52:06,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 2,Капитанская дочка,А.С.Пушкин,1836,0,200.0,2025-01-09T17:55:11,2025-02-11T12:52:06,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 3,Дубровский,А.С.Пушкин,1833,0,450.0,2024-10-20T22:12:34,2025-01-08T16:20:55,NOT_AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 4,Пиковая дама,А.С.Пушкин,1833,1,975.0,2024-04-05T13:03:45,2024-02-23T11:11:22,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 5,Обломов,Иван Гончаров,1859,0,12.0,2025-01-08T07:30,2025-02-11T12:52:06,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 6,Детство,Лев Толстой,1852,0,9.5,2023-10-25T15:10:12,null,NOT_AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 7,Муму,Иван Тургенев,1854,0,8.0,2023-11-20T09:05:23,2025-02-02T23:38:15,NOT_AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 8,Отцы и дети,Иван Тургенев,1862,7,11.5,2024-01-15T10:23:45,2025-02-02T23:45:07,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 9,Мёртвые души,Н.В.Гоголь,1842,0,350.0,2024-01-11T18:50,null,NOT_AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 10,Ревизор,Н.В.Гоголь,1835,3,875.0,2025-01-08T08:40,null,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 11,Sapiens. Краткая история человечества,Юваль Ной Харари,2011,3,22.5,2023-12-20T15:22:33,2024-02-10T09:30,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 12,Черный лебедь,Нассим Николас Талеб,2007,5,19.0,2024-01-05T06:15:45,2024-01-30T14:05,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 13,Эйнштейн. Его жизнь и Вселенная,Уолтер Айзексон,2007,4,25.5,2025-01-08T21:10:11,2024-02-28T17:20,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 14,Искусственный интеллект. Этапы. Угрозы. Стратегии,Стюарт Рассел,2010,8,32.0,2024-03-01T12:00,null,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 15,Думай медленно… Решай быстро,Даниэль Канеман,2011,4,23.5,2023-12-01T16:45,2024-02-15T13:15,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 16,Космос,Карл Саган,1980,1,27.0,2025-02-08T17:07:30,null,NOT_AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 17,Краткая история времени,Стивен Хокинг,1988,5,15.99,2024-01-15T14:30,2025-01-08T11:30,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 18,Геном,Мэтт Ридли,1999,9,21.2,2024-02-25T19:20,2025-01-09T17:00,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 19,Физика невозможного,Митио Каку,2008,4,29.0,2025-01-08T09:22,null,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 20,Структура научных революций,Томас Кун,1962,10,18.75,2025-02-02T23:20:39,2025-02-02T23:20:26,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 22,Краткая история времени,Стивен Хокинг,1988,5,15.99,2024-01-15T14:30,2025-01-08T11:30,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 23,Геном,Мэтт Ридли,1999,9,21.2,2024-02-25T19:20,2025-01-09T17:00,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 25,Физика невозможного,Митио Каку,2008,4,29.0,2025-01-08T09:22,null,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 31,Структура научных революций,Томас Кун,1962,6,18.75,2025-01-09T12:25,2025-02-11T12:13:02,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 42,Sapiens. Краткая история человечества,Юваль Ной Харари,2011,3,22.5,2023-12-20T15:22:33,2024-02-10T09:30,AVAILABLE
+2025-02-12 14:16:16 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 53,Космос,Карл Саган,1980,1,27.0,2025-01-28T16:14:23,2025-01-28T16:14:28,AVAILABLE
+2025-02-12 14:16:16 INFO  BookDaoImpl:getAllBooks:137 - Успешно получено 26 книг, отсортированных по ID
+2025-02-12 14:16:26 DEBUG BookDaoImpl:containsBook:41 - Проверяем, существует ли книга [2222]...
+2025-02-12 14:16:26 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 2222...
+2025-02-12 14:16:26 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 2222
+2025-02-12 14:16:26 DEBUG BookDaoImpl:getBookById:245 - Книга [2222] не найдена
+2025-02-12 14:16:26 DEBUG BookDaoImpl:containsBook:43 - Книга [2222] существует: false.
+2025-02-12 14:16:26 DEBUG BookDaoImpl:containsBook:41 - Проверяем, существует ли книга [2222]...
+2025-02-12 14:16:26 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 2222...
+2025-02-12 14:16:26 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 2222
+2025-02-12 14:16:26 DEBUG BookDaoImpl:getBookById:245 - Книга [2222] не найдена
+2025-02-12 14:16:26 DEBUG BookDaoImpl:containsBook:43 - Книга [2222] существует: false.
+2025-02-12 14:16:26 INFO  Menu:showError:20 - Ошибка: Не удалось найти книгу №2222
+2025-02-12 14:16:28 DEBUG BookDaoImpl:containsBook:41 - Проверяем, существует ли книга [913]...
+2025-02-12 14:16:28 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 913...
+2025-02-12 14:16:28 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 913
+2025-02-12 14:16:28 DEBUG BookDaoImpl:getBookById:245 - Книга [913] не найдена
+2025-02-12 14:16:28 DEBUG BookDaoImpl:containsBook:43 - Книга [913] существует: false.
+2025-02-12 14:16:28 DEBUG BookDaoImpl:containsBook:41 - Проверяем, существует ли книга [913]...
+2025-02-12 14:16:28 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 913...
+2025-02-12 14:16:28 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 913
+2025-02-12 14:16:28 DEBUG BookDaoImpl:getBookById:245 - Книга [913] не найдена
+2025-02-12 14:16:28 DEBUG BookDaoImpl:containsBook:43 - Книга [913] существует: false.
+2025-02-12 14:16:28 INFO  Menu:showError:20 - Ошибка: Не удалось найти книгу №913
+2025-02-12 14:16:36 DEBUG BookDaoImpl:containsBook:41 - Проверяем, существует ли книга [42]...
+2025-02-12 14:16:36 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 42...
+2025-02-12 14:16:36 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 42
+2025-02-12 14:16:36 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 42,Sapiens. Краткая история человечества,Юваль Ной Харари,2011,3,22.5,2023-12-20T15:22:33,2024-02-10T09:30,AVAILABLE
+2025-02-12 14:16:36 DEBUG BookDaoImpl:containsBook:43 - Книга [42] существует: true.
+2025-02-12 14:16:41 DEBUG BookDaoImpl:containsBook:41 - Проверяем, существует ли книга [1]...
+2025-02-12 14:16:41 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 1...
+2025-02-12 14:16:41 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 1
+2025-02-12 14:16:41 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 1,Анна Каренина,Л.Н.Толстой,1884,2,1150.0,2025-01-09T12:34:56,2025-02-11T12:52:06,AVAILABLE
+2025-02-12 14:16:41 DEBUG BookDaoImpl:containsBook:43 - Книга [1] существует: true.
+2025-02-12 14:16:44 DEBUG BookDaoImpl:containsBook:41 - Проверяем, существует ли книга [3]...
+2025-02-12 14:16:44 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 3...
+2025-02-12 14:16:44 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 3
+2025-02-12 14:16:44 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 3,Дубровский,А.С.Пушкин,1833,0,450.0,2024-10-20T22:12:34,2025-01-08T16:20:55,NOT_AVAILABLE
+2025-02-12 14:16:44 DEBUG BookDaoImpl:containsBook:43 - Книга [3] существует: true.
+2025-02-12 14:16:47 DEBUG BookDaoImpl:containsBook:41 - Проверяем, существует ли книга [5]...
+2025-02-12 14:16:47 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 5...
+2025-02-12 14:16:47 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 5
+2025-02-12 14:16:47 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 5,Обломов,Иван Гончаров,1859,0,12.0,2025-01-08T07:30,2025-02-11T12:52:06,AVAILABLE
+2025-02-12 14:16:47 DEBUG BookDaoImpl:containsBook:43 - Книга [5] существует: true.
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBooks:168 - Получаем книги [[1, 3, 5, 42]]...
+2025-02-12 14:16:55 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id IN (?,?,?,?)
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 1,Анна Каренина,Л.Н.Толстой,1884,2,1150.0,2025-01-09T12:34:56,2025-02-11T12:52:06,AVAILABLE
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 3,Дубровский,А.С.Пушкин,1833,0,450.0,2024-10-20T22:12:34,2025-01-08T16:20:55,NOT_AVAILABLE
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 5,Обломов,Иван Гончаров,1859,0,12.0,2025-01-08T07:30,2025-02-11T12:52:06,AVAILABLE
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 42,Sapiens. Краткая история человечества,Юваль Ной Харари,2011,3,22.5,2023-12-20T15:22:33,2024-02-10T09:30,AVAILABLE
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBooks:191 - Успешно получено 4 книг [[1, 3, 5, 42]]
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:addOrder:100 - Добавление заказа в бд: [0]  Дмитрий Назаров,  1634.5,  NEW,  2025-02-12T14:16:55.754015900,  not been completed yet...
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:setTransactionSavepoint:320 - Установка точки сохранения транзакции...
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:setTransactionSavepoint:324 - Точка сохранения успешно создана
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:addOrder:119 - Выполняем SQL запрос: INSERT INTO orders (status, price, orderDate, completeDate, clientName) VALUES (?, ?, ?, ?, ?) с параметрами: status=NEW, price=1634.5, orderDate=2025-02-12T14:16:55.754015900, completeDate=null, clientName=Дмитрий Назаров
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:addOrder:132 - Заказ успешно добавлен. Id заказа: 29
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:addOrder:139 - Добавление книг в заказ [29]
+2025-02-12 14:16:55 INFO  OrderDaoImpl:addOrder:155 - Заказ с order_id [29] успешно добавлен
+2025-02-12 14:16:55 INFO  MainManagerImpl:createRequests:272 - Создание запросов для заказа [29]...
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:getOrderById:200 - Получаем заказ [29]...
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:logQuery:300 - Выполняем SQL запрос: SELECT * FROM orders WHERE order_id = 29
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:logQuery:300 - Выполняем SQL запрос: SELECT * FROM ordered_books WHERE order_id = 29
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:getOrder:273 - Добавлена книга в заказ: bookId=1, amount=2
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:getOrder:273 - Добавлена книга в заказ: bookId=3, amount=2
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:getOrder:273 - Добавлена книга в заказ: bookId=5, amount=1
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:getOrder:273 - Добавлена книга в заказ: bookId=42, amount=1
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:getOrder:282 - Заказ успешно сформирован из ResultSet: [29]  Дмитрий Назаров,  1634.5,  NEW,  2025-02-12T14:16:56,  not been completed yet
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 1...
+2025-02-12 14:16:55 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 1
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 1,Анна Каренина,Л.Н.Толстой,1884,2,1150.0,2025-01-09T12:34:56,2025-02-11T12:52:06,AVAILABLE
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:125 - Добавляем запрос для bookId=1 и amount=2
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:136 - Выполняем SQL запрос: INSERT INTO requests (book_id, amount, status) VALUES (?, ?, ?) с параметрами: bookId=1, amount=2, status=OPEN
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:148 - Сгенерирован id для нового запроса: 231
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:157 - Успешно добавлен запрос для bookId=1 и amount=2 с id=231
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 1...
+2025-02-12 14:16:55 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 1
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 1,Анна Каренина,Л.Н.Толстой,1884,2,1150.0,2025-01-09T12:34:56,2025-02-11T12:52:06,AVAILABLE
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 3...
+2025-02-12 14:16:55 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 3
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 3,Дубровский,А.С.Пушкин,1833,0,450.0,2024-10-20T22:12:34,2025-01-08T16:20:55,NOT_AVAILABLE
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:125 - Добавляем запрос для bookId=3 и amount=2
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:136 - Выполняем SQL запрос: INSERT INTO requests (book_id, amount, status) VALUES (?, ?, ?) с параметрами: bookId=3, amount=2, status=OPEN
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:148 - Сгенерирован id для нового запроса: 232
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:157 - Успешно добавлен запрос для bookId=3 и amount=2 с id=232
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 3...
+2025-02-12 14:16:55 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 3
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 3,Дубровский,А.С.Пушкин,1833,0,450.0,2024-10-20T22:12:34,2025-01-08T16:20:55,NOT_AVAILABLE
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 5...
+2025-02-12 14:16:55 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 5
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 5,Обломов,Иван Гончаров,1859,0,12.0,2025-01-08T07:30,2025-02-11T12:52:06,AVAILABLE
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:125 - Добавляем запрос для bookId=5 и amount=1
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:136 - Выполняем SQL запрос: INSERT INTO requests (book_id, amount, status) VALUES (?, ?, ?) с параметрами: bookId=5, amount=1, status=OPEN
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:148 - Сгенерирован id для нового запроса: 233
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:157 - Успешно добавлен запрос для bookId=5 и amount=1 с id=233
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 5...
+2025-02-12 14:16:55 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 5
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 5,Обломов,Иван Гончаров,1859,0,12.0,2025-01-08T07:30,2025-02-11T12:52:06,AVAILABLE
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 42...
+2025-02-12 14:16:55 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 42
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 42,Sapiens. Краткая история человечества,Юваль Ной Харари,2011,3,22.5,2023-12-20T15:22:33,2024-02-10T09:30,AVAILABLE
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:125 - Добавляем запрос для bookId=42 и amount=1
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:136 - Выполняем SQL запрос: INSERT INTO requests (book_id, amount, status) VALUES (?, ?, ?) с параметрами: bookId=42, amount=1, status=OPEN
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:148 - Сгенерирован id для нового запроса: 234
+2025-02-12 14:16:55 DEBUG RequestDaoImpl:addRequest:157 - Успешно добавлен запрос для bookId=42 и amount=1 с id=234
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBookById:239 - Получаем книгу по id: 42...
+2025-02-12 14:16:55 DEBUG BookDaoImpl:logQuery:274 - Выполняем SQL запрос: SELECT * FROM library WHERE book_id = 42
+2025-02-12 14:16:55 DEBUG BookDaoImpl:getBook:266 - Книга успешно извлечена из ResultSet: 42,Sapiens. Краткая история человечества,Юваль Ной Харари,2011,3,22.5,2023-12-20T15:22:33,2024-02-10T09:30,AVAILABLE
+2025-02-12 14:16:55 INFO  MainManagerImpl:createRequests:286 - Созданы запросы для заказа [29].
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:getOrderById:200 - Получаем заказ [29]...
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:logQuery:300 - Выполняем SQL запрос: SELECT * FROM orders WHERE order_id = 29
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:logQuery:300 - Выполняем SQL запрос: SELECT * FROM ordered_books WHERE order_id = 29
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:getOrder:273 - Добавлена книга в заказ: bookId=1, amount=2
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:getOrder:273 - Добавлена книга в заказ: bookId=3, amount=2
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:getOrder:273 - Добавлена книга в заказ: bookId=5, amount=1
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:getOrder:273 - Добавлена книга в заказ: bookId=42, amount=1
+2025-02-12 14:16:55 DEBUG OrderDaoImpl:getOrder:282 - Заказ успешно сформирован из ResultSet: [29]  Дмитрий Назаров,  1634.5,  NEW,  2025-02-12T14:16:56,  not been completed yet
+2025-02-12 14:16:55 INFO  Menu:showSuccess:28 - Выполнено: Заказ создан: [29]  Дмитрий Назаров,  1634.5,  NEW,  2025-02-12T14:16:56,  not been completed yet

@@ -1,61 +1,65 @@
 package view;
 
-import model.impl.Book;
-import model.Item;
-
 import java.util.List;
+import model.Item;
+import model.impl.Book;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * {@code Menu} - Интерфейс, определяющий поведение для всех меню в приложении.
+ * Предоставляет методы для отображения информации пользователю.
+ */
 public interface Menu {
-    default void showMenu() {}
+  Logger log = LoggerFactory.getLogger(Menu.class);
 
-    default void showError(String error) {
-        System.out.println("Ошибка: " + error);
-    }
+  default void showMenu() {
+  }
 
-    default void showSuccess(String success) {
-        System.out.println("Выполнено: " + success);
-    }
+  default void showError(String error) {
+    log.info("Ошибка: {}", error);
+  }
 
-    default void showGetId(String message) {
-        System.out.print(message);
-    }
+  default void showInputError(String error) {
+    System.out.println("Ошибка: " + error);
+  }
 
-    default void showGetBookId(int index) {
-        System.out.print("Введите id книги №" + (index + 1) + ": ");
-    }
+  default void showSuccess(String success) {
+    log.info("Выполнено: {}", success);
+  }
 
-    default void showGetAmountBooks(String message) {
-        System.out.print(message);
-    }
+  default void showGetId(String message) {
+    System.out.println(message);
+  }
 
-    default void showBooks(List<Book> books) {
-        System.out.println("========== КНИГИ МАГАЗИНА ==========");
-        books.forEach(this::showItem);
-        System.out.println("====================================");
-    }
+  default void showGetBookId(int index) {
+    System.out.println("Введите id книги №" + (index + 1) + ": ");
+  }
 
-    default <T extends Item> void showItem(T item){
-        System.out.println(item.getInfoAbout());
-    }
+  default void showGetAmountBooks() {
+    System.out.print("Введите количество книг: ");
+  }
 
-    default void showMessage(String message) {
-        System.out.println(message);
-    }
+  /**
+   * Отображает список книг пользователю.
+   *
+   * @param books Список книг, которые необходимо отобразить.
+   */
+  default void showBooks(List<Book> books) {
+    System.out.println("========== КНИГИ МАГАЗИНА ==========");
+    books.forEach(this::showItem);
+    System.out.println("====================================");
+  }
 
-    default void showSuccessImport(){
-        System.out.println("Импорт выполнен успешно");
-    }
+  default <T extends Item> void showItem(T item) {
+    System.out.println(item.getInfoAbout());
+  }
 
-    default void showErrorImport(){
-        System.out.println("Не удалось выполнить импорт");
-    }
+  default void showMessage(String message) {
+    System.out.println(message);
+  }
 
-    default void showImportDataMessage(){
-        System.out.println("Вот, какие объекты можно импортировать: ");
-    }
-
-
-    default void showGetImportId(){
-        System.out.print("Введите id объекта, который хотите импортировать: ");
-    }
+  default void showErrorImport() {
+    log.info("Не удалось выполнить импорт");
+  }
 }

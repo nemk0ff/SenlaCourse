@@ -1,17 +1,17 @@
 package view;
 
-public interface ImportExportMenu{
-    void showGetImportId();
+/**
+ * {@code ImportExportMenu} - Интерфейс, определяющий методы для отображения
+ * сообщений, связанных с операциями импорта и экспорта данных.
+ */
+public interface ImportExportMenu {
+  void showGetImportId();
 
-    void showImportDataMessage();
+  void showImportDataMessage();
 
-    void showImportData(String line);
+  void showImportData(String line);
 
-    void showSuccessExport();
+  void showImportError(String message);
 
-    void showExportError(String message);
-
-    void showImportError(String message);
-
-    void showInputError(String message);
+  void showInputError(String message);
 }

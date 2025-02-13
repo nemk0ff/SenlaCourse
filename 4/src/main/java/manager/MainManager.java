@@ -1,83 +1,89 @@
 package manager;
 
-import model.impl.Book;
-import model.impl.Order;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import model.Item;
 import model.OrderStatus;
+import model.impl.Book;
+import model.impl.Order;
 import model.impl.Request;
 
-import java.time.LocalDateTime;
-import java.util.*;
-
+/**
+ * {@code MainManager} - Интерфейс, определяющий поведение для менеджера, управляющего основными
+ * операциями приложения, связанными с книгами, заказами и запросами.
+ */
 public interface MainManager {
-    void addBook(long bookId, Integer amount, LocalDateTime addDate) throws IllegalArgumentException;
+  void addBook(long bookId, Integer amount,
+               LocalDateTime addDate) throws IllegalArgumentException;
 
-    void writeOff(long bookId, Integer amount, LocalDateTime saleDate) throws IllegalArgumentException;
+  void writeOff(long bookId, Integer amount,
+                LocalDateTime saleDate) throws IllegalArgumentException;
 
-    Optional<Book> getBook(long bookId);
+  Optional<Book> getBook(long bookId);
 
-    List<Book> getAllBooks();
+  List<Book> getAllBooks();
 
-    List<Book> getAllBooksByName();
+  List<Book> getAllBooksByName();
 
-    List<Book> getAllBooksByDate();
+  List<Book> getAllBooksByDate();
 
-    List<Book> getAllBooksByPrice();
+  List<Book> getAllBooksByPrice();
 
-    List<Book> getAllBooksByAvailable();
+  List<Book> getAllBooksByAvailable();
 
-    List<Book> getAllStaleBooksByDate();
+  List<Book> getAllStaleBooksByDate();
 
-    List<Book> getAllStaleBooksByPrice();
+  List<Book> getAllStaleBooksByPrice();
 
-    boolean containsBooks(List<Long> booksIds) throws IllegalArgumentException;
+  boolean containsBook(long bookId) throws IllegalArgumentException;
 
-    boolean containsBook(long bookId) throws IllegalArgumentException;
-
-    void importBook(Book book) throws IllegalArgumentException;
-
-
-    long createOrder(Map<Long, Integer> booksIds, String clientName, LocalDateTime createDate);
-
-    void cancelOrder(long orderId);
-
-    void setOrderStatus(long orderId, OrderStatus status);
-
-    Optional<Order> getOrder(Long orderId);
-
-    List<Order> getAllOrders();
-
-    List<Order> getAllOrdersByDate();
-
-    List<Order> getAllOrdersByPrice();
-
-    List<Order> getAllOrdersByStatus();
-
-    List<Order> getCompletedOrdersByDate(LocalDateTime begin, LocalDateTime end);
-
-    List<Order> getCompletedOrdersByPrice(LocalDateTime begin, LocalDateTime end);
-
-    Long getCountCompletedOrders(LocalDateTime begin, LocalDateTime end);
-
-    void importOrder(Order order);
+  void importBook(Book book) throws IllegalArgumentException;
 
 
-    void createRequest(long bookId, int amount);
+  Order createOrder(Map<Long, Integer> booksIds, String clientName, LocalDateTime createDate);
 
-    void createRequests(Order order);
+  void cancelOrder(long orderId);
 
-    Optional<Request> getRequest(long requestId);
+  void setOrderStatus(long orderId, OrderStatus status);
 
-    List<Request> getRequests();
+  Optional<Order> getOrder(Long orderId);
 
-    LinkedHashMap<Long, Long> getRequestsByCount();
+  List<Order> getAllOrders();
 
-    LinkedHashMap<Long, Long> getRequestsByPrice();
+  List<Order> getAllOrdersByDate();
 
-    void importRequest(Request request);
+  List<Order> getAllOrdersByPrice();
+
+  List<Order> getAllOrdersByStatus();
+
+  List<Order> getCompletedOrdersByDate(LocalDateTime begin, LocalDateTime end);
+
+  List<Order> getCompletedOrdersByPrice(LocalDateTime begin, LocalDateTime end);
+
+  Long getCountCompletedOrders(LocalDateTime begin, LocalDateTime end);
+
+  void importOrder(Order order);
 
 
-    Double getEarnedSum(LocalDateTime begin, LocalDateTime end);
+  long createRequest(long bookId, int amount);
 
-    <T extends Item> void importItem(T Item);
+  void createRequests(long orderId);
+
+  Optional<Request> getRequest(long requestId);
+
+  List<Request> getRequests();
+
+  LinkedHashMap<Long, Long> getRequestsByCount();
+
+  LinkedHashMap<Long, Long> getRequestsByPrice();
+
+  void importRequest(Request request);
+
+
+  Double getEarnedSum(LocalDateTime begin, LocalDateTime end);
+
+  <T extends Item> void importItem(T item);
 }

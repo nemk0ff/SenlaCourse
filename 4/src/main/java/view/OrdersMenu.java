@@ -1,29 +1,30 @@
 package view;
 
+import java.util.List;
 import model.impl.Order;
 
-import java.util.List;
-
+/**
+ * {@code OrdersMenu} - Интерфейс, расширяющий {@link Menu} и определяющий
+ * методы для отображения информации о заказах пользователю.
+ */
 public interface OrdersMenu extends Menu {
-    void showOrders(List<Order> orders);
+  void showOrders(List<Order> orders);
 
-    void showOrder(Order order);
+  void showOrder(Order order);
 
-    void showGetBeginDate();
+  void showGetBeginDate();
 
-    void showGetEndDate();
+  void showGetEndDate();
 
-    void showGetYear();
+  void showGetYear();
 
-    void showGetMonth();
+  void showGetMonth();
 
-    void showGetDay();
+  void showGetDay();
 
-    void showGetClientName();
+  void showGetClientName();
 
-    void showGetNewStatus();
+  void showGetNewStatus();
 
-    void showCountCompletedOrders(Long count);
-
-    void showEarnedSum(Double sum);
+  void showSuccessImport(Order order);
 }
