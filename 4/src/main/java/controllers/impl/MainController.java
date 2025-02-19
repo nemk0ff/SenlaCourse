@@ -3,7 +3,9 @@ package controllers.impl;
 import annotations.ComponentDependency;
 import controllers.Action;
 import controllers.Controller;
+import controllers.impl.importexport.ImportController;
 import lombok.NoArgsConstructor;
+import manager.MainManagerImpl;
 import view.impl.MainMenu;
 
 /**
@@ -13,6 +15,8 @@ import view.impl.MainMenu;
  */
 @NoArgsConstructor
 public class MainController implements Controller {
+  @ComponentDependency
+  MainManagerImpl mainManager;
   @ComponentDependency
   MainMenu mainMenu;
   @ComponentDependency
@@ -24,6 +28,7 @@ public class MainController implements Controller {
 
   @Override
   public Action run() {
+    ImportController.setMainManager(mainManager);
 
     mainMenu.showMenu();
     Action action = checkInput();

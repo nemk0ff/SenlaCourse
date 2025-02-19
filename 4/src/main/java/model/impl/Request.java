@@ -1,7 +1,19 @@
 package model.impl;
 
+import com.sun.istack.NotNull;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import model.Item;
 import model.RequestStatus;
 
@@ -11,26 +23,43 @@ import model.RequestStatus;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "requests")
 public class Request implements Item {
-  private static long counter = 0L;
-
-  private final long id;
-  private final long bookId;
-  private final int amount;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "request_id")
+  private Long id;
+  @NotNull
+  @ManyToOne
+  @JoinColumn(name = "book_id", nullable = false)
+  private Book book;
+  @NotNull
+  @Column(nullable = false)
+  private Integer amount;
+  @NotNull
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", length = 10, nullable = false)
   private RequestStatus status;
 
-  @Override
-  public long getId() {
-    return id;
+  public Long getBookId() {
+    return book.getId();
   }
 
   @Override
   public String getInfoAbout() {
-    return "[" + id + "]   книга №" + bookId + ", количество: " + amount + ",  статус:" + status;
+    return "[" + id + "]   книга №" + book.getId() + ", количество: " + amount
+        + ",  статус:" + status;
+  }
+
+  @Override
+  public Long getId() {
+    return id;
   }
 
   @Override
   public String toString() {
-    return id + "," + bookId + "," + status.toString();
+    return id + "," + book.getId() + "," + amount + "," + status;
   }
 }

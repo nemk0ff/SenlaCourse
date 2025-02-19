@@ -10,6 +10,7 @@ import model.OrderStatus;
 import model.impl.Book;
 import model.impl.Order;
 import model.impl.Request;
+import org.hibernate.Session;
 
 /**
  * {@code MainManager} - Интерфейс, определяющий поведение для менеджера, управляющего основными
@@ -68,17 +69,17 @@ public interface MainManager {
   void importOrder(Order order);
 
 
-  long createRequest(long bookId, int amount);
+  long createRequest(Book book, int amount);
 
-  void createRequests(long orderId);
+  void createRequests(Session session, long orderId);
 
   Optional<Request> getRequest(long requestId);
 
   List<Request> getRequests();
 
-  LinkedHashMap<Long, Long> getRequestsByCount();
+  LinkedHashMap<Book, Long> getRequestsByCount();
 
-  LinkedHashMap<Long, Long> getRequestsByPrice();
+  LinkedHashMap<Book, Long> getRequestsByPrice();
 
   void importRequest(Request request);
 

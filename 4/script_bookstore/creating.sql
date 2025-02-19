@@ -29,7 +29,8 @@ CREATE TABLE requests (
     book_id BIGINT NOT NULL,
     amount INT NOT NULL,
     status VARCHAR(10) NOT NULL,
-    PRIMARY KEY(request_id)
+    PRIMARY KEY(request_id),
+    FOREIGN KEY (book_id) REFERENCES library(book_id)
 );
 
 CREATE TABLE ordered_books (

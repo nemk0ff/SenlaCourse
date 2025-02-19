@@ -6,11 +6,14 @@ import config.ConfigurationManager;
 import dao.impl.BookDaoImpl;
 import dao.impl.OrderDaoImpl;
 import dao.impl.RequestDaoImpl;
+import hibernate.HibernateUtil;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import model.Item;
@@ -18,6 +21,8 @@ import model.OrderStatus;
 import model.impl.Book;
 import model.impl.Order;
 import model.impl.Request;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import sorting.BookSort;
 import sorting.OrderSort;
 import sorting.RequestSort;
@@ -44,242 +49,277 @@ public class MainManagerImpl implements MainManager {
     log.debug("MainManagerImpl инициализирован, markOrdersCompleted = {}", markOrdersCompleted);
   }
 
-  @Override
-  public void addBook(long id, Integer amount, LocalDateTime deliveredDate)
-      throws IllegalArgumentException {
-    bookDao.add(id, amount, deliveredDate);
-    if (markOrdersCompleted) {
-      log.info("Обновляем заказы после добавления книги...");
-      updateOrders(deliveredDate);
-      log.info("Все заказы успешно обновлены после добавления книги [{}].", id);
+  private <T> T inSession(Function<Session, T> operation) {
+    try (Session session = HibernateUtil.getSession()) {
+      Transaction transaction = session.beginTransaction();
+      T result = operation.apply(session);
+      transaction.commit();
+      return result;
+    } catch (Exception e) {
+      throw new RuntimeException("Ошибка при выполнении операции", e);
+    }
+  }
+
+  private void inSessionVoid(Consumer<Session> operation) {
+    try (Session session = HibernateUtil.getSession()) {
+      Transaction transaction = session.beginTransaction();
+      operation.accept(session);
+      transaction.commit();
+    } catch (Exception e) {
+      throw new RuntimeException("Ошибка при выполнении операции", e);
     }
   }
 
   @Override
-  public void writeOff(long id, Integer amount, LocalDateTime writeOffDate)
-      throws IllegalArgumentException {
-    bookDao.writeOff(id, amount, writeOffDate);
-    updateOrders(writeOffDate);
+  public void addBook(long id, Integer amount, LocalDateTime deliveredDate) {
+    inSessionVoid(session -> {
+      bookDao.add(session, id, amount, deliveredDate);
+      if (markOrdersCompleted) {
+        log.info("Обновляем заказы после добавления книги...");
+        updateOrders(session, deliveredDate);
+        log.info("Все заказы успешно обновлены после добавления книги [{}].", id);
+      }
+    });
+  }
+
+  @Override
+  public void writeOff(long id, Integer amount, LocalDateTime writeOffDate) {
+    inSessionVoid(session -> {
+      bookDao.writeOff(session, id, amount, writeOffDate);
+      if (markOrdersCompleted) {
+        log.info("Обновляем заказы после списания книги...");
+        updateOrders(session, writeOffDate);
+        log.info("Все заказы успешно обновлены после списания книги [{}].", id);
+      }
+    });
   }
 
   @Override
   public Optional<Book> getBook(long id) {
-    return bookDao.getBookById(id);
+    return inSession(session -> bookDao.getBookById(session, id));
   }
 
   @Override
   public List<Book> getAllBooks() {
-    return bookDao.getAllBooks(BookSort.ID);
+    return inSession(session -> bookDao.getAllBooks(session, BookSort.ID));
   }
 
   @Override
   public List<Book> getAllBooksByName() {
-    return bookDao.getAllBooks(BookSort.NAME);
+    return inSession(session -> bookDao.getAllBooks(session, BookSort.NAME));
   }
 
   @Override
   public List<Book> getAllBooksByDate() {
-    return bookDao.getAllBooks(BookSort.PUBLICATION_DATE);
+    return inSession(session -> bookDao.getAllBooks(session, BookSort.PUBLICATION_DATE));
   }
 
   @Override
   public List<Book> getAllBooksByPrice() {
-    return bookDao.getAllBooks(BookSort.PRICE);
+    return inSession(session -> bookDao.getAllBooks(session, BookSort.PRICE));
   }
 
   @Override
   public List<Book> getAllBooksByAvailable() {
-    return bookDao.getAllBooks(BookSort.STATUS);
+    return inSession(session -> bookDao.getAllBooks(session, BookSort.STATUS));
   }
 
   @Override
-  public List<Book> getAllStaleBooksByDate() throws IllegalArgumentException {
-    return bookDao.getAllBooks(BookSort.STALE_BY_DATE);
+  public List<Book> getAllStaleBooksByDate() {
+    return inSession(session -> bookDao.getAllBooks(session, BookSort.STALE_BY_DATE));
   }
 
   @Override
-  public List<Book> getAllStaleBooksByPrice() throws IllegalArgumentException {
-    return bookDao.getAllBooks(BookSort.STALE_BY_PRICE);
+  public List<Book> getAllStaleBooksByPrice() {
+    return inSession(session -> bookDao.getAllBooks(session, BookSort.STALE_BY_PRICE));
   }
 
   @Override
   public boolean containsBook(long bookId) {
-    return bookDao.containsBook(bookId);
+    return inSession(session -> bookDao.getBookById(session, bookId).isPresent());
   }
 
   @Override
   public void importBook(Book book) throws IllegalArgumentException {
-    bookDao.importBook(book);
-    log.info("Обновляем заказы после импорта книги...");
-    updateOrders(LocalDateTime.now());
-    log.info("Все заказы успешно обновлены после импорта книги [{}].", book.getId());
+    inSessionVoid(session -> {
+      bookDao.importBook(session, book);
+      log.info("Обновляем заказы после импорта книги...");
+      updateOrders(session, LocalDateTime.now());
+      log.info("Все заказы успешно обновлены после импорта книги [{}].", book.getId());
+    });
   }
 
-
-  private void updateOrders(LocalDateTime updateDate) {
-    for (Order order : getAllOrders()) {
+  private void updateOrders(Session session, LocalDateTime updateDate) {
+    for (Order order : orderDao.getAllOrders(session, OrderSort.ID, null, null)) {
       log.debug("Обновляем заказ: {}...", order.getInfoAbout());
-      updateOrder(order, updateDate);
+      if (order.getStatus() == OrderStatus.NEW) {
+        for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
+          Optional<Book> optionalBook = bookDao.getBookById(session, entry.getKey());
+          if (optionalBook.isEmpty()) {
+            log.debug("В заказе [{}] есть {} книг [{}], но на складе таких книг нет",
+                order.getId(), entry.getValue(), entry.getValue());
+            return;
+          } else if (optionalBook.get().getAmount() < entry.getValue()) {
+            log.debug("В заказе [{}] есть {} книг [{}], но на складе таких книг только {}",
+                order.getId(), entry.getValue(), entry.getValue(),
+                optionalBook.get().getAmount());
+            return;
+          }
+        }
+        log.info("Есть все необходимые книги для заказа [{}], выполняем заказ...",
+            order.getId());
+        completeOrder(session, order, updateDate);
+        log.info("Заказ [{}] успешно выполнен.", order.getId());
+      }
       log.debug("Заказ успешно обновлен: {}.", order.getInfoAbout());
     }
   }
 
-  private void updateOrder(Order order, LocalDateTime updateDate) {
-    if (order.getStatus() == OrderStatus.NEW) {
-      for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
-        Optional<Book> optionalBook = getBook(entry.getKey());
-        if (optionalBook.isEmpty()) {
-          log.debug("В заказе [{}] есть {} книг [{}], но на складе таких книг нет",
-              order.getId(), entry.getValue(), entry.getValue());
-          return;
-        } else if (optionalBook.get().getAmount() < entry.getValue()) {
-          log.debug("В заказе [{}] есть {} книг [{}], но на складе таких книг только {}",
-              order.getId(), entry.getValue(), entry.getValue(), optionalBook.get().getAmount());
-          return;
-        }
-      }
-      log.info("Есть все необходимые книги для заказа [{}], выполняем заказ...", order.getId());
-      completeOrder(order, updateDate);
-      log.info("Заказ [{}] успешно выполнен.", order.getId());
-    }
-  }
-
-  private void completeOrder(Order order, LocalDateTime completeDate) {
-    orderDao.setOrderStatus(order.getId(), "COMPLETED");
-
-    requestDao.closeRequests(order.getBooks());
-
+  private void completeOrder(Session session, Order order, LocalDateTime completeDate) {
+    orderDao.setOrderStatus(session, order.getId(), OrderStatus.COMPLETED);
+    requestDao.closeRequests(session, order.getBooks());
     for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
-      bookDao.writeOff(entry.getKey(), entry.getValue(), completeDate);
+      bookDao.writeOff(session, entry.getKey(), entry.getValue(), completeDate);
     }
   }
 
   @Override
-  public long createRequest(long bookId, int amount) {
-    return requestDao.addRequest(bookId, amount);
+  public long createRequest(Book book, int amount) {
+    return inSession(session -> requestDao.addRequest(session, book, amount));
   }
 
   @Override
   public Order createOrder(Map<Long, Integer> booksIds, String clientName,
                            LocalDateTime orderDate) {
-    long newOrderId = orderDao.addOrder(new Order(booksIds,
-        getPrice(booksIds.keySet().stream().toList()), OrderStatus.NEW, orderDate, clientName));
-
-    createRequests(newOrderId);
-    return orderDao.getOrderById(newOrderId).orElse(new Order());
+    return inSession(session -> {
+      long newOrderId = orderDao.addOrder(session,
+          new Order(booksIds, bookDao.getBooks(session, booksIds.keySet()
+              .stream()
+              .toList())
+              .stream()
+              .mapToDouble(Book::getPrice)
+              .sum(),
+          OrderStatus.NEW, orderDate, clientName));
+      createRequests(session, newOrderId);
+      return orderDao.findWithBooks(session, newOrderId).orElse(new Order());
+    });
   }
-
   @Override
   public void cancelOrder(long orderId) throws IllegalArgumentException {
-    log.debug("Отменяем заказ [{}]...", orderId);
-    Optional<Order> order = orderDao.getOrderById(orderId);
-    if (order.isEmpty()) {
-      throw new IllegalArgumentException("Заказ [" + orderId + "] не найден");
-    }
-    if (order.get().getStatus() == OrderStatus.NEW) {
-      orderDao.setOrderStatus(orderId, "CANCELED");
-      requestDao.closeRequests(order.get().getBooks());
-      log.info("Заказ [{}] успешно отменен", orderId);
-    } else {
-      throw new IllegalArgumentException("Невозможно отменить заказ, статус которого не NEW");
-    }
+    inSessionVoid(session -> {
+      log.debug("Отменяем заказ [{}]...", orderId);
+      Optional<Order> order = orderDao.findWithBooks(session, orderId);
+      if (order.isEmpty()) {
+        throw new IllegalArgumentException("Заказ [" + orderId + "] не найден");
+      }
+      if (order.get().getStatus() == OrderStatus.NEW) {
+        orderDao.setOrderStatus(session, orderId, OrderStatus.CANCELED);
+        requestDao.closeRequests(session, order.get().getBooks());
+        log.info("Заказ [{}] успешно отменен", orderId);
+      } else {
+        throw new IllegalArgumentException("Невозможно отменить заказ, статус которого не NEW");
+      }
+    });
   }
 
   @Override
   public void setOrderStatus(long orderId, OrderStatus status) {
-    orderDao.setOrderStatus(orderId, status.toString());
-    if (status == OrderStatus.NEW) {
-      createRequests(orderId);
-    }
+    inSessionVoid(session -> {
+      orderDao.setOrderStatus(session, orderId, status);
+      if (status == OrderStatus.NEW) {
+        createRequests(session, orderId);
+      }
+    });
   }
-
 
   @Override
   public List<Order> getAllOrders() {
-    return orderDao.getAllOrders(OrderSort.ID, null, null);
+    return inSession(session
+        -> orderDao.getAllOrders(session, OrderSort.ID, null, null));
   }
 
   @Override
   public List<Order> getAllOrdersByDate() {
-    return orderDao.getAllOrders(OrderSort.COMPLETE_DATE, null, null);
+    return inSession(session ->
+        orderDao.getAllOrders(session, OrderSort.COMPLETE_DATE, null, null));
   }
 
   @Override
   public List<Order> getAllOrdersByPrice() {
-    return orderDao.getAllOrders(OrderSort.PRICE, null, null);
+    return inSession(session ->
+        orderDao.getAllOrders(session, OrderSort.PRICE, null, null));
   }
 
   @Override
   public List<Order> getAllOrdersByStatus() {
-    return orderDao.getAllOrders(OrderSort.STATUS, null, null);
+    return inSession(session ->
+        orderDao.getAllOrders(session, OrderSort.STATUS, null, null));
   }
 
   @Override
   public List<Order> getCompletedOrdersByDate(LocalDateTime begin, LocalDateTime end) {
-    return orderDao.getAllOrders(OrderSort.COMPLETED_BY_DATE, begin, end);
+    return inSession(session ->
+        orderDao.getAllOrders(session, OrderSort.COMPLETED_BY_DATE, begin, end));
   }
 
   @Override
   public List<Order> getCompletedOrdersByPrice(LocalDateTime begin, LocalDateTime end) {
-    return orderDao.getAllOrders(OrderSort.COMPLETED_BY_PRICE, begin, end);
+    return inSession(session ->
+        orderDao.getAllOrders(session, OrderSort.COMPLETED_BY_PRICE, begin, end));
   }
 
   @Override
   public Double getEarnedSum(LocalDateTime begin, LocalDateTime end) {
-    return orderDao.getEarnedSum(begin, end);
+    return inSession(session -> orderDao.getEarnedSum(session, begin, end));
   }
 
   @Override
   public Long getCountCompletedOrders(LocalDateTime begin, LocalDateTime end) {
-    return orderDao.getCountCompletedOrders(begin, end);
+    return inSession(session -> orderDao.getCountCompletedOrders(session, begin, end));
   }
 
   @Override
   public Optional<Order> getOrder(Long orderId) {
-    return orderDao.getOrderById(orderId);
+    return inSession(session -> orderDao.findWithBooks(session, orderId));
   }
 
   @Override
   public List<Request> getRequests() {
-    return requestDao.getAllRequests(RequestSort.ID);
+    return inSession(session -> requestDao.getAllRequests(session, RequestSort.ID));
   }
 
   @Override
-  public LinkedHashMap<Long, Long> getRequestsByCount() {
-    return requestDao.getRequests(RequestSort.COUNT);
+  public LinkedHashMap<Book, Long> getRequestsByCount() {
+    return inSession(session -> requestDao.getRequests(session, RequestSort.COUNT));
   }
 
   @Override
-  public LinkedHashMap<Long, Long> getRequestsByPrice() {
-    return requestDao.getRequests(RequestSort.PRICE);
+  public LinkedHashMap<Book, Long> getRequestsByPrice() {
+    return inSession(session -> requestDao.getRequests(session, RequestSort.PRICE));
   }
 
-  private List<Book> getBooks(List<Long> booksIds) {
-    return bookDao.getBooks(booksIds);
-  }
-
-  public double getPrice(List<Long> booksIds) {
-    return getBooks(booksIds).stream().mapToDouble(Book::getPrice).sum();
-  }
-
-  public boolean isAvailable(long bookId, int requestAmount) {
-    Optional<Book> book = getBook(bookId);
+  public boolean isAvailable(Session session, long bookId, int requestAmount) {
+    Optional<Book> book = bookDao.getBookById(session, bookId);
     return book.filter(value -> value.getAmount() >= requestAmount).isPresent();
   }
 
   @Override
-  public void createRequests(long orderId) {
+  public void createRequests(Session session, long orderId) {
     log.info("Создание запросов для заказа [{}]...", orderId);
-    Optional<Order> order = getOrder(orderId);
+    Optional<Order> order = orderDao.findWithBooks(session, orderId);
     if (order.isEmpty()) {
       throw new RuntimeException("Не удалось создать запросы для заказа " + orderId
           + " : заказ с таким id не найден");
     }
     boolean completed = true;
     for (Map.Entry<Long, Integer> entry : order.get().getBooks().entrySet()) {
-      Optional<Book> book = getBook(entry.getKey());
-      createRequest(entry.getKey(), entry.getValue());
-      if (book.isPresent() && !isAvailable(entry.getKey(), entry.getValue())) {
+      Optional<Book> book = bookDao.getBookById(session, entry.getKey());
+      if (book.isEmpty()) {
+        throw new RuntimeException("Попытка создать заказ с несуществующей книгой (id=["
+            + entry.getKey() + "])");
+      }
+      requestDao.addRequest(session, book.get(), entry.getValue());
+      if (!isAvailable(session, entry.getKey(), entry.getValue())) {
         completed = false;
       }
     }
@@ -287,41 +327,40 @@ public class MainManagerImpl implements MainManager {
     if (completed) {
       log.info("При создании заказа [{}] обнаружено, что все книги есть в наличии. Выполняем "
           + "заказ...", orderId);
-      completeOrder(order.get(), LocalDateTime.now());
+      completeOrder(session, order.get(), LocalDateTime.now());
     }
   }
 
   @Override
   public Optional<Request> getRequest(long requestId) {
-    return requestDao.getRequestById(requestId);
+    return inSession(session -> requestDao.getRequestById(session, requestId));
   }
 
   @Override
-  public void importOrder(Order order) throws IllegalArgumentException {
-    Optional<Order> findOrder = getOrder(order.getId());
-    if (findOrder.isPresent()) {
-      requestDao.closeRequests(findOrder.get().getBooks());
-      orderDao.rewriteOrder(order);
-    } else {
-      orderDao.addOrder(order);
-    }
-    createRequests(order.getId());
+  public void importOrder(Order order) {
+    inSessionVoid(session -> {
+      Optional<Order> findOrder = orderDao.findWithBooks(session, order.getId());
+      if (findOrder.isPresent()) {
+        requestDao.closeRequests(session, findOrder.get().getBooks());
+        orderDao.update(session, order);
+      } else {
+        orderDao.addOrder(session, order);
+      }
+      createRequests(session, order.getId());
+    });
   }
 
   @Override
   public void importRequest(Request request) throws IllegalArgumentException {
-    log.info("Импорт запроса {}...", request.getId());
-    if (!containsBook((request).getBookId())) {
-      log.warn("Ошибка при импорте: Запрос [{}] - запрос на книгу, которой не существует",
-          request.getId());
-      return;
-    }
-    Optional<Request> findRequest = getRequest(request.getId());
-    if (findRequest.isPresent()) {
-      log.warn("Ошибка при импорте: Запрос [{}] уже есть в магазине", request.getId());
-    } else {
-      requestDao.importRequest(request);
-    }
+    inSessionVoid(session -> {
+      log.info("Импорт запроса {}...", request.getId());
+      Optional<Request> findRequest = requestDao.getRequestById(session, request.getId());
+      if (findRequest.isPresent()) {
+        log.warn("Ошибка при импорте: Запрос [{}] уже есть в магазине", request.getId());
+      } else {
+        requestDao.importRequest(session, request);
+      }
+    });
   }
 
   @Override

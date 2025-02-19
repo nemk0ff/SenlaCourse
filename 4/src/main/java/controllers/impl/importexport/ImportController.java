@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import manager.MainManager;
 import model.BookStatus;
 import model.Item;
 import model.OrderStatus;
@@ -30,11 +32,14 @@ import view.impl.ImportExportMenuImpl;
  */
 @Slf4j
 public class ImportController {
+  @Setter
+  private static MainManager mainManager;
+
   private static final ImportExportMenu menu = new ImportExportMenuImpl();
   public static final DateTimeFormatter flexibleDateTimeFormatter = new DateTimeFormatterBuilder()
-          .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
-          .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
-          .toFormatter();
+      .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
+      .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
+      .toFormatter();
 
   /**
    * Парсит строку данных и создает объект {@link Book}.
@@ -67,11 +72,16 @@ public class ImportController {
       throw new IllegalArgumentException("Неверное количество частей в строке: " + parts.length);
     }
     long id = Long.parseLong(parts[0].trim());
-    long bookId = Long.parseLong(parts[1].trim());
+    long book_id = Long.parseLong(parts[1].trim());
     int amount = Integer.parseInt(parts[2].trim());
     RequestStatus status = RequestStatus.valueOf(parts[3].trim());
 
-    return new Request(id, bookId, amount, status);
+    Optional<Book> book = mainManager.getBook(book_id);
+    if (book.isEmpty()) {
+      throw new IllegalArgumentException("Ошибка при импорте: Запрос [" + id
+          + "] - запрос на книгу, которой не существует");
+    }
+    return new Request(id, book.get(), amount, status);
   }
 
   /**
@@ -115,7 +125,7 @@ public class ImportController {
    * Импортирует один элемент из файла, используя переданный парсер.
    */
   public static <T extends Item> Optional<T>
-      importItem(String importPath, Function<String[], T> parser) {
+  importItem(String importPath, Function<String[], T> parser) {
     printImportFile(importPath);
 
     menu.showGetImportId();
@@ -125,7 +135,7 @@ public class ImportController {
   }
 
   private static <T extends Item> Optional<T>
-      findItemInFile(Long targetBookId, String importPath, Function<String[], T> parser) {
+  findItemInFile(Long targetBookId, String importPath, Function<String[], T> parser) {
     try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {
       reader.readLine();
 
@@ -148,7 +158,7 @@ public class ImportController {
    * Импортирует все элементы из файла, используя переданный парсер.
    */
   public static <T extends Item> List<T>
-      importAllItemsFromFile(String importPath, Function<String[], T> parser) {
+  importAllItemsFromFile(String importPath, Function<String[], T> parser) {
     log.info("Импортируем данные из файла: {}...", importPath);
     List<T> items = new ArrayList<>();
     try (BufferedReader reader = new BufferedReader(new FileReader(importPath))) {

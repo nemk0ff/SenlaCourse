@@ -1,8 +1,22 @@
 package model.impl;
 
+import com.sun.istack.NotNull;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import model.Item;
@@ -11,16 +25,39 @@ import model.OrderStatus;
 /**
  * {@code Order} - Класс, представляющий заказ в магазине.  Реализует интерфейс {@link Item}.
  */
+@AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Entity
+@Table(name = "orders")
 public class Order implements Item {
-  private Long id = 0L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "order_id")
+  private Long id;
+  @NotNull
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 10)
   private OrderStatus status;
-  private Map<Long, Integer> books;
+  @NotNull
+  @Column(nullable = false)
   private Double price;
+  @NotNull
+  @Column(nullable = false)
   private LocalDateTime orderDate;
+  @NotNull
+  @Column(nullable = false)
   private LocalDateTime completeDate;
+  @NotNull
+  @Column(nullable = false)
   private String clientName;
+
+  @ElementCollection
+  @CollectionTable(name = "ordered_books",
+      joinColumns = @JoinColumn(name = "order_id"))
+  @MapKeyColumn(name = "book_id")
+  @Column(name = "amount")
+  private Map<Long, Integer> books;
 
   /**
    * Конструктор для создания нового заказа в магазине.
@@ -51,11 +88,6 @@ public class Order implements Item {
   }
 
   @Override
-  public long getId() {
-    return id;
-  }
-
-  @Override
   public String getInfoAbout() {
     return "[" + id + "]  " + clientName + ",  " + price + ",  "
         + status + ",  " + orderDate.toString() + ",  "
@@ -72,6 +104,11 @@ public class Order implements Item {
     }
     Order order = (Order) o;
     return Objects.equals(id, order.id);
+  }
+
+  @Override
+  public Long getId() {
+    return id;
   }
 
   @Override

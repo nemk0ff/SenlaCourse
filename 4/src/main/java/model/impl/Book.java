@@ -1,9 +1,19 @@
 package model.impl;
 
+import com.sun.istack.NotNull;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import model.BookStatus;
 import model.Item;
 
@@ -13,15 +23,36 @@ import model.Item;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "library")
 public class Book implements Item {
-  private final Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "book_id")
+  private Long id;
+  @NotNull
+  @Column(nullable = false)
   private String name;
+  @NotNull
+  @Column(nullable = false)
   private String author;
+  @NotNull
+  @Column(nullable = false)
   private Integer publicationDate;
+  @NotNull
+  @Column(nullable = false)
   private Integer amount;
+  @NotNull
+  @Column(nullable = false)
   private Double price;
+  @NotNull
+  @Column(nullable = false)
   private LocalDateTime lastDeliveredDate;
+  @Column
   private LocalDateTime lastSaleDate;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", length = 20, nullable = false)
   private BookStatus status;
 
   /**
@@ -29,7 +60,7 @@ public class Book implements Item {
    * Обновляет статус книги в зависимости от текущего количества.
    */
   public void setAmount(Integer amount) {
-    this.amount += amount;
+    this.amount = amount;
     if (this.amount > 0) {
       status = BookStatus.AVAILABLE;
     } else {
@@ -47,11 +78,6 @@ public class Book implements Item {
   }
 
   @Override
-  public long getId() {
-    return id;
-  }
-
-  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -61,6 +87,11 @@ public class Book implements Item {
     }
     Book book = (Book) o;
     return Objects.equals(id, book.id);
+  }
+
+  @Override
+  public Long getId() {
+    return id;
   }
 
   @Override
