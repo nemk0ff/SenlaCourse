@@ -54,7 +54,7 @@ public class BookDaoImpl extends HibernateAbstractDao<Book> implements BookDao {
       book.setAmount(book.getAmount() + amount);
       book.setLastDeliveredDate(deliveredDate);
 
-      session.update(book);
+      session.merge(book);
       log.info("Успешно добавлено {} книг [{}], дата поставки: {}", amount, bookId, deliveredDate);
     } catch (Exception e) {
       throw new RuntimeException("Не удалось добавить книги [" + bookId + "]: " + e.getMessage(), e);
@@ -79,7 +79,7 @@ public class BookDaoImpl extends HibernateAbstractDao<Book> implements BookDao {
       book.setAmount(book.getAmount() - amount);
       book.setLastSaleDate(saleDate);
 
-      session.update(book);
+      session.merge(book);
       log.info("Списано {} книг [{}], дата продажи: {}", amount, bookId, saleDate);
     } catch (Exception e) {
       throw new RuntimeException("Не удалось списать книги [" + bookId + "]: " + e.getMessage(), e);

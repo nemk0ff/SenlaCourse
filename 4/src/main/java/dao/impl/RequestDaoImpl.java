@@ -12,6 +12,7 @@ import model.RequestStatus;
 import model.impl.Book;
 import model.impl.Request;
 import org.hibernate.Session;
+import org.jetbrains.annotations.NotNull;
 import sorting.RequestSort;
 
 /**
@@ -59,15 +60,7 @@ public class RequestDaoImpl extends HibernateAbstractDao<Request> implements Req
 
     List<Object[]> resultList = session.createQuery(hql, Object[].class)
         .getResultList();
-    LinkedHashMap<Book, Long> requests = new LinkedHashMap<>();
-
-    for (Object[] result : resultList) {
-      Book book = (Book) result[0];
-      Long count = ((Number) result[1]).longValue();
-      requests.put(book, count);
-    }
-
-    return requests;
+    return getBookLongLinkedHashMap(resultList);
   }
 
   private LinkedHashMap<Book, Long> getRequestsSortedByPrice(Session session) {
@@ -82,8 +75,13 @@ public class RequestDaoImpl extends HibernateAbstractDao<Request> implements Req
             result -> bookPrices.getOrDefault((Book) result[0], 0.0)))
         .toList();
 
+    return getBookLongLinkedHashMap(sortedResultList);
+  }
+
+  private LinkedHashMap<Book, Long> getBookLongLinkedHashMap(List<Object[]> resultList) {
     LinkedHashMap<Book, Long> requests = new LinkedHashMap<>();
-    for (Object[] result : sortedResultList) {
+
+    for (Object[] result : resultList) {
       Book book = (Book) result[0];
       Long count = ((Number) result[1]).longValue();
       requests.put(book, count);
@@ -118,7 +116,8 @@ public class RequestDaoImpl extends HibernateAbstractDao<Request> implements Req
       request.setAmount(amount);
       request.setStatus(RequestStatus.OPEN);
 
-      return (Long) session.save(request);
+      session.persist(request);
+      return request.getId();
     } catch (Exception e) {
       throw new RuntimeException("Не удалось добавить запрос для bookId=" + book.getId()
           + " и amount=" + amount + " :" + e.getMessage(), e);
@@ -156,7 +155,7 @@ public class RequestDaoImpl extends HibernateAbstractDao<Request> implements Req
             .uniqueResult();
         if (request != null) {
           request.setStatus(RequestStatus.CLOSED);
-          session.update(request);
+          session.persist(request);
           log.debug("Закрываем запрос [{}] для bookId={} и amount={}",
               request.getId(), bookId, amount);
         }

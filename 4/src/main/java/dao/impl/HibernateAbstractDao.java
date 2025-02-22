@@ -19,7 +19,7 @@ public abstract class HibernateAbstractDao<T extends Item> implements GenericDao
   @Override
   public void update(Session session, T entity) {
     log.debug("Перезаписываем информацию о сущности: {}", entity.getInfoAbout());
-    session.update(entity);
+    session.merge(entity);
     log.debug("Информация о сущности успешно перезаписана: {}", entity.getId());
   }
 

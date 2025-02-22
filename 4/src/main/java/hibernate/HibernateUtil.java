@@ -49,10 +49,10 @@ public class HibernateUtil {
 
   private static Properties getProperties() {
     Properties settings = new Properties();
-    settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
-    settings.put(Environment.URL, databaseProperties.getDatabaseUrl());
-    settings.put(Environment.USER, databaseProperties.getDatabaseUser());
-    settings.put(Environment.PASS, databaseProperties.getDatabasePassword());
+    settings.put("jakarta.persistence.jdbc.driver", "com.mysql.cj.jdbc.Driver");
+    settings.put("jakarta.persistence.jdbc.url", databaseProperties.getDatabaseUrl());
+    settings.put("jakarta.persistence.jdbc.user", databaseProperties.getDatabaseUser());
+    settings.put("jakarta.persistence.jdbc.password", databaseProperties.getDatabasePassword());
 
     settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL8Dialect");
     settings.put(Environment.SHOW_SQL, true);
