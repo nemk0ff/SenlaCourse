@@ -129,7 +129,8 @@ public class BooksControllerImpl implements BooksController {
   @Override
   public void showBookDetails() {
     try {
-      mainManager.getBook(getBookId()).ifPresent(booksMenu::showItem);
+      booksMenu.showItem(mainManager.getBook(getBookId())
+          .orElseThrow(() -> new IllegalArgumentException("Книга с таким id не найдена")));
     } catch (Exception e) {
       log.error("При получении книги произошла ошибка: {}", e.getMessage(), e);
     }
@@ -137,13 +138,7 @@ public class BooksControllerImpl implements BooksController {
 
   private long getBookId() {
     booksMenu.showGetId("Введите id книги: ");
-    long book = getNumberFromConsole();
-
-    while (!mainManager.containsBook(book)) {
-      booksMenu.showMessage("Книга не найдена. Проверьте id книги и введите его заново: ");
-      book = getNumberFromConsole();
-    }
-    return book;
+    return getNumberFromConsole();
   }
 
   private void showBooks(List<Book> books) {

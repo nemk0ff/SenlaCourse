@@ -11,6 +11,7 @@ import java.util.Optional;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import manager.MainManagerImpl;
+import model.impl.Book;
 import model.impl.Request;
 import view.impl.RequestsMenuImpl;
 
@@ -83,15 +84,15 @@ public class RequestsControllerImpl implements RequestsController {
     try {
       requestsMenu.showBooks(mainManager.getAllBooks());
       requestsMenu.showGetId("Введите id книги, на которую хотите создать запрос: ");
-      long bookId = getNumberFromConsole();
-      if (mainManager.getBook(bookId).isEmpty()) {
-        throw new IllegalArgumentException("Книга с id " + bookId + " не найдена в магазине");
+      Optional<Book> book = mainManager.getBook(getNumberFromConsole());
+      if (book.isEmpty()) {
+        throw new IllegalArgumentException("Книга не найдена в магазине");
       }
       requestsMenu.showMessage("На сколько книг создать запрос? ");
       int amount = (int) getNumberFromConsole();
-      long id = mainManager.createRequest(bookId, amount);
-      requestsMenu.showSuccess("Запрос №" + id + " на " + amount + " книг " + bookId + " успешно"
-          + " создан");
+      long id = mainManager.createRequest(book.get(), amount);
+      requestsMenu.showSuccess("Запрос [" + id + "] на " + amount + " книг ["
+          + book.get().getId() + "] успешно" + " создан");
     } catch (Exception e) {
       log.warn("При создании запроса произошла ошибка: {}", e.getMessage(), e);
     }

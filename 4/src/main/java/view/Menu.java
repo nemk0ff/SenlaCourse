@@ -29,11 +29,11 @@ public interface Menu {
   }
 
   default void showGetId(String message) {
-    System.out.println(message);
+    System.out.print(message);
   }
 
   default void showGetBookId(int index) {
-    System.out.println("Введите id книги №" + (index + 1) + ": ");
+    System.out.print("Введите id книги №" + (index + 1) + ": ");
   }
 
   default void showGetAmountBooks() {

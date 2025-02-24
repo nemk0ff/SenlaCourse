@@ -2,8 +2,17 @@ package model.impl;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import model.BookStatus;
 import model.Item;
 
@@ -13,15 +22,30 @@ import model.Item;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "library")
 public class Book implements Item {
-  private final Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "book_id")
+  private Long id;
+  @Column(nullable = false)
   private String name;
+  @Column(nullable = false)
   private String author;
+  @Column(nullable = false)
   private Integer publicationDate;
+  @Column(nullable = false)
   private Integer amount;
+  @Column(nullable = false)
   private Double price;
+  @Column
   private LocalDateTime lastDeliveredDate;
+  @Column
   private LocalDateTime lastSaleDate;
+  @Enumerated(EnumType.STRING)
+  @Column(length = 20, nullable = false)
   private BookStatus status;
 
   /**
@@ -29,7 +53,7 @@ public class Book implements Item {
    * Обновляет статус книги в зависимости от текущего количества.
    */
   public void setAmount(Integer amount) {
-    this.amount += amount;
+    this.amount = amount;
     if (this.amount > 0) {
       status = BookStatus.AVAILABLE;
     } else {
@@ -47,11 +71,6 @@ public class Book implements Item {
   }
 
   @Override
-  public long getId() {
-    return id;
-  }
-
-  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -61,6 +80,11 @@ public class Book implements Item {
     }
     Book book = (Book) o;
     return Objects.equals(id, book.id);
+  }
+
+  @Override
+  public Long getId() {
+    return id;
   }
 
   @Override

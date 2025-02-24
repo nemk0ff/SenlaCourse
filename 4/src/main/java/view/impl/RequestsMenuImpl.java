@@ -2,6 +2,7 @@ package view.impl;
 
 import java.util.List;
 import java.util.Map;
+import model.impl.Book;
 import model.impl.Request;
 import view.RequestsMenu;
 
@@ -31,10 +32,10 @@ public class RequestsMenuImpl implements RequestsMenu {
   }
 
   @Override
-  public void showRequests(Map<Long, Long> requests) {
+  public void showRequests(Map<Book, Long> requests) {
     System.out.println("======= ОТКРЫТЫЕ ЗАПРОСЫ НА КНИГИ =======");
     requests.forEach((key, value) -> {
-      System.out.println("Книга: №" + key);
+      System.out.println(key.getInfoAbout());
       System.out.println("Количество запросов: " + value);
       System.out.println();
     });

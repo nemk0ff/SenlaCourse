@@ -3,6 +3,19 @@ package model.impl;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import model.Item;
@@ -11,16 +24,34 @@ import model.OrderStatus;
 /**
  * {@code Order} - Класс, представляющий заказ в магазине.  Реализует интерфейс {@link Item}.
  */
+@AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Entity
+@Table(name = "orders")
 public class Order implements Item {
-  private Long id = 0L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "order_id")
+  private Long id;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 10)
   private OrderStatus status;
-  private Map<Long, Integer> books;
+  @Column(nullable = false)
   private Double price;
+  @Column(nullable = false)
   private LocalDateTime orderDate;
+  @Column
   private LocalDateTime completeDate;
+  @Column(nullable = false)
   private String clientName;
+
+  @ElementCollection
+  @CollectionTable(name = "ordered_books",
+      joinColumns = @JoinColumn(name = "order_id"))
+  @MapKeyColumn(name = "book_id")
+  @Column(name = "amount")
+  private Map<Long, Integer> books;
 
   /**
    * Конструктор для создания нового заказа в магазине.
@@ -33,7 +64,6 @@ public class Order implements Item {
     this.orderDate = orderDate;
     this.clientName = clientName;
     this.price = price;
-    this.completeDate = null;
   }
 
   /**
@@ -48,11 +78,6 @@ public class Order implements Item {
     this.orderDate = orderDate;
     this.completeDate = completeDate;
     this.books = books;
-  }
-
-  @Override
-  public long getId() {
-    return id;
   }
 
   @Override
@@ -72,6 +97,11 @@ public class Order implements Item {
     }
     Order order = (Order) o;
     return Objects.equals(id, order.id);
+  }
+
+  @Override
+  public Long getId() {
+    return id;
   }
 
   @Override
