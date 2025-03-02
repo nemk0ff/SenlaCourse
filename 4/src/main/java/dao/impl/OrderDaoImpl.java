@@ -9,12 +9,14 @@ import model.OrderStatus;
 import model.impl.Order;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.springframework.stereotype.Repository;
 import sorting.OrderSort;
 
 /**
  * {@code OrderDaoImpl} - Реализация интерфейса {@link OrderDao}, предоставляющая методы для
  * взаимодействия с базой данных для управления информацией о заказах.
  */
+@Repository
 @Slf4j
 public class OrderDaoImpl extends HibernateAbstractDao<Order> implements OrderDao {
 

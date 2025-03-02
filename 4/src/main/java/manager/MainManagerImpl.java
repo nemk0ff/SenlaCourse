@@ -1,11 +1,9 @@
 package manager;
 
-import annotations.ComponentDependency;
 import annotations.ConfigProperty;
-import config.ConfigurationManager;
-import dao.impl.BookDaoImpl;
-import dao.impl.OrderDaoImpl;
-import dao.impl.RequestDaoImpl;
+import dao.BookDao;
+import dao.OrderDao;
+import dao.RequestDao;
 import hibernate.HibernateUtil;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -23,6 +21,7 @@ import model.impl.Order;
 import model.impl.Request;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.springframework.stereotype.Service;
 import sorting.BookSort;
 import sorting.OrderSort;
 import sorting.RequestSort;
@@ -31,26 +30,20 @@ import sorting.RequestSort;
  * {@code MainManagerImpl} - Реализация интерфейса {@link MainManager}, предоставляющая методы
  * для управления основными операциями приложения.
  */
+@Service
 @Slf4j
 @Data
 public class MainManagerImpl implements MainManager {
   @ConfigProperty(propertyName = "mark.orders.completed", type = boolean.class)
   private boolean markOrdersCompleted;
 
-  @ComponentDependency
-  BookDaoImpl bookDao;
-  @ComponentDependency
-  OrderDaoImpl orderDao;
-  @ComponentDependency
-  RequestDaoImpl requestDao;
-
-  public MainManagerImpl() {
-    ConfigurationManager.configure(this);
-    log.debug("MainManagerImpl инициализирован, markOrdersCompleted = {}", markOrdersCompleted);
-  }
+  private final HibernateUtil hibernateUtil;
+  private final BookDao bookDao;
+  private final OrderDao orderDao;
+  private final RequestDao requestDao;
 
   private <T> T inSession(Function<Session, T> operation) {
-    try (Session session = HibernateUtil.getSession()) {
+    try (Session session = hibernateUtil.getSession()) {
       Transaction transaction = session.beginTransaction();
       T result = operation.apply(session);
       transaction.commit();
@@ -61,7 +54,7 @@ public class MainManagerImpl implements MainManager {
   }
 
   private void inSessionVoid(Consumer<Session> operation) {
-    try (Session session = HibernateUtil.getSession()) {
+    try (Session session = hibernateUtil.getSession()) {
       Transaction transaction = session.beginTransaction();
       operation.accept(session);
       transaction.commit();
@@ -194,16 +187,17 @@ public class MainManagerImpl implements MainManager {
     return inSession(session -> {
       long newOrderId = orderDao.addOrder(session,
           new Order(booksIds, bookDao.getBooks(session, booksIds.keySet()
-              .stream()
-              .toList())
+                  .stream()
+                  .toList())
               .stream()
               .mapToDouble(Book::getPrice)
               .sum(),
-          OrderStatus.NEW, orderDate, clientName));
+              OrderStatus.NEW, orderDate, clientName));
       createRequests(session, newOrderId);
       return orderDao.findWithBooks(session, newOrderId).orElse(new Order());
     });
   }
+
   @Override
   public void cancelOrder(long orderId) throws IllegalArgumentException {
     inSessionVoid(session -> {

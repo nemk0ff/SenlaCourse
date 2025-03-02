@@ -1,6 +1,5 @@
 package controllers.impl;
 
-import annotations.ComponentDependency;
 import constants.FileConstants;
 import controllers.Action;
 import controllers.RequestsController;
@@ -8,24 +7,24 @@ import controllers.impl.importexport.ExportController;
 import controllers.impl.importexport.ImportController;
 import java.util.List;
 import java.util.Optional;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import manager.MainManagerImpl;
+import manager.MainManager;
 import model.impl.Book;
 import model.impl.Request;
-import view.impl.RequestsMenuImpl;
+import org.springframework.stereotype.Component;
+import view.RequestsMenu;
 
 /**
  * {@code RequestsControllerImpl} - Реализация интерфейса {@link RequestsController},
  * представляющая собой контроллер для управления запросами.
  */
 @Slf4j
-@NoArgsConstructor
+@Component
+@AllArgsConstructor
 public class RequestsControllerImpl implements RequestsController {
-  @ComponentDependency
-  MainManagerImpl mainManager;
-  @ComponentDependency
-  RequestsMenuImpl requestsMenu;
+  private final MainManager mainManager;
+  private final RequestsMenu requestsMenu;
 
   @Override
   public Action run() {

@@ -10,7 +10,7 @@ import sorting.BookSort;
 /**
  * {@code BookDao} - Интерфейс, определяющий поведение для (DAO) сущности {@link Book}.
  */
-public interface BookDao {
+public interface BookDao extends GenericDao<Book> {
   void add(Session session, long bookId, int amount, LocalDateTime deliveredDate);
 
   void writeOff(Session session, long bookId, int amount, LocalDateTime saleDate);
@@ -20,8 +20,6 @@ public interface BookDao {
   List<Book> getBooks(Session session, List<Long> bookIds);
 
   Optional<Book> getBookById(Session session, long bookId);
-
-  boolean containsBook(Session session, long bookId) throws IllegalArgumentException;
 
   void importBook(Session session, Book book) throws IllegalArgumentException;
 }
