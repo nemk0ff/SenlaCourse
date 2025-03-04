@@ -12,13 +12,14 @@ import model.RequestStatus;
 import model.impl.Book;
 import model.impl.Request;
 import org.hibernate.Session;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Repository;
 import sorting.RequestSort;
 
 /**
  * {@code RequestDaoImpl} - Реализация интерфейса {@link RequestDao}, предоставляющая методы для
  * взаимодействия с базой данных для управления информацией о запросах.
  */
+@Repository
 @Slf4j
 public class RequestDaoImpl extends HibernateAbstractDao<Request> implements RequestDao {
 

@@ -1,30 +1,29 @@
 package controllers.impl;
 
-import annotations.ComponentDependency;
 import controllers.Action;
+import controllers.BooksController;
 import controllers.Controller;
+import controllers.OrdersController;
+import controllers.RequestsController;
 import controllers.impl.importexport.ImportController;
-import lombok.NoArgsConstructor;
-import manager.MainManagerImpl;
-import view.impl.MainMenu;
+import lombok.AllArgsConstructor;
+import manager.MainManager;
+import org.springframework.stereotype.Component;
+import view.Menu;
 
 /**
  * {@code MainController} - Реализует интерфейс {@link Controller} и является главным контроллером
  * приложения, отвечающим за отображение главного меню и перенаправление управления в другие
  * контроллеры (книг, заказов, запросов).
  */
-@NoArgsConstructor
+@Component
+@AllArgsConstructor
 public class MainController implements Controller {
-  @ComponentDependency
-  MainManagerImpl mainManager;
-  @ComponentDependency
-  MainMenu mainMenu;
-  @ComponentDependency
-  BooksControllerImpl booksController;
-  @ComponentDependency
-  OrdersControllerImpl ordersController;
-  @ComponentDependency
-  RequestsControllerImpl requestsController;
+  private final MainManager mainManager;
+  private final Menu mainMenu;
+  private final BooksController booksController;
+  private final OrdersController ordersController;
+  private final RequestsController requestsController;
 
   @Override
   public Action run() {

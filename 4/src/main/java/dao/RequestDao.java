@@ -12,7 +12,7 @@ import sorting.RequestSort;
 /**
  * {@code RequestDao} - Интерфейс, определяющий поведение для (DAO) сущности {@link Request}.
  */
-public interface RequestDao {
+public interface RequestDao extends GenericDao<Request> {
   List<Request> getAllRequests(Session session, RequestSort typeSort);
 
   LinkedHashMap<Book, Long> getRequests(Session session, RequestSort typeSort);

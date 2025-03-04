@@ -1,6 +1,7 @@
+import config.SpringConfig;
 import controllers.impl.MainController;
-import di.DiContainer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * {@code Main} - Главный класс приложения, отвечающий за запуск приложения, инициализацию
@@ -14,7 +15,7 @@ public class Main {
    *
    * <p>Этот метод выполняет следующие действия:</p>
    * <ol>
-   *   <li>Создает экземпляр контейнера зависимостей ({@link DiContainer}).</li>
+   *   <li>Создает экземпляр контейнера зависимостей ({@link SpringConfig}).</li>
    *   <li>Регистрирует главный контроллер ({@link MainController}) в контейнере
    *   зависимостей.</li>
    *   <li>Получает экземпляр главного контроллера из контейнера зависимостей.</li>
@@ -22,12 +23,9 @@ public class Main {
    * </ol>
    */
   public static void main(String[] args) {
-    try {
-      DiContainer diContainer = DiContainer.getInstance();
-
-      diContainer.registerBean(MainController.class, new MainController());
-
-      MainController mainController = diContainer.getBean(MainController.class);
+    try (AnnotationConfigApplicationContext context =
+             new AnnotationConfigApplicationContext(SpringConfig.class)) {
+      MainController mainController = context.getBean("mainController", MainController.class);
       mainController.run();
     } catch (Exception e) {
       log.error("Завершение приложения из-за необработанного исключения: {}", e.getMessage(), e);

@@ -1,7 +1,5 @@
 package dao.impl;
 
-import annotations.ConfigProperty;
-import config.ConfigurationManager;
 import dao.BookDao;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,31 +10,25 @@ import lombok.extern.slf4j.Slf4j;
 import model.impl.Book;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Repository;
 import sorting.BookSort;
 
 /**
  * {@code BookDaoImpl} - Реализация интерфейса {@link BookDao}, предоставляющая методы для
  * взаимодействия с базой данных для управления информацией о книгах.
  */
+@Repository
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
 @Data
 public class BookDaoImpl extends HibernateAbstractDao<Book> implements BookDao {
-  @ConfigProperty(propertyName = "book.stale.months", type = int.class)
+  @Value("${book.stale.months}")
   private int staleBookMonths;
 
   public BookDaoImpl() {
     super(Book.class);
-    ConfigurationManager.configure(this);
     log.debug("BookDaoImpl инициализирован, staleBookMonths = {}", staleBookMonths);
-  }
-
-  @Override
-  public boolean containsBook(Session session, long bookId) {
-    log.debug("Проверяем, существует ли книга [{}]...", bookId);
-    boolean contains = getBookById(session, bookId).isPresent();
-    log.debug("Книга [{}] существует: {}.", bookId, contains);
-    return contains;
   }
 
   @Override

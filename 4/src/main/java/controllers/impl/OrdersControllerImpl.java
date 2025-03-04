@@ -1,6 +1,5 @@
 package controllers.impl;
 
-import annotations.ComponentDependency;
 import constants.FileConstants;
 import controllers.Action;
 import controllers.OrdersController;
@@ -12,24 +11,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import manager.MainManagerImpl;
+import manager.MainManager;
 import model.OrderStatus;
 import model.impl.Order;
-import view.impl.OrdersMenuImpl;
+import org.springframework.stereotype.Component;
+import view.OrdersMenu;
 
 /**
  * {@code OrdersControllerImpl} - Реализация интерфейса {@link OrdersController},
  * представляющая собой контроллер для управления заказами.
  */
 @Slf4j
-@NoArgsConstructor
+@Component
+@AllArgsConstructor
 public class OrdersControllerImpl implements OrdersController {
-  @ComponentDependency
-  MainManagerImpl mainManager;
-  @ComponentDependency
-  OrdersMenuImpl ordersMenu;
+  private final MainManager mainManager;
+  private final OrdersMenu ordersMenu;
 
   @Override
   public Action run() {

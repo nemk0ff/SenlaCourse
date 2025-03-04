@@ -1,6 +1,5 @@
 package controllers.impl;
 
-import annotations.ComponentDependency;
 import constants.FileConstants;
 import controllers.Action;
 import controllers.BooksController;
@@ -9,10 +8,12 @@ import controllers.impl.importexport.ImportController;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import manager.MainManagerImpl;
+import manager.MainManager;
 import model.impl.Book;
+import org.springframework.stereotype.Component;
+import view.BooksMenu;
 import view.impl.BooksMenuImpl;
 
 /**
@@ -23,12 +24,11 @@ import view.impl.BooksMenuImpl;
  * через меню {@link BooksMenuImpl}.
  */
 @Slf4j
-@NoArgsConstructor
+@Component
+@AllArgsConstructor
 public class BooksControllerImpl implements BooksController {
-  @ComponentDependency
-  MainManagerImpl mainManager;
-  @ComponentDependency
-  BooksMenuImpl booksMenu;
+  private final MainManager mainManager;
+  private final BooksMenu booksMenu;
 
   @Override
   public Action run() {

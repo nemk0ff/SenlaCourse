@@ -11,7 +11,7 @@ import sorting.OrderSort;
 /**
  * {@code OrderDao} - Интерфейс, определяющий поведение для (DAO) сущности {@link Order}.
  */
-public interface OrderDao {
+public interface OrderDao extends GenericDao<Order> {
   void setOrderStatus(Session session, long orderId, OrderStatus status);
 
   long addOrder(Session session, Order order);
