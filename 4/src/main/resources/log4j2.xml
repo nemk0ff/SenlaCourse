@@ -5,7 +5,7 @@
             <PatternLayout pattern="%m%n"/>
         </Console>
 
-        <RollingFile name="File" fileName="4/src/main/logs/app.log" filePattern="logs/app-%d{yyyy-MM-dd}-%i.log">
+        <RollingFile name="File" fileName="LearningSpringMVC/src/main/logs/app.log" filePattern="logs/app-%d{yyyy-MM-dd}-%i.log">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%M:%L - %m%n%throwable{full}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
