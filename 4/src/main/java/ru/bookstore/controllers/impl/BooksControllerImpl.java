@@ -17,7 +17,7 @@ import ru.bookstore.controllers.BooksController;
 import lombok.AllArgsConstructor;
 import ru.bookstore.controllers.impl.importexport.ExportController;
 import ru.bookstore.controllers.impl.importexport.ImportController;
-import ru.bookstore.dto.BookDTO;
+import ru.bookstore.dto.mappers.BookMapper;
 import ru.bookstore.manager.MainManager;
 import ru.bookstore.model.impl.Book;
 
@@ -31,7 +31,7 @@ public class BooksControllerImpl implements BooksController {
   @GetMapping("showBook/{id}")
   @Override
   public ResponseEntity<?> showBookDetails(@PathVariable("id") @Positive Long id) {
-    return ResponseEntity.ok(new BookDTO(mainManager.getBook(id)));
+    return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(mainManager.getBook(id)));
   }
 
   @PatchMapping(value = "add", produces = "text/plain;charset=UTF-8")
@@ -53,40 +53,37 @@ public class BooksControllerImpl implements BooksController {
   @GetMapping("getBooks/byName")
   @Override
   public ResponseEntity<?> getBooksByName() {
-    return ResponseEntity.ok(mainManager.getAllBooksByName()
-        .stream()
-        .map(BookDTO::new)
-        .toList());
+    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(mainManager.getAllBooksByName()));
   }
 
   @GetMapping("getBooks/byDate")
   @Override
   public ResponseEntity<?> getBooksByDate() {
-    return ResponseEntity.ok(mainManager.getAllBooksByDate());
+    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(mainManager.getAllBooksByDate()));
   }
 
   @GetMapping("getBooks/byPrice")
   @Override
   public ResponseEntity<?> getBooksByPrice() {
-    return ResponseEntity.ok(mainManager.getAllBooksByPrice());
+    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(mainManager.getAllBooksByPrice()));
   }
 
   @GetMapping("getBooks/byAvailable")
   @Override
   public ResponseEntity<?> getBooksByAvailable() {
-    return ResponseEntity.ok(mainManager.getAllBooksByAvailable());
+    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(mainManager.getAllBooksByAvailable()));
   }
 
   @GetMapping("getStaleBooks/byDate")
   @Override
   public ResponseEntity<?> getStaleBooksByDate() {
-    return ResponseEntity.ok(mainManager.getAllStaleBooksByDate());
+    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(mainManager.getAllStaleBooksByDate()));
   }
 
   @GetMapping("getStaleBooks/byPrice")
   @Override
   public ResponseEntity<?> getStaleBooksByPrice() {
-    return ResponseEntity.ok(mainManager.getAllStaleBooksByPrice());
+    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(mainManager.getAllStaleBooksByPrice()));
   }
 
   @PutMapping("importAll")
@@ -99,7 +96,7 @@ public class BooksControllerImpl implements BooksController {
       importedBooks.forEach(mainManager::importItem);
       log.info("Импорт всех книг выполнен.");
     }
-    return ResponseEntity.ok(importedBooks);
+    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(importedBooks));
   }
 
   @PutMapping("exportAll")
@@ -108,9 +105,7 @@ public class BooksControllerImpl implements BooksController {
     List<Book> exportBooks = mainManager.getAllBooks();
     ExportController.exportAll(exportBooks,
         FileConstants.EXPORT_BOOK_PATH, FileConstants.BOOK_HEADER);
-    return ResponseEntity.ok(exportBooks.stream()
-        .map(BookDTO::new)
-        .toList());
+    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(exportBooks));
   }
 
   @PutMapping("importBook/{id}")
@@ -119,7 +114,7 @@ public class BooksControllerImpl implements BooksController {
     Book findBook = ImportController.findItemInFile(id, FileConstants.IMPORT_BOOK_PATH,
         ImportController::bookParser);
     mainManager.importItem(findBook);
-    return ResponseEntity.ok(new BookDTO(findBook));
+    return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(findBook));
   }
 
   @PutMapping("exportBook/{id}")
@@ -128,6 +123,6 @@ public class BooksControllerImpl implements BooksController {
     Book exportBook = mainManager.getBook(id);
     ExportController.exportItemToFile(exportBook,
         FileConstants.EXPORT_BOOK_PATH, FileConstants.BOOK_HEADER);
-    return ResponseEntity.ok(new BookDTO(exportBook));
+    return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(exportBook));
   }
 }

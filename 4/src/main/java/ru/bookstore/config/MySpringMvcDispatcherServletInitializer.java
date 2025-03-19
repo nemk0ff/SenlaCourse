@@ -2,7 +2,6 @@ package ru.bookstore.config;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 public class MySpringMvcDispatcherServletInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
@@ -17,7 +16,7 @@ public class MySpringMvcDispatcherServletInitializer extends AbstractAnnotationC
   }
 
   @Override
-  public void onStartup(@NotNull ServletContext aServletContext) throws ServletException {
+  public void onStartup(ServletContext aServletContext) throws ServletException {
     super.onStartup(aServletContext);
   }
 

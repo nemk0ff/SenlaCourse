@@ -1,7 +1,10 @@
 package ru.bookstore.controllers.impl;
 
 import jakarta.validation.constraints.Positive;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +19,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.bookstore.controllers.impl.importexport.ExportController;
 import ru.bookstore.controllers.impl.importexport.ImportController;
-import ru.bookstore.dto.RequestDTO;
+import ru.bookstore.dto.mappers.BookMapper;
+import ru.bookstore.dto.mappers.RequestMapper;
 import ru.bookstore.manager.MainManager;
 import ru.bookstore.model.impl.Request;
 
@@ -28,30 +32,39 @@ public class RequestsControllerImpl implements RequestsController {
   private final MainManager mainManager;
 
   @PostMapping("createRequest")
-  public ResponseEntity<?> createRequest(@RequestParam @Positive Long bookId,
-                                         @RequestParam @Positive Integer bookAmount) {
-    return ResponseEntity.ok(mainManager.createRequest(bookId, bookAmount));
+  public ResponseEntity<?> createRequest(@RequestParam("bookId") @Positive Long bookId,
+                                         @RequestParam("amount") @Positive Integer amount) {
+    return ResponseEntity.ok("Запрос " + mainManager.createRequest(bookId, amount) + "создан");
   }
 
   @GetMapping("getRequests/byCount")
   @Override
   public ResponseEntity<?> getRequestsByCount() {
-    return ResponseEntity.ok(mainManager.getRequestsByCount());
+    return ResponseEntity.ok(mainManager.getRequestsByCount().entrySet().stream()
+        .collect(Collectors.toMap(
+            entry -> BookMapper.INSTANCE.toDTO(entry.getKey()),
+            Map.Entry::getValue,
+            (e1, e2) -> e1,
+            LinkedHashMap::new
+        )));
   }
 
   @GetMapping("getRequests/byPrice")
   @Override
   public ResponseEntity<?> getRequestsByPrice() {
-    return ResponseEntity.ok(mainManager.getRequestsByPrice());
+    return ResponseEntity.ok(mainManager.getRequestsByPrice().entrySet().stream()
+        .collect(Collectors.toMap(
+            entry -> BookMapper.INSTANCE.toDTO(entry.getKey()),
+            Map.Entry::getValue,
+            (e1, e2) -> e1,
+            LinkedHashMap::new
+        )));
   }
 
   @GetMapping("getAllRequests")
   @Override
   public ResponseEntity<?> getAllRequests() {
-    return ResponseEntity.ok(mainManager.getRequests()
-        .stream()
-        .map(RequestDTO::new)
-        .toList());
+    return ResponseEntity.ok(RequestMapper.INSTANCE.toListDTO(mainManager.getRequests()));
   }
 
   @PutMapping("exportRequest/{id}")
@@ -60,7 +73,7 @@ public class RequestsControllerImpl implements RequestsController {
     Request exportRequest = mainManager.getRequest(id);
     ExportController.exportItemToFile(exportRequest, FileConstants.EXPORT_REQUEST_PATH,
         FileConstants.REQUEST_HEADER);
-    return ResponseEntity.ok(new RequestDTO(exportRequest));
+    return ResponseEntity.ok(RequestMapper.INSTANCE.toDTO(exportRequest));
   }
 
   @PutMapping("importRequest/{id}")
@@ -69,7 +82,7 @@ public class RequestsControllerImpl implements RequestsController {
     Request findRequest = ImportController.findItemInFile(id, FileConstants.IMPORT_REQUEST_PATH,
         ImportController::requestParser);
     mainManager.importItem(findRequest);
-    return ResponseEntity.ok(new RequestDTO(findRequest));
+    return ResponseEntity.ok(RequestMapper.INSTANCE.toDTO(findRequest));
   }
 
   @PutMapping("importAll")
@@ -78,7 +91,7 @@ public class RequestsControllerImpl implements RequestsController {
     List<Request> importedRequests = ImportController.importAllItemsFromFile(
         FileConstants.IMPORT_REQUEST_PATH, ImportController::requestParser);
     importedRequests.forEach(mainManager::importItem);
-    return ResponseEntity.ok(importedRequests.stream().map(RequestDTO::new).toList());
+    return ResponseEntity.ok(RequestMapper.INSTANCE.toListDTO(importedRequests));
   }
 
   @PutMapping("exportAll")
@@ -87,6 +100,6 @@ public class RequestsControllerImpl implements RequestsController {
     List<Request> exportRequests = mainManager.getRequests();
     ExportController.exportAll(exportRequests,
         FileConstants.EXPORT_REQUEST_PATH, FileConstants.REQUEST_HEADER);
-    return ResponseEntity.ok(exportRequests.stream().map(RequestDTO::new).toList());
+    return ResponseEntity.ok(RequestMapper.INSTANCE.toListDTO(exportRequests));
   }
 }

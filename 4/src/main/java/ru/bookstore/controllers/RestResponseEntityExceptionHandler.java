@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -61,8 +60,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
-      @NotNull MethodArgumentNotValidException ex, @NotNull HttpHeaders headers,
-      @NotNull HttpStatusCode status, @NotNull WebRequest request) {
+      MethodArgumentNotValidException ex, HttpHeaders headers,
+      HttpStatusCode status, WebRequest request) {
     log.error("Ошибка валидации: {}", ex.getMessage(), ex);
 
     Map<String, String> errors = new HashMap<>();

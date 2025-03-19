@@ -1,6 +1,5 @@
 package ru.bookstore.dao.impl;
 
-import java.sql.SQLException;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import ru.bookstore.dao.GenericDao;

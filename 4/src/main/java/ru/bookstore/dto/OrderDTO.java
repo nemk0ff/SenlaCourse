@@ -26,17 +26,6 @@ public class OrderDTO {
   private LocalDateTime completeDate;
   @JsonFormat(shape = JsonFormat.Shape.STRING)
   private String clientName;
-
   private Map<@Min(value = 1, message = "Id must be greater than 0") Long,
       @Positive(message = "Amount must be positive") Integer> books;
-
-  public OrderDTO(Order order) {
-    this.id = order.getId();
-    this.status = order.getStatus();
-    this.price = order.getPrice();
-    this.orderDate = order.getOrderDate();
-    this.completeDate = order.getCompleteDate();
-    this.clientName = order.getClientName();
-    this.books = order.getBooks();
-  }
 }

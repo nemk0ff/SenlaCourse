@@ -20,9 +20,13 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.bookstore.controllers.impl.importexport.ExportController;
 import ru.bookstore.controllers.impl.importexport.ImportController;
+import ru.bookstore.dto.BookDTO;
 import ru.bookstore.dto.OrderDTO;
+import ru.bookstore.dto.mappers.BookMapper;
+import ru.bookstore.dto.mappers.OrderMapper;
 import ru.bookstore.manager.MainManager;
 import ru.bookstore.model.OrderStatus;
+import ru.bookstore.model.impl.Book;
 import ru.bookstore.model.impl.Order;
 
 @Slf4j
@@ -35,8 +39,9 @@ public class OrdersControllerImpl implements OrdersController {
   @PostMapping("createOrder")
   @Override
   public ResponseEntity<?> createOrder(@RequestBody @Valid OrderDTO orderDTO) {
-    return ResponseEntity.ok(new OrderDTO(mainManager.createOrder(orderDTO.getBooks(),
-        orderDTO.getClientName(), LocalDateTime.now())));
+    return ResponseEntity.ok(OrderMapper.INSTANCE
+        .toDTO(mainManager.createOrder(orderDTO.getBooks(),
+            orderDTO.getClientName(), LocalDateTime.now())));
   }
 
   @PostMapping("cancelOrder/{id}")
@@ -49,7 +54,7 @@ public class OrdersControllerImpl implements OrdersController {
   @GetMapping("showOrder/{id}")
   @Override
   public ResponseEntity<?> showOrderDetails(@PathVariable("id") Long id) {
-    return ResponseEntity.ok(new OrderDTO(mainManager.getOrder(id)));
+    return ResponseEntity.ok(OrderMapper.INSTANCE.toDTO(mainManager.getOrder(id)));
   }
 
   @PostMapping("setOrderStatus")
@@ -63,28 +68,19 @@ public class OrdersControllerImpl implements OrdersController {
   @GetMapping("getOrders/byDate")
   @Override
   public ResponseEntity<?> getOrdersByDate() {
-    return ResponseEntity.ok(mainManager.getAllOrdersByDate()
-        .stream()
-        .map(OrderDTO::new)
-        .toList());
+    return ResponseEntity.ok(OrderMapper.INSTANCE.toListDTO(mainManager.getAllOrdersByDate()));
   }
 
   @GetMapping("getOrders/byPrice")
   @Override
   public ResponseEntity<?> getOrdersByPrice() {
-    return ResponseEntity.ok(mainManager.getAllOrdersByPrice()
-        .stream()
-        .map(OrderDTO::new)
-        .toList());
+    return ResponseEntity.ok(OrderMapper.INSTANCE.toListDTO(mainManager.getAllOrdersByPrice()));
   }
 
   @GetMapping("getOrders/byStatus")
   @Override
   public ResponseEntity<?> getOrdersByStatus() {
-    return ResponseEntity.ok(mainManager.getAllOrdersByStatus()
-        .stream()
-        .map(OrderDTO::new)
-        .toList());
+    return ResponseEntity.ok(OrderMapper.INSTANCE.toListDTO(mainManager.getAllOrdersByStatus()));
   }
 
   @GetMapping("getCompletedOrders/byDate")
@@ -94,10 +90,8 @@ public class OrdersControllerImpl implements OrdersController {
       @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss") LocalDateTime begin,
       @RequestParam(value = "end", required = false)
       @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss") LocalDateTime end) {
-    return ResponseEntity.ok(mainManager.getCompletedOrdersByDate(begin, end)
-        .stream()
-        .map(OrderDTO::new)
-        .toList());
+    return ResponseEntity.ok(OrderMapper.INSTANCE
+        .toListDTO(mainManager.getCompletedOrdersByDate(begin, end)));
   }
 
   @GetMapping("getCompletedOrders/byPrice")
@@ -107,10 +101,8 @@ public class OrdersControllerImpl implements OrdersController {
       @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss") LocalDateTime begin,
       @RequestParam(value = "end", required = false)
       @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss") LocalDateTime end) {
-    return ResponseEntity.ok(mainManager.getCompletedOrdersByPrice(begin, end)
-        .stream()
-        .map(OrderDTO::new)
-        .toList());
+    return ResponseEntity.ok(OrderMapper.INSTANCE
+        .toListDTO(mainManager.getCompletedOrdersByPrice(begin, end)));
   }
 
   @GetMapping("getCountCompletedOrders")
@@ -139,7 +131,7 @@ public class OrdersControllerImpl implements OrdersController {
     List<Order> importedOrders = ImportController.importAllItemsFromFile(
         FileConstants.IMPORT_ORDER_PATH, ImportController::orderParser);
     importedOrders.forEach(mainManager::importOrder);
-    return ResponseEntity.ok(importedOrders.stream().map(OrderDTO::new).toList());
+    return ResponseEntity.ok(OrderMapper.INSTANCE.toListDTO(importedOrders));
   }
 
   @PutMapping("exportAll")
@@ -148,7 +140,7 @@ public class OrdersControllerImpl implements OrdersController {
     List<Order> exportOrders = mainManager.getAllOrders();
     ExportController.exportAll(exportOrders,
         FileConstants.EXPORT_ORDER_PATH, FileConstants.ORDER_HEADER);
-    return ResponseEntity.ok(exportOrders.stream().map(OrderDTO::new).toList());
+    return ResponseEntity.ok(OrderMapper.INSTANCE.toListDTO(exportOrders));
   }
 
   @PutMapping("importOrder/{id}")
@@ -157,7 +149,7 @@ public class OrdersControllerImpl implements OrdersController {
     Order findOrder = ImportController.findItemInFile(id, FileConstants.IMPORT_ORDER_PATH,
         ImportController::orderParser);
     mainManager.importItem(findOrder);
-    return ResponseEntity.ok(new OrderDTO(findOrder));
+    return ResponseEntity.ok(OrderMapper.INSTANCE.toDTO(findOrder));
   }
 
   @PutMapping("exportOrder/{id}")
@@ -166,6 +158,6 @@ public class OrdersControllerImpl implements OrdersController {
     Order exportOrder = mainManager.getOrder(id);
     ExportController.exportItemToFile(exportOrder,
         FileConstants.EXPORT_ORDER_PATH, FileConstants.ORDER_HEADER);
-    return ResponseEntity.ok(new OrderDTO(exportOrder));
+    return ResponseEntity.ok(OrderMapper.INSTANCE.toDTO(exportOrder));
   }
 }

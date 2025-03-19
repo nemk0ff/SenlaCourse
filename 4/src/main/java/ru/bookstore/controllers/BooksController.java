@@ -1,9 +1,7 @@
 package ru.bookstore.controllers;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
-import ru.bookstore.dto.BookDTO;
 
 public interface BooksController {
   ResponseEntity<?> addBook(@Positive Long id, @Positive Integer amount);
