@@ -4,8 +4,7 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%m%n"/>
         </Console>
-
-        <RollingFile name="File" fileName="LearningSpringMVC/src/main/logs/app.log" filePattern="logs/app-%d{yyyy-MM-dd}-%i.log">
+        <RollingFile name="File" fileName="src/main/logs/app.log" filePattern="logs/app-%d{yyyy-MM-dd}-%i.log">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%M:%L - %m%n%throwable{full}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
@@ -17,7 +16,7 @@
 
     <Loggers>
         <Root level="trace">
-            <AppenderRef ref="Console" level="info"/>
+            <AppenderRef ref="Console" level="trace"/>
             <AppenderRef ref="File" level="trace"/>
         </Root>
     </Loggers>
