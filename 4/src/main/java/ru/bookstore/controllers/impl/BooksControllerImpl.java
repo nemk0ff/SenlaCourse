@@ -1,9 +1,8 @@
 package ru.bookstore.controllers.impl;
 
-import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -21,7 +20,7 @@ import ru.bookstore.dto.mappers.BookMapper;
 import ru.bookstore.manager.MainManager;
 import ru.bookstore.model.impl.Book;
 
-@Log
+@Slf4j
 @AllArgsConstructor
 @RestController
 @RequestMapping("/books")
@@ -30,22 +29,22 @@ public class BooksControllerImpl implements BooksController {
 
   @GetMapping("showBook/{id}")
   @Override
-  public ResponseEntity<?> showBookDetails(@PathVariable("id") @Positive Long id) {
+  public ResponseEntity<?> showBookDetails(@PathVariable("id") Long id) {
     return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(mainManager.getBook(id)));
   }
 
   @PatchMapping(value = "add", produces = "text/plain;charset=UTF-8")
   @Override
-  public ResponseEntity<?> addBook(@RequestParam("id") @Positive Long id,
-                                   @RequestParam("amount") @Positive Integer amount) {
+  public ResponseEntity<?> addBook(@RequestParam("id") Long id,
+                                   @RequestParam("amount") Integer amount) {
     mainManager.addBook(id, amount, LocalDateTime.now());
     return ResponseEntity.ok("Добавлено " + amount + " книг с id " + id);
   }
 
   @PatchMapping(value = "writeOff", produces = "text/plain;charset=UTF-8")
   @Override
-  public ResponseEntity<?> writeOff(@RequestParam("id") @Positive Long id,
-                                    @RequestParam("amount") @Positive Integer amount) {
+  public ResponseEntity<?> writeOff(@RequestParam("id") Long id,
+                                    @RequestParam("amount") Integer amount) {
     mainManager.writeOff(id, amount, LocalDateTime.now());
     return ResponseEntity.ok("Списано " + id + " книг с id " + amount);
   }
@@ -110,7 +109,7 @@ public class BooksControllerImpl implements BooksController {
 
   @PutMapping("importBook/{id}")
   @Override
-  public ResponseEntity<?> importBook(@PathVariable("id") @Positive Long id) {
+  public ResponseEntity<?> importBook(@PathVariable("id") Long id) {
     Book findBook = ImportController.findItemInFile(id, FileConstants.IMPORT_BOOK_PATH,
         ImportController::bookParser);
     mainManager.importItem(findBook);
@@ -119,7 +118,7 @@ public class BooksControllerImpl implements BooksController {
 
   @PutMapping("exportBook/{id}")
   @Override
-  public ResponseEntity<?> exportBook(@PathVariable("id") @Positive Long id) {
+  public ResponseEntity<?> exportBook(@PathVariable("id") Long id) {
     Book exportBook = mainManager.getBook(id);
     ExportController.exportItemToFile(exportBook,
         FileConstants.EXPORT_BOOK_PATH, FileConstants.BOOK_HEADER);

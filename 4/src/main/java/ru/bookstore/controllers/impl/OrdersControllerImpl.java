@@ -1,7 +1,6 @@
 package ru.bookstore.controllers.impl;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,13 +19,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.bookstore.controllers.impl.importexport.ExportController;
 import ru.bookstore.controllers.impl.importexport.ImportController;
-import ru.bookstore.dto.BookDTO;
 import ru.bookstore.dto.OrderDTO;
-import ru.bookstore.dto.mappers.BookMapper;
 import ru.bookstore.dto.mappers.OrderMapper;
 import ru.bookstore.manager.MainManager;
 import ru.bookstore.model.OrderStatus;
-import ru.bookstore.model.impl.Book;
 import ru.bookstore.model.impl.Order;
 
 @Slf4j
@@ -46,7 +42,7 @@ public class OrdersControllerImpl implements OrdersController {
 
   @PostMapping("cancelOrder/{id}")
   @Override
-  public ResponseEntity<?> cancelOrder(@PathVariable("id") @Positive Long id) {
+  public ResponseEntity<?> cancelOrder(@PathVariable("id") Long id) {
     mainManager.cancelOrder(id);
     return ResponseEntity.ok("Заказ отменён");
   }
@@ -59,7 +55,7 @@ public class OrdersControllerImpl implements OrdersController {
 
   @PostMapping("setOrderStatus")
   @Override
-  public ResponseEntity<?> setOrderStatus(@RequestParam("id") @Positive Long id,
+  public ResponseEntity<?> setOrderStatus(@RequestParam("id") Long id,
                                           @RequestParam("amount") OrderStatus newStatus) {
     mainManager.setOrderStatus(id, newStatus);
     return ResponseEntity.ok("Статус заказа изменён на " + newStatus);

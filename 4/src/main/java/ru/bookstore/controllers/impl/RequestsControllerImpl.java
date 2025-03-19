@@ -1,6 +1,5 @@
 package ru.bookstore.controllers.impl;
 
-import jakarta.validation.constraints.Positive;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +31,8 @@ public class RequestsControllerImpl implements RequestsController {
   private final MainManager mainManager;
 
   @PostMapping("createRequest")
-  public ResponseEntity<?> createRequest(@RequestParam("bookId") @Positive Long bookId,
-                                         @RequestParam("amount") @Positive Integer amount) {
+  public ResponseEntity<?> createRequest(@RequestParam("bookId") Long bookId,
+                                         @RequestParam("amount") Integer amount) {
     return ResponseEntity.ok("Запрос " + mainManager.createRequest(bookId, amount) + "создан");
   }
 

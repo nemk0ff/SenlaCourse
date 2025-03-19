@@ -1,6 +1,5 @@
 package ru.bookstore.controllers;
 
-import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
 import org.springframework.http.ResponseEntity;
 import ru.bookstore.dto.OrderDTO;
@@ -13,7 +12,7 @@ public interface OrdersController {
 
   ResponseEntity<?> showOrderDetails(Long id);
 
-  ResponseEntity<?> setOrderStatus(@Positive Long id, OrderStatus newStatus);
+  ResponseEntity<?> setOrderStatus(Long id, OrderStatus newStatus);
 
   ResponseEntity<?> getOrdersByDate();
 

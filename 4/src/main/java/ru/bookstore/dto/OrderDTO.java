@@ -10,7 +10,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.bookstore.model.OrderStatus;
-import ru.bookstore.model.impl.Order;
 
 @Data
 @Builder
