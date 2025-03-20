@@ -11,8 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
 import ru.bookstore.exceptions.ImportException;
 import ru.bookstore.manager.MainManager;
 import ru.bookstore.model.BookStatus;
@@ -23,16 +24,16 @@ import ru.bookstore.model.impl.Book;
 import ru.bookstore.model.impl.Order;
 import ru.bookstore.model.impl.Request;
 
+@Controller
+@AllArgsConstructor
 @Slf4j
 public class ImportController {
-  @Setter
-  private static MainManager mainManager;
+  private MainManager mainManager;
 
   public static final DateTimeFormatter flexibleDateTimeFormatter = new DateTimeFormatterBuilder()
       .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
       .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
       .toFormatter();
-
 
   public static Book bookParser(String[] parts) {
     if (parts.length != 9) {
@@ -54,7 +55,7 @@ public class ImportController {
         amount, price, lastDeliveredDate, lastSaleDate, status);
   }
 
-  public static Request requestParser(String[] parts) {
+  public Request requestParser(String[] parts) {
     if (parts.length != 4) {
       throw new ImportException("Неверное количество частей в строке: " + parts.length);
     }

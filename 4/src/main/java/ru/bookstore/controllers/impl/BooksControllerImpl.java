@@ -90,11 +90,7 @@ public class BooksControllerImpl implements BooksController {
   public ResponseEntity<?> importAll() {
     List<Book> importedBooks = ImportController.importAllItemsFromFile(
         FileConstants.IMPORT_BOOK_PATH, ImportController::bookParser);
-    if (!importedBooks.isEmpty()) {
-      log.info("Формируем из импортированных данных книги...");
-      importedBooks.forEach(mainManager::importItem);
-      log.info("Импорт всех книг выполнен.");
-    }
+    importedBooks.forEach(mainManager::importItem);
     return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(importedBooks));
   }
 

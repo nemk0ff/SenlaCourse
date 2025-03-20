@@ -41,7 +41,7 @@ public class OrderDaoImpl extends HibernateAbstractDao<Order> implements OrderDa
 
   @Override
   public long addOrder(Order order) {
-    log.debug("Добавление заказа в бд: {}...", order.getInfoAbout());
+    log.debug("Добавление заказа в бд: {}...", order);
     try {
       sessionFactory.getCurrentSession().persist(order);
       log.info("Заказ с order_id [{}] успешно добавлен", order.getId());
@@ -134,7 +134,7 @@ public class OrderDaoImpl extends HibernateAbstractDao<Order> implements OrderDa
         log.debug("Заказ [{}] не найден.", id);
         return Optional.empty();
       } else {
-        log.debug("Заказ [{}] найден: {}", id, order.getInfoAbout());
+        log.debug("Заказ [{}] найден: {}", id, order);
         return Optional.of(order);
       }
     } catch (Exception e) {

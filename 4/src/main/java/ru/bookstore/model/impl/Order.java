@@ -74,13 +74,6 @@ public class Order implements Item {
   }
 
   @Override
-  public String getInfoAbout() {
-    return "[" + id + "]  " + clientName + ",  " + price + ",  "
-        + status + ",  " + orderDate.toString() + ",  "
-        + (completeDate == null ? "not been completed yet" : completeDate.toString());
-  }
-
-  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;

@@ -130,7 +130,7 @@ public class RequestDaoImpl extends HibernateAbstractDao<Request> implements Req
       update(request);
       log.debug("Запрос успешно импортирован: {}", request);
     } catch (Exception e) {
-      throw new ImportException("Не удалось импортировать запрос: " + request.getInfoAbout(), e);
+      throw new ImportException("Не удалось импортировать запрос: " + request, e);
     }
   }
 

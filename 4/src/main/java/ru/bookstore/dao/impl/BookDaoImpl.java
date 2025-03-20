@@ -131,12 +131,12 @@ public class BookDaoImpl extends HibernateAbstractDao<Book> implements BookDao {
 
   @Override
   public void importBook(Book book) {
-    log.info("Импортируем книгу: {}...", book.getInfoAbout());
+    log.info("Импортируем книгу: {}...", book);
     try {
       sessionFactory.getCurrentSession().merge(book);
-      log.info("Книга успешно импортирована: {}", book.getInfoAbout());
+      log.info("Книга успешно импортирована: {}", book);
     } catch (Exception e) {
-      throw new ImportException("Не удалось импортировать книгу: " + book.getInfoAbout(), e);
+      throw new ImportException("Не удалось импортировать книгу: " + book, e);
     }
   }
 

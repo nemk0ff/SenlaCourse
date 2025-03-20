@@ -21,7 +21,7 @@ public abstract class HibernateAbstractDao<T extends Item> implements GenericDao
 
   @Override
   public void update(T entity) {
-    log.debug("Перезаписываем информацию о сущности: {}", entity.getInfoAbout());
+    log.debug("Перезаписываем информацию о сущности: {}", entity);
     sessionFactory.getCurrentSession().merge(entity);
     log.debug("Информация о сущности успешно перезаписана: {}", entity.getId());
   }
@@ -34,7 +34,7 @@ public abstract class HibernateAbstractDao<T extends Item> implements GenericDao
       if (entity.isEmpty()) {
         log.debug("Сущность {} [{}] не найдена.", type.getName(), id);
       } else {
-        log.debug("Сущность {} [{}] найдена: {}", type.getName(), id, entity.get().getInfoAbout());
+        log.debug("Сущность {} [{}] найдена: {}", type.getName(), id, entity.get());
       }
       return entity;
     } catch (HibernateException e) {

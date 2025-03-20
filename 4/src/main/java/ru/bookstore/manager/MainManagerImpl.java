@@ -118,7 +118,7 @@ public class MainManagerImpl implements MainManager {
 
   private void updateOrders(LocalDateTime updateDate) {
     for (Order order : orderDao.getAllOrders(OrderSort.ID, null, null)) {
-      log.debug("Обновляем заказ: {}...", order.getInfoAbout());
+      log.debug("Обновляем заказ: {}...", order);
       if (order.getStatus() == OrderStatus.NEW) {
         for (Map.Entry<Long, Integer> entry : order.getBooks().entrySet()) {
           Optional<Book> optionalBook = bookDao.getBookById(entry.getKey());
@@ -138,7 +138,7 @@ public class MainManagerImpl implements MainManager {
         completeOrder(order, updateDate);
         log.info("Заказ [{}] успешно выполнен.", order.getId());
       }
-      log.debug("Заказ успешно обновлен: {}.", order.getInfoAbout());
+      log.debug("Заказ успешно обновлен: {}.", order);
     }
   }
 

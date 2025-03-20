@@ -29,11 +29,12 @@ import ru.bookstore.model.impl.Request;
 @RequestMapping("/requests")
 public class RequestsControllerImpl implements RequestsController {
   private final MainManager mainManager;
+  private final ImportController importController;
 
-  @PostMapping("createRequest")
+  @PostMapping(value = "createRequest", produces = "text/plain;charset=UTF-8")
   public ResponseEntity<?> createRequest(@RequestParam("bookId") Long bookId,
                                          @RequestParam("amount") Integer amount) {
-    return ResponseEntity.ok("Запрос " + mainManager.createRequest(bookId, amount) + "создан");
+    return ResponseEntity.ok("Запрос " + mainManager.createRequest(bookId, amount) + " создан");
   }
 
   @GetMapping("getRequests/byCount")
@@ -79,7 +80,7 @@ public class RequestsControllerImpl implements RequestsController {
   @Override
   public ResponseEntity<?> importRequest(@PathVariable("id") Long id) {
     Request findRequest = ImportController.findItemInFile(id, FileConstants.IMPORT_REQUEST_PATH,
-        ImportController::requestParser);
+        importController::requestParser);
     mainManager.importItem(findRequest);
     return ResponseEntity.ok(RequestMapper.INSTANCE.toDTO(findRequest));
   }
@@ -88,7 +89,7 @@ public class RequestsControllerImpl implements RequestsController {
   @Override
   public ResponseEntity<?> importAll() {
     List<Request> importedRequests = ImportController.importAllItemsFromFile(
-        FileConstants.IMPORT_REQUEST_PATH, ImportController::requestParser);
+        FileConstants.IMPORT_REQUEST_PATH, importController::requestParser);
     importedRequests.forEach(mainManager::importItem);
     return ResponseEntity.ok(RequestMapper.INSTANCE.toListDTO(importedRequests));
   }

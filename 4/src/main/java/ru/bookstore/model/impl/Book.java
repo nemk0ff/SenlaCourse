@@ -55,14 +55,6 @@ public class Book implements Item {
   }
 
   @Override
-  public String getInfoAbout() {
-    return "[" + id + "]   " + name + ",  " + author + ",  " + publicationDate
-        + ",  " + price + ",  " + amount + ",  " + status.toString() + ",  "
-        + (lastDeliveredDate == null ? "not been delivered yet" : lastDeliveredDate.toString())
-        + ",  " + (lastSaleDate == null ? "not been sold yet" : lastSaleDate.toString());
-  }
-
-  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;

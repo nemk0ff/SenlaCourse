@@ -36,12 +36,6 @@ public class Request implements Item {
   private RequestStatus status;
 
   @Override
-  public String getInfoAbout() {
-    return "[" + id + "]   книга №" + book.getId() + ", количество: " + amount
-        + ",  статус:" + status;
-  }
-
-  @Override
   public Long getId() {
     return id;
   }

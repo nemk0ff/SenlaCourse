@@ -40,7 +40,7 @@ public class OrdersControllerImpl implements OrdersController {
             orderDTO.getClientName(), LocalDateTime.now())));
   }
 
-  @PostMapping("cancelOrder/{id}")
+  @PostMapping(value = "cancelOrder/{id}", produces = "text/plain;charset=UTF-8")
   @Override
   public ResponseEntity<?> cancelOrder(@PathVariable("id") Long id) {
     mainManager.cancelOrder(id);
@@ -53,10 +53,10 @@ public class OrdersControllerImpl implements OrdersController {
     return ResponseEntity.ok(OrderMapper.INSTANCE.toDTO(mainManager.getOrder(id)));
   }
 
-  @PostMapping("setOrderStatus")
+  @PostMapping(value = "setOrderStatus", produces = "text/plain;charset=UTF-8")
   @Override
   public ResponseEntity<?> setOrderStatus(@RequestParam("id") Long id,
-                                          @RequestParam("amount") OrderStatus newStatus) {
+                                          @RequestParam("status") OrderStatus newStatus) {
     mainManager.setOrderStatus(id, newStatus);
     return ResponseEntity.ok("Статус заказа изменён на " + newStatus);
   }

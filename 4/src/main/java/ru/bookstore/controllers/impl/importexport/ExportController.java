@@ -20,7 +20,7 @@ public class ExportController {
   }
 
   public static <T extends Item> void exportItemToFile(T item, String exportPath, String header) {
-    log.info("Выполняется экспорт объекта: {}...", item.getInfoAbout());
+    log.info("Выполняется экспорт объекта: {}...", item);
     String exportString = item.toString();
     List<String> newFileStrings = new ArrayList<>();
     newFileStrings.add(header);
@@ -44,8 +44,7 @@ public class ExportController {
         }
       }
     } catch (IOException e) {
-      throw new ExportException("При экспорте " + item.getInfoAbout()
-          + "возникла ошибка: " + e.getMessage(), e);
+      throw new ExportException("При экспорте " + item + "возникла ошибка: " + e.getMessage(), e);
     }
 
     if (!isUpdated) {
@@ -58,9 +57,8 @@ public class ExportController {
         writer.newLine();
       }
     } catch (IOException e) {
-      throw new ExportException("При экспорте " + item.getInfoAbout()
-          + "возникла ошибка: " + e.getMessage(), e);
+      throw new ExportException("При экспорте " + item + "возникла ошибка: " + e.getMessage(), e);
     }
-    log.info("Экспорт выполнен успешно: {}", item.getInfoAbout());
+    log.info("Экспорт выполнен успешно: {}", item);
   }
 }
