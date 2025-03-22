@@ -20,27 +20,29 @@ import ru.bookstore.controllers.impl.importexport.ExportController;
 import ru.bookstore.controllers.impl.importexport.ImportController;
 import ru.bookstore.dto.mappers.BookMapper;
 import ru.bookstore.dto.mappers.RequestMapper;
-import ru.bookstore.manager.MainManager;
+import ru.bookstore.facade.RequestFacade;
 import ru.bookstore.model.impl.Request;
+import ru.bookstore.sorting.RequestSort;
 
 @Slf4j
 @AllArgsConstructor
 @RestController
 @RequestMapping("/requests")
 public class RequestsControllerImpl implements RequestsController {
-  private final MainManager mainManager;
+  private final RequestFacade requestFacade;
   private final ImportController importController;
 
-  @PostMapping(value = "createRequest", produces = "text/plain;charset=UTF-8")
+  @PostMapping
   public ResponseEntity<?> createRequest(@RequestParam("bookId") Long bookId,
                                          @RequestParam("amount") Integer amount) {
-    return ResponseEntity.ok("Запрос " + mainManager.createRequest(bookId, amount) + " создан");
+    Long requestId = requestFacade.add(bookId, amount);
+    return ResponseEntity.ok(requestFacade.get(requestId));
   }
 
-  @GetMapping("getRequests/byCount")
+  @GetMapping
   @Override
-  public ResponseEntity<?> getRequestsByCount() {
-    return ResponseEntity.ok(mainManager.getRequestsByCount().entrySet().stream()
+  public ResponseEntity<?> getRequests(@RequestParam("sort") RequestSort requestSort) {
+    return ResponseEntity.ok(requestFacade.getRequests(requestSort).entrySet().stream()
         .collect(Collectors.toMap(
             entry -> BookMapper.INSTANCE.toDTO(entry.getKey()),
             Map.Entry::getValue,
@@ -49,55 +51,43 @@ public class RequestsControllerImpl implements RequestsController {
         )));
   }
 
-  @GetMapping("getRequests/byPrice")
-  @Override
-  public ResponseEntity<?> getRequestsByPrice() {
-    return ResponseEntity.ok(mainManager.getRequestsByPrice().entrySet().stream()
-        .collect(Collectors.toMap(
-            entry -> BookMapper.INSTANCE.toDTO(entry.getKey()),
-            Map.Entry::getValue,
-            (e1, e2) -> e1,
-            LinkedHashMap::new
-        )));
-  }
-
-  @GetMapping("getAllRequests")
+  @GetMapping("getAll")
   @Override
   public ResponseEntity<?> getAllRequests() {
-    return ResponseEntity.ok(RequestMapper.INSTANCE.toListDTO(mainManager.getRequests()));
+    return ResponseEntity.ok(RequestMapper.INSTANCE.toListDTO(requestFacade.getAllRequests()));
   }
 
-  @PutMapping("exportRequest/{id}")
+  @PutMapping("export/{id}")
   @Override
   public ResponseEntity<?> exportRequest(@PathVariable("id") Long id) {
-    Request exportRequest = mainManager.getRequest(id);
+    Request exportRequest = requestFacade.get(id);
     ExportController.exportItemToFile(exportRequest, FileConstants.EXPORT_REQUEST_PATH,
         FileConstants.REQUEST_HEADER);
     return ResponseEntity.ok(RequestMapper.INSTANCE.toDTO(exportRequest));
   }
 
-  @PutMapping("importRequest/{id}")
+  @PutMapping("import/{id}")
   @Override
   public ResponseEntity<?> importRequest(@PathVariable("id") Long id) {
     Request findRequest = ImportController.findItemInFile(id, FileConstants.IMPORT_REQUEST_PATH,
         importController::requestParser);
-    mainManager.importItem(findRequest);
+    requestFacade.importRequest(findRequest);
     return ResponseEntity.ok(RequestMapper.INSTANCE.toDTO(findRequest));
   }
 
-  @PutMapping("importAll")
+  @PutMapping("import")
   @Override
   public ResponseEntity<?> importAll() {
     List<Request> importedRequests = ImportController.importAllItemsFromFile(
         FileConstants.IMPORT_REQUEST_PATH, importController::requestParser);
-    importedRequests.forEach(mainManager::importItem);
+    importedRequests.forEach(requestFacade::importRequest);
     return ResponseEntity.ok(RequestMapper.INSTANCE.toListDTO(importedRequests));
   }
 
-  @PutMapping("exportAll")
+  @PutMapping("export")
   @Override
   public ResponseEntity<?> exportAll() {
-    List<Request> exportRequests = mainManager.getRequests();
+    List<Request> exportRequests = requestFacade.getAllRequests();
     ExportController.exportAll(exportRequests,
         FileConstants.EXPORT_REQUEST_PATH, FileConstants.REQUEST_HEADER);
     return ResponseEntity.ok(RequestMapper.INSTANCE.toListDTO(exportRequests));

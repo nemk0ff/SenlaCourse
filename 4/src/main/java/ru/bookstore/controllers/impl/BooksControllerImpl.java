@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,105 +18,83 @@ import lombok.AllArgsConstructor;
 import ru.bookstore.controllers.impl.importexport.ExportController;
 import ru.bookstore.controllers.impl.importexport.ImportController;
 import ru.bookstore.dto.mappers.BookMapper;
-import ru.bookstore.manager.MainManager;
+import ru.bookstore.facade.BookFacade;
 import ru.bookstore.model.impl.Book;
+import ru.bookstore.sorting.BookSort;
 
 @Slf4j
 @AllArgsConstructor
 @RestController
+@Validated
 @RequestMapping("/books")
 public class BooksControllerImpl implements BooksController {
-  private final MainManager mainManager;
+  private final BookFacade bookFacade;
 
-  @GetMapping("showBook/{id}")
+  @GetMapping("{id}")
   @Override
   public ResponseEntity<?> showBookDetails(@PathVariable("id") Long id) {
-    return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(mainManager.getBook(id)));
+    return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(bookFacade.get(id)));
   }
 
-  @PatchMapping(value = "add", produces = "text/plain;charset=UTF-8")
+  @PatchMapping("add")
   @Override
   public ResponseEntity<?> addBook(@RequestParam("id") Long id,
                                    @RequestParam("amount") Integer amount) {
-    mainManager.addBook(id, amount, LocalDateTime.now());
-    return ResponseEntity.ok("Добавлено " + amount + " книг с id " + id);
+    return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(bookFacade.addBook(id, amount,
+        LocalDateTime.now())));
   }
 
-  @PatchMapping(value = "writeOff", produces = "text/plain;charset=UTF-8")
+  @PatchMapping("writeOff")
   @Override
   public ResponseEntity<?> writeOff(@RequestParam("id") Long id,
                                     @RequestParam("amount") Integer amount) {
-    mainManager.writeOff(id, amount, LocalDateTime.now());
-    return ResponseEntity.ok("Списано " + id + " книг с id " + amount);
+    return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(bookFacade.writeOff(id, amount,
+        LocalDateTime.now())));
   }
 
-  @GetMapping("getBooks/byName")
+  @GetMapping
   @Override
-  public ResponseEntity<?> getBooksByName() {
-    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(mainManager.getAllBooksByName()));
+  public ResponseEntity<?> getBooks(@RequestParam("sort") BookSort bookSort) {
+    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(bookFacade.getAll(bookSort)));
   }
 
-  @GetMapping("getBooks/byDate")
+  @GetMapping("stale")
   @Override
-  public ResponseEntity<?> getBooksByDate() {
-    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(mainManager.getAllBooksByDate()));
+  public ResponseEntity<?> getStaleBooks(@RequestParam("sort") BookSort bookSort) {
+    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(bookFacade.getStale(bookSort)));
   }
 
-  @GetMapping("getBooks/byPrice")
-  @Override
-  public ResponseEntity<?> getBooksByPrice() {
-    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(mainManager.getAllBooksByPrice()));
-  }
-
-  @GetMapping("getBooks/byAvailable")
-  @Override
-  public ResponseEntity<?> getBooksByAvailable() {
-    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(mainManager.getAllBooksByAvailable()));
-  }
-
-  @GetMapping("getStaleBooks/byDate")
-  @Override
-  public ResponseEntity<?> getStaleBooksByDate() {
-    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(mainManager.getAllStaleBooksByDate()));
-  }
-
-  @GetMapping("getStaleBooks/byPrice")
-  @Override
-  public ResponseEntity<?> getStaleBooksByPrice() {
-    return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(mainManager.getAllStaleBooksByPrice()));
-  }
-
-  @PutMapping("importAll")
+  @PutMapping("import")
   @Override
   public ResponseEntity<?> importAll() {
     List<Book> importedBooks = ImportController.importAllItemsFromFile(
         FileConstants.IMPORT_BOOK_PATH, ImportController::bookParser);
-    importedBooks.forEach(mainManager::importItem);
+    importedBooks.forEach(bookFacade::importBook);
     return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(importedBooks));
   }
 
-  @PutMapping("exportAll")
+  @PutMapping("export")
   @Override
   public ResponseEntity<?> exportAll() {
-    List<Book> exportBooks = mainManager.getAllBooks();
+    List<Book> exportBooks = bookFacade.getAll(BookSort.ID);
     ExportController.exportAll(exportBooks,
         FileConstants.EXPORT_BOOK_PATH, FileConstants.BOOK_HEADER);
     return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(exportBooks));
   }
 
-  @PutMapping("importBook/{id}")
+  @PutMapping("import/{id}")
   @Override
   public ResponseEntity<?> importBook(@PathVariable("id") Long id) {
     Book findBook = ImportController.findItemInFile(id, FileConstants.IMPORT_BOOK_PATH,
         ImportController::bookParser);
-    mainManager.importItem(findBook);
+    bookFacade.importBook(findBook);
     return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(findBook));
   }
 
-  @PutMapping("exportBook/{id}")
+  @PutMapping("export/{id}")
   @Override
   public ResponseEntity<?> exportBook(@PathVariable("id") Long id) {
-    Book exportBook = mainManager.getBook(id);
+    Book exportBook = bookFacade.get(id);
     ExportController.exportItemToFile(exportBook,
         FileConstants.EXPORT_BOOK_PATH, FileConstants.BOOK_HEADER);
     return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(exportBook));

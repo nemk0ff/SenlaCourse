@@ -15,7 +15,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import ru.bookstore.exceptions.ImportException;
-import ru.bookstore.manager.MainManager;
 import ru.bookstore.model.BookStatus;
 import ru.bookstore.model.Item;
 import ru.bookstore.model.OrderStatus;
@@ -23,12 +22,13 @@ import ru.bookstore.model.RequestStatus;
 import ru.bookstore.model.impl.Book;
 import ru.bookstore.model.impl.Order;
 import ru.bookstore.model.impl.Request;
+import ru.bookstore.service.BookService;
 
 @Controller
 @AllArgsConstructor
 @Slf4j
 public class ImportController {
-  private MainManager mainManager;
+  private BookService bookService;
 
   public static final DateTimeFormatter flexibleDateTimeFormatter = new DateTimeFormatterBuilder()
       .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
@@ -64,7 +64,7 @@ public class ImportController {
     int amount = Integer.parseInt(parts[2].trim());
     RequestStatus status = RequestStatus.valueOf(parts[3].trim());
 
-    return new Request(id, mainManager.getBook(book_id), amount, status);
+    return new Request(id, bookService.get(book_id), amount, status);
   }
 
   public static Order orderParser(String[] parts) {

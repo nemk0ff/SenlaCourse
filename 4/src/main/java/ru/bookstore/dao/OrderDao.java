@@ -10,7 +10,7 @@ import ru.bookstore.sorting.OrderSort;
 public interface OrderDao extends GenericDao<Order> {
   void setOrderStatus(long orderId, OrderStatus status);
 
-  long addOrder(Order order);
+  Order addOrder(Order order);
 
   List<Order> getAllOrders(OrderSort sortType, LocalDateTime begin, LocalDateTime end);
 

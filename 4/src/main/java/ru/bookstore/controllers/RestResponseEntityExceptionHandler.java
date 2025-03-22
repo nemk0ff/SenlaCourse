@@ -1,6 +1,9 @@
 package ru.bookstore.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import java.time.Instant;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -107,5 +112,22 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     problemDetail.setProperty("timestamp", Instant.now());
 
     return new ResponseEntity<>(problemDetail, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ResponseBody
+  public Map<String, Object> handleConstraintViolationException(HttpServletRequest request, Exception ex) {
+    Map<String, Object> errorResponse = new HashMap<>();
+
+    errorResponse.put("timestamp", new Date());
+    errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
+    errorResponse.put("error", HttpStatus.BAD_REQUEST.getReasonPhrase());
+    errorResponse.put("message", ex.getMessage());
+    errorResponse.put("path", request.getServletPath());
+
+    log.error(ex.getMessage(), ex);
+
+    return errorResponse;
   }
 }

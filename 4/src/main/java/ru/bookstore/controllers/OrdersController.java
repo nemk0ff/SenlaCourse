@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import org.springframework.http.ResponseEntity;
 import ru.bookstore.dto.OrderDTO;
 import ru.bookstore.model.OrderStatus;
+import ru.bookstore.sorting.OrderSort;
 
 public interface OrdersController {
   ResponseEntity<?> createOrder(OrderDTO orderDTO);
@@ -14,15 +15,10 @@ public interface OrdersController {
 
   ResponseEntity<?> setOrderStatus(Long id, OrderStatus newStatus);
 
-  ResponseEntity<?> getOrdersByDate();
+  ResponseEntity<?> getOrders(OrderSort orderSort);
 
-  ResponseEntity<?> getOrdersByPrice();
 
-  ResponseEntity<?> getOrdersByStatus();
-
-  ResponseEntity<?> getCompletedOrdersByDate(LocalDateTime begin, LocalDateTime end);
-
-  ResponseEntity<?> getCompletedOrdersByPrice(LocalDateTime begin, LocalDateTime end);
+  ResponseEntity<?> getCompleted(OrderSort orderSort, LocalDateTime begin, LocalDateTime end);
 
   ResponseEntity<?> getCountCompletedOrders(LocalDateTime begin, LocalDateTime end);
 

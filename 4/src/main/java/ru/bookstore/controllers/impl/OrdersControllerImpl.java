@@ -3,6 +3,7 @@ package ru.bookstore.controllers.impl;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,84 +22,64 @@ import ru.bookstore.controllers.impl.importexport.ExportController;
 import ru.bookstore.controllers.impl.importexport.ImportController;
 import ru.bookstore.dto.OrderDTO;
 import ru.bookstore.dto.mappers.OrderMapper;
-import ru.bookstore.manager.MainManager;
+import ru.bookstore.facade.OrderFacade;
 import ru.bookstore.model.OrderStatus;
+import ru.bookstore.model.impl.Book;
 import ru.bookstore.model.impl.Order;
+import ru.bookstore.sorting.OrderSort;
 
 @Slf4j
 @AllArgsConstructor
 @RestController
 @RequestMapping("/orders")
 public class OrdersControllerImpl implements OrdersController {
-  private final MainManager mainManager;
+  private final OrderFacade orderFacade;
 
-  @PostMapping("createOrder")
+  @PostMapping
   @Override
   public ResponseEntity<?> createOrder(@RequestBody @Valid OrderDTO orderDTO) {
     return ResponseEntity.ok(OrderMapper.INSTANCE
-        .toDTO(mainManager.createOrder(orderDTO.getBooks(),
+        .toDTO(orderFacade.createOrder(orderDTO.getBooks(),
             orderDTO.getClientName(), LocalDateTime.now())));
   }
 
-  @PostMapping(value = "cancelOrder/{id}", produces = "text/plain;charset=UTF-8")
+  @PostMapping(value = "cancelOrder/{id}")
   @Override
   public ResponseEntity<?> cancelOrder(@PathVariable("id") Long id) {
-    mainManager.cancelOrder(id);
-    return ResponseEntity.ok("Заказ отменён");
+    orderFacade.cancelOrder(id);
+    return ResponseEntity.ok(orderFacade.get(id));
   }
 
-  @GetMapping("showOrder/{id}")
+  @GetMapping("{id}")
   @Override
   public ResponseEntity<?> showOrderDetails(@PathVariable("id") Long id) {
-    return ResponseEntity.ok(OrderMapper.INSTANCE.toDTO(mainManager.getOrder(id)));
+    return ResponseEntity.ok(OrderMapper.INSTANCE.toDTO(orderFacade.get(id)));
   }
 
-  @PostMapping(value = "setOrderStatus", produces = "text/plain;charset=UTF-8")
+  @PostMapping(value = "setOrderStatus")
   @Override
   public ResponseEntity<?> setOrderStatus(@RequestParam("id") Long id,
                                           @RequestParam("status") OrderStatus newStatus) {
-    mainManager.setOrderStatus(id, newStatus);
-    return ResponseEntity.ok("Статус заказа изменён на " + newStatus);
+    orderFacade.setOrderStatus(id, newStatus);
+    return ResponseEntity.ok(OrderMapper.INSTANCE.toDTO(orderFacade.get(id)));
   }
 
-  @GetMapping("getOrders/byDate")
+  @GetMapping
   @Override
-  public ResponseEntity<?> getOrdersByDate() {
-    return ResponseEntity.ok(OrderMapper.INSTANCE.toListDTO(mainManager.getAllOrdersByDate()));
+  public ResponseEntity<?> getOrders(@RequestParam("sort") OrderSort orderSort) {
+    return ResponseEntity.ok(OrderMapper.INSTANCE.toListDTO(orderFacade.getAll(orderSort)));
   }
 
-  @GetMapping("getOrders/byPrice")
+  @GetMapping("completed")
   @Override
-  public ResponseEntity<?> getOrdersByPrice() {
-    return ResponseEntity.ok(OrderMapper.INSTANCE.toListDTO(mainManager.getAllOrdersByPrice()));
-  }
-
-  @GetMapping("getOrders/byStatus")
-  @Override
-  public ResponseEntity<?> getOrdersByStatus() {
-    return ResponseEntity.ok(OrderMapper.INSTANCE.toListDTO(mainManager.getAllOrdersByStatus()));
-  }
-
-  @GetMapping("getCompletedOrders/byDate")
-  @Override
-  public ResponseEntity<?> getCompletedOrdersByDate(
+  public ResponseEntity<?> getCompleted(
+      @RequestParam("sort") OrderSort orderSort,
       @RequestParam(value = "begin", required = false)
       @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss") LocalDateTime begin,
       @RequestParam(value = "end", required = false)
       @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss") LocalDateTime end) {
     return ResponseEntity.ok(OrderMapper.INSTANCE
-        .toListDTO(mainManager.getCompletedOrdersByDate(begin, end)));
-  }
-
-  @GetMapping("getCompletedOrders/byPrice")
-  @Override
-  public ResponseEntity<?> getCompletedOrdersByPrice(
-      @RequestParam(value = "begin", required = false)
-      @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss") LocalDateTime begin,
-      @RequestParam(value = "end", required = false)
-      @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss") LocalDateTime end) {
-    return ResponseEntity.ok(OrderMapper.INSTANCE
-        .toListDTO(mainManager.getCompletedOrdersByPrice(begin, end)));
+        .toListDTO(orderFacade.getCompleted(orderSort, begin, end)));
   }
 
   @GetMapping("getCountCompletedOrders")
@@ -108,7 +89,7 @@ public class OrdersControllerImpl implements OrdersController {
       @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss") LocalDateTime begin,
       @RequestParam(value = "end", required = false)
       @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss") LocalDateTime end) {
-    return ResponseEntity.ok(mainManager.getCountCompletedOrders(begin, end));
+    return ResponseEntity.ok(orderFacade.getCountCompletedOrders(begin, end));
   }
 
   @GetMapping("getEarnedSum")
@@ -118,40 +99,40 @@ public class OrdersControllerImpl implements OrdersController {
       @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss") LocalDateTime begin,
       @RequestParam(value = "end", required = false)
       @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss") LocalDateTime end) {
-    return ResponseEntity.ok(mainManager.getEarnedSum(begin, end));
+    return ResponseEntity.ok(orderFacade.getEarnedSum(begin, end));
   }
 
-  @PutMapping("importAll")
+  @PutMapping("import")
   @Override
   public ResponseEntity<?> importAll() {
     List<Order> importedOrders = ImportController.importAllItemsFromFile(
         FileConstants.IMPORT_ORDER_PATH, ImportController::orderParser);
-    importedOrders.forEach(mainManager::importOrder);
+    importedOrders.forEach(orderFacade::importOrder);
     return ResponseEntity.ok(OrderMapper.INSTANCE.toListDTO(importedOrders));
   }
 
-  @PutMapping("exportAll")
+  @PutMapping("export")
   @Override
   public ResponseEntity<?> exportAll() {
-    List<Order> exportOrders = mainManager.getAllOrders();
+    List<Order> exportOrders = orderFacade.getAll(OrderSort.ID);
     ExportController.exportAll(exportOrders,
         FileConstants.EXPORT_ORDER_PATH, FileConstants.ORDER_HEADER);
     return ResponseEntity.ok(OrderMapper.INSTANCE.toListDTO(exportOrders));
   }
 
-  @PutMapping("importOrder/{id}")
+  @PutMapping("import/{id}")
   @Override
   public ResponseEntity<?> importOrder(@PathVariable("id") Long id) {
     Order findOrder = ImportController.findItemInFile(id, FileConstants.IMPORT_ORDER_PATH,
         ImportController::orderParser);
-    mainManager.importItem(findOrder);
+    orderFacade.importOrder(findOrder);
     return ResponseEntity.ok(OrderMapper.INSTANCE.toDTO(findOrder));
   }
 
-  @PutMapping("exportOrder/{id}")
+  @PutMapping("export/{id}")
   @Override
   public ResponseEntity<?> exportOrder(@PathVariable("id") Long id) {
-    Order exportOrder = mainManager.getOrder(id);
+    Order exportOrder = orderFacade.get(id);
     ExportController.exportItemToFile(exportOrder,
         FileConstants.EXPORT_ORDER_PATH, FileConstants.ORDER_HEADER);
     return ResponseEntity.ok(OrderMapper.INSTANCE.toDTO(exportOrder));

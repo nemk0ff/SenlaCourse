@@ -1,13 +1,12 @@
 package ru.bookstore.controllers;
 
 import org.springframework.http.ResponseEntity;
+import ru.bookstore.sorting.RequestSort;
 
 public interface RequestsController {
   ResponseEntity<?> createRequest(Long bookId, Integer bookAmount);
 
-  ResponseEntity<?> getRequestsByCount();
-
-  ResponseEntity<?> getRequestsByPrice();
+  ResponseEntity<?> getRequests(RequestSort requestSort);
 
   ResponseEntity<?> getAllRequests();
 

@@ -121,6 +121,9 @@ public class BookDaoImpl extends HibernateAbstractDao<Book> implements BookDao {
           .createQuery("FROM Book WHERE id IN (:bookIds)", Book.class)
           .setParameterList("bookIds", bookIds)
           .list();
+      if (books.size() != bookIds.size()) {
+        throw new IllegalArgumentException("В списке есть несуществующие книги: " + bookIds);
+      }
       log.debug("Успешно получено {} книг [{}]", books.size(), bookIds);
       return books;
     } catch (Exception e) {

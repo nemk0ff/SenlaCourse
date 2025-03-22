@@ -1,6 +1,8 @@
 package ru.bookstore.controllers;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
+import ru.bookstore.sorting.BookSort;
 
 public interface BooksController {
   ResponseEntity<?> addBook(Long id, Integer amount);
@@ -9,17 +11,9 @@ public interface BooksController {
 
   ResponseEntity<?> showBookDetails(Long id);
 
-  ResponseEntity<?> getBooksByName();
+  ResponseEntity<?> getBooks(BookSort bookSort);
 
-  ResponseEntity<?> getBooksByDate();
-
-  ResponseEntity<?> getBooksByPrice();
-
-  ResponseEntity<?> getBooksByAvailable();
-
-  ResponseEntity<?> getStaleBooksByDate();
-
-  ResponseEntity<?> getStaleBooksByPrice();
+  ResponseEntity<?> getStaleBooks(BookSort bookSort);
 
   ResponseEntity<?> importAll();
 
