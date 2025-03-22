@@ -2,7 +2,6 @@ package ru.bookstore.facade.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,9 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.bookstore.facade.BookFacade;
 import ru.bookstore.facade.OrderFacade;
-import ru.bookstore.model.OrderStatus;
 import ru.bookstore.model.impl.Book;
-import ru.bookstore.model.impl.Order;
 import ru.bookstore.service.BookService;
 import ru.bookstore.service.OrderService;
 import ru.bookstore.service.RequestService;
