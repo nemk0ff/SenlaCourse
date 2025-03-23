@@ -80,7 +80,7 @@ public class OrdersControllerImpl implements OrdersController {
         .toListDTO(orderFacade.getCompleted(orderSort, begin, end)));
   }
 
-  @GetMapping("getCountCompletedOrders")
+  @GetMapping("countCompletedOrders")
   @Override
   public ResponseEntity<?> getCountCompletedOrders(
       @RequestParam(value = "begin", required = false)
@@ -90,7 +90,7 @@ public class OrdersControllerImpl implements OrdersController {
     return ResponseEntity.ok(orderFacade.getCountCompletedOrders(begin, end));
   }
 
-  @GetMapping("getEarnedSum")
+  @GetMapping("earnedSum")
   @Override
   public ResponseEntity<?> getEarnedSum(
       @RequestParam(value = "begin", required = false)

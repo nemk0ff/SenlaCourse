@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.bookstore.dao.OrderDao;
 import ru.bookstore.exceptions.EntityNotFoundException;
 import ru.bookstore.model.OrderStatus;
@@ -19,74 +18,62 @@ import ru.bookstore.sorting.OrderSort;
 public class OrdersServiceImpl implements OrderService {
   private final OrderDao orderDao;
 
-  @Transactional
   @Override
   public Order addOrder(Order order) {
     return orderDao.addOrder(order);
   }
 
-  @Transactional(readOnly = true)
   @Override
   public Order getOrder(Long orderId) {
     return orderDao.findWithBooks(orderId).orElseThrow(()
         -> new EntityNotFoundException("Заказ [" + orderId + "] не найден"));
   }
 
-  @Transactional
   @Override
   public void updateOrder(Order order) {
     orderDao.update(order);
   }
 
-  @Transactional
   @Override
   public void setOrderStatus(Long orderId, OrderStatus orderStatus) {
     orderDao.setOrderStatus(orderId, orderStatus);
   }
 
-  @Transactional(readOnly = true)
   @Override
   public List<Order> getAllOrdersById() {
     return orderDao.getAllOrders(OrderSort.ID, null, null);
   }
 
-  @Transactional(readOnly = true)
   @Override
   public List<Order> getAllOrdersByDate() {
     return orderDao.getAllOrders(OrderSort.COMPLETE_DATE, null, null);
   }
 
-  @Transactional(readOnly = true)
   @Override
   public List<Order> getAllOrdersByPrice() {
     return orderDao.getAllOrders(OrderSort.PRICE, null, null);
   }
 
-  @Transactional(readOnly = true)
   @Override
   public List<Order> getAllOrdersByStatus() {
     return orderDao.getAllOrders(OrderSort.STATUS, null, null);
   }
 
-  @Transactional(readOnly = true)
   @Override
   public List<Order> getCompletedOrdersByDate(LocalDateTime begin, LocalDateTime end) {
     return orderDao.getAllOrders(OrderSort.COMPLETED_BY_DATE, begin, end);
   }
 
-  @Transactional(readOnly = true)
   @Override
   public List<Order> getCompletedOrdersByPrice(LocalDateTime begin, LocalDateTime end) {
     return orderDao.getAllOrders(OrderSort.COMPLETED_BY_PRICE, begin, end);
   }
 
-  @Transactional(readOnly = true)
   @Override
   public Double getEarnedSum(LocalDateTime begin, LocalDateTime end) {
     return orderDao.getEarnedSum(begin, end);
   }
 
-  @Transactional(readOnly = true)
   @Override
   public Long getCountCompletedOrders(LocalDateTime begin, LocalDateTime end) {
     return orderDao.getCountCompletedOrders(begin, end);
