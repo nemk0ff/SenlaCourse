@@ -2,7 +2,7 @@ package ru.bookstore.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.bookstore.dao.OrderDao;
@@ -13,7 +13,7 @@ import ru.bookstore.service.OrderService;
 import ru.bookstore.sorting.OrderSort;
 
 @Service
-@Data
+@RequiredArgsConstructor
 @Slf4j
 public class OrdersServiceImpl implements OrderService {
   private final OrderDao orderDao;

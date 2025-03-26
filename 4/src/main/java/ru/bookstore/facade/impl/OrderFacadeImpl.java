@@ -3,8 +3,9 @@ package ru.bookstore.facade.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.bookstore.exceptions.EntityNotFoundException;
@@ -18,9 +19,12 @@ import ru.bookstore.service.RequestService;
 import ru.bookstore.sorting.OrderSort;
 
 @Service
-@Data
+@RequiredArgsConstructor
 @Slf4j
 public class OrderFacadeImpl implements OrderFacade {
+  @Value("${mark.orders.completed}")
+  private boolean markOrdersCompleted;
+
   private final OrderService orderService;
   private final BookService bookService;
   private final RequestService requestService;
@@ -124,6 +128,16 @@ public class OrderFacadeImpl implements OrderFacade {
       requestService.addRequest(book, entry.getValue());
     }
     log.info("Созданы запросы для заказа [{}].", order);
+  }
+
+  @Transactional
+  @Override
+  public void updateOrders() {
+    if (markOrdersCompleted) {
+      log.info("Обновление всех заказов...");
+      getAll(OrderSort.ID).forEach(order -> updateOrder(order, LocalDateTime.now()));
+      log.info("Все заказы успено обновлены.");
+    }
   }
 
   @Transactional

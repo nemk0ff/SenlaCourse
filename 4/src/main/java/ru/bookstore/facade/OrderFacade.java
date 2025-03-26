@@ -26,5 +26,7 @@ public interface OrderFacade {
 
   void importOrder(Order order);
 
+  void updateOrders();
+
   void updateOrder(Order order, LocalDateTime updateDate);
 }

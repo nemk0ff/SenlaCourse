@@ -2,7 +2,7 @@ package ru.bookstore.facade.impl;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +14,7 @@ import ru.bookstore.service.RequestService;
 import ru.bookstore.sorting.RequestSort;
 
 @Service
-@Data
+@RequiredArgsConstructor
 @Slf4j
 public class RequestFacadeImpl implements RequestFacade {
   private final BookService bookService;

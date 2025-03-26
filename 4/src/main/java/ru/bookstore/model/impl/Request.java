@@ -11,12 +11,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.bookstore.model.Item;
 import ru.bookstore.model.RequestStatus;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -34,11 +36,6 @@ public class Request implements Item {
   @Enumerated(EnumType.STRING)
   @Column(name = "status", length = 10, nullable = false)
   private RequestStatus status;
-
-  @Override
-  public Long getId() {
-    return id;
-  }
 
   @Override
   public String toString() {

@@ -16,17 +16,15 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.bookstore.model.Item;
 import ru.bookstore.model.OrderStatus;
 
-/**
- * {@code Order} - Класс, представляющий заказ в магазине.  Реализует интерфейс {@link Item}.
- */
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
 @Entity
 @Table(name = "orders")
 public class Order implements Item {
@@ -34,6 +32,7 @@ public class Order implements Item {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "order_id")
   private Long id;
+  @Setter
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 10)
   private OrderStatus status;
@@ -42,6 +41,7 @@ public class Order implements Item {
   @Column(nullable = false)
   private LocalDateTime orderDate;
   @Column
+  @Setter
   private LocalDateTime completeDate;
   @Column(nullable = false)
   private String clientName;
@@ -62,17 +62,6 @@ public class Order implements Item {
     this.price = price;
   }
 
-  public Order(long id, OrderStatus status, double price, LocalDateTime orderDate,
-               LocalDateTime completeDate, String clientName, Map<Long, Integer> books) {
-    this.id = id;
-    this.clientName = clientName;
-    this.price = price;
-    this.status = status;
-    this.orderDate = orderDate;
-    this.completeDate = completeDate;
-    this.books = books;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -83,11 +72,6 @@ public class Order implements Item {
     }
     Order order = (Order) o;
     return Objects.equals(id, order.id);
-  }
-
-  @Override
-  public Long getId() {
-    return id;
   }
 
   @Override

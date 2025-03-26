@@ -2,24 +2,20 @@ package ru.bookstore.facade.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.bookstore.facade.BookFacade;
 import ru.bookstore.model.impl.Book;
 import ru.bookstore.service.BookService;
-import ru.bookstore.service.OrderService;
-import ru.bookstore.service.RequestService;
 import ru.bookstore.sorting.BookSort;
 
 @Service
-@Data
+@RequiredArgsConstructor
 @Slf4j
 public class BookFacadeImpl implements BookFacade {
   private final BookService bookService;
-  private final OrderService orderService;
-  private final RequestService requestService;
 
   @Transactional
   @Override

@@ -11,14 +11,15 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.bookstore.model.BookStatus;
 import ru.bookstore.model.Item;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 @Entity
 @Table(name = "library")
 public class Book implements Item {
@@ -36,8 +37,10 @@ public class Book implements Item {
   private Integer amount;
   @Column(nullable = false)
   private Double price;
+  @Setter
   @Column
   private LocalDateTime lastDeliveredDate;
+  @Setter
   @Column
   private LocalDateTime lastSaleDate;
   @Enumerated(EnumType.STRING)
@@ -67,11 +70,6 @@ public class Book implements Item {
   }
 
   @Override
-  public Long getId() {
-    return id;
-  }
-
-  @Override
   public int hashCode() {
     return Objects.hash(id);
   }
@@ -80,14 +78,5 @@ public class Book implements Item {
   public String toString() {
     return id + "," + name + "," + author + "," + publicationDate + "," + amount + "," + price
         + "," + lastDeliveredDate + "," + lastSaleDate + "," + status;
-  }
-
-  public static BookStatus getStatusFromString(String input, int amount) {
-    for (BookStatus status : BookStatus.values()) {
-      if (status.name().equalsIgnoreCase(input)) {
-        return status;
-      }
-    }
-    return amount > 0 ? BookStatus.AVAILABLE : BookStatus.NOT_AVAILABLE;
   }
 }

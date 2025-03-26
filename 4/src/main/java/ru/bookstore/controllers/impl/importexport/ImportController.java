@@ -11,9 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import ru.bookstore.exceptions.ImportException;
 import ru.bookstore.model.BookStatus;
 import ru.bookstore.model.Item;
@@ -25,10 +26,10 @@ import ru.bookstore.model.impl.Request;
 import ru.bookstore.service.BookService;
 
 @Controller
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class ImportController {
-  private BookService bookService;
+  private final BookService bookService;
 
   public static final DateTimeFormatter flexibleDateTimeFormatter = new DateTimeFormatterBuilder()
       .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
@@ -49,12 +50,13 @@ public class ImportController {
         ? null : LocalDateTime.parse(parts[6].trim(), flexibleDateTimeFormatter);
     LocalDateTime lastSaleDate = parts[7].trim().equals("null")
         ? null : LocalDateTime.parse(parts[7].trim(), flexibleDateTimeFormatter);
-    BookStatus status = Book.getStatusFromString(parts[8].trim(), amount);
+    BookStatus status = bookStatusFromString(parts[8].trim(), amount);
 
     return new Book(id, name, author, publicationYear,
         amount, price, lastDeliveredDate, lastSaleDate, status);
   }
 
+  @Transactional(readOnly = true)
   public Request requestParser(String[] parts) {
     if (parts.length != 4) {
       throw new ImportException("Неверное количество частей в строке: " + parts.length);
@@ -125,5 +127,14 @@ public class ImportController {
     }
     log.info("Выполнен импорт данных из файла: {}.", importPath);
     return items;
+  }
+
+  private static BookStatus bookStatusFromString(String input, int amount) {
+    for (BookStatus status : BookStatus.values()) {
+      if (status.name().equalsIgnoreCase(input)) {
+        return status;
+      }
+    }
+    return amount > 0 ? BookStatus.AVAILABLE : BookStatus.NOT_AVAILABLE;
   }
 }

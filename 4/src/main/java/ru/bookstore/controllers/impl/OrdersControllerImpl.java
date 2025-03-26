@@ -3,6 +3,7 @@ package ru.bookstore.controllers.impl;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.bookstore.constants.FileConstants;
 import ru.bookstore.controllers.OrdersController;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.bookstore.controllers.impl.importexport.ExportController;
 import ru.bookstore.controllers.impl.importexport.ImportController;
@@ -27,7 +27,7 @@ import ru.bookstore.model.impl.Order;
 import ru.bookstore.sorting.OrderSort;
 
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/orders")
 public class OrdersControllerImpl implements OrdersController {
