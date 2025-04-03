@@ -41,3 +41,10 @@ CREATE TABLE ordered_books (
     FOREIGN KEY (order_id) REFERENCES orders(order_id)
 );
 
+CREATE TABLE users (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('ADMIN', 'USER') NOT NULL
+);
+

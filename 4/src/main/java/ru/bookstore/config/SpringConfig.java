@@ -17,7 +17,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@ComponentScan("ru")
+@ComponentScan("ru.bookstore")
 @EnableWebMvc
 @PropertySource("classpath:config.properties")
 @EnableTransactionManagement
