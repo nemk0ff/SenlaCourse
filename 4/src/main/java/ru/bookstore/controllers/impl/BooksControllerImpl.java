@@ -33,7 +33,7 @@ public class BooksControllerImpl implements BooksController {
   private final BookFacade bookFacade;
   private final OrderFacade orderFacade;
 
-  @GetMapping("{id}")
+  @GetMapping("/{id}")
   @Override
   public ResponseEntity<?> showBookDetails(@PathVariable("id") Long id) {
     return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(bookFacade.get(id)));

@@ -6,9 +6,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +26,7 @@ import ru.bookstore.dto.mappers.OrderMapper;
 import ru.bookstore.facade.OrderFacade;
 import ru.bookstore.model.OrderStatus;
 import ru.bookstore.model.impl.Order;
+import ru.bookstore.security.SecurityAccessUtils;
 import ru.bookstore.sorting.OrderSort;
 
 @Slf4j
@@ -40,7 +39,7 @@ public class OrdersControllerImpl implements OrdersController {
   @PostMapping
   @Override
   public ResponseEntity<?> createOrder(@RequestBody @Valid OrderDTO orderDTO) {
-    checkAccessDeniedException(SecurityContextHolder.getContext().getAuthentication(),
+    SecurityAccessUtils.checkAccessDenied(SecurityContextHolder.getContext().getAuthentication(),
         "Вы можете создать заказ только на своё имя", orderDTO.getClientName());
     return ResponseEntity.ok(OrderMapper.INSTANCE
         .toDTO(orderFacade.createOrder(orderDTO.getBooks(),
@@ -51,7 +50,7 @@ public class OrdersControllerImpl implements OrdersController {
   @PostMapping(value = "cancelOrder/{id}")
   @Override
   public ResponseEntity<?> cancelOrder(@PathVariable("id") Long id) {
-    checkAccessDeniedException(SecurityContextHolder.getContext().getAuthentication(),
+    SecurityAccessUtils.checkAccessDenied(SecurityContextHolder.getContext().getAuthentication(),
         "Вы не можете отменить чужой заказ", orderFacade.get(id).getClientName());
 
     orderFacade.cancelOrder(id);
@@ -61,19 +60,10 @@ public class OrdersControllerImpl implements OrdersController {
   @GetMapping("{id}")
   @Override
   public ResponseEntity<?> showOrderDetails(@PathVariable("id") Long id) {
-    checkAccessDeniedException(SecurityContextHolder.getContext().getAuthentication(),
+    SecurityAccessUtils.checkAccessDenied(SecurityContextHolder.getContext().getAuthentication(),
         "Вы не можете увидеть детали чужого заказа", orderFacade.get(id).getClientName());
 
     return ResponseEntity.ok(OrderMapper.INSTANCE.toDTO(orderFacade.get(id)));
-  }
-
-  private void checkAccessDeniedException(Authentication authentication, String message,
-                                          String requiredClient) {
-    if (authentication.getAuthorities().stream()
-        .noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))
-        && !requiredClient.equals(authentication.getName())) {
-      throw new AccessDeniedException(message);
-    }
   }
 
   @PostMapping("/setOrderStatus")

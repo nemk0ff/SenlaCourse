@@ -21,7 +21,6 @@ public class UserDaoImpl extends HibernateAbstractDao<User> implements UserDao {
 
   @Override
   public Optional<User> findByUsername(String username) {
-    log.debug("Поиск пользователя по username: {}", username);
     try {
       return Optional.ofNullable(
           sessionFactory.getCurrentSession()

@@ -40,9 +40,4 @@ public class SecurityConfig {
   public JwtAuthFilter jwtAuthFilter() {
     return new JwtAuthFilter(userDetailsService);
   }
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
 }

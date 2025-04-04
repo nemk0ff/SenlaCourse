@@ -31,8 +31,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     try {
       String token = null;
       String header = request.getHeader("Authorization");
-      if (header != null && header.startsWith("Bearer")) {
+      log.debug("Заголовок: Authorization: {}", header);
+      if (header != null && header.startsWith("Bearer ")) {
         token = header.substring(7);
+        log.debug("Токен, полученный из Authorization token: {}", token);
       }
       if (token != null && JwtUtils.validateToken(token)) {
         String username = JwtUtils.getUsernameFromToken(token);
