@@ -1,5 +1,6 @@
 package ru.bookstore.controllers;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import java.time.Instant;
@@ -12,6 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -129,5 +134,40 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     log.error(ex.getMessage(), ex);
 
     return errorResponse;
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  protected ResponseEntity<ProblemDetail> handleAccessDeniedException(
+      AccessDeniedException ex, WebRequest request) {
+
+    log.warn("Доступ запрещен: {}", ex.getMessage());
+
+    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+        HttpStatus.FORBIDDEN, "Недостаточно прав для выполнения операции: " + ex.getMessage());
+    problemDetail.setTitle("Доступ запрещен");
+    problemDetail.setProperty("timestamp", Instant.now());
+    problemDetail.setProperty("path", ((ServletWebRequest) request).getRequest().getRequestURI());
+
+    return new ResponseEntity<>(problemDetail, HttpStatus.FORBIDDEN);
+  }
+
+  @ExceptionHandler({
+      JwtException.class,
+      AuthenticationException.class,
+      BadCredentialsException.class,
+      InsufficientAuthenticationException.class
+  })
+  protected ResponseEntity<ProblemDetail> handleAuthenticationException(
+      RuntimeException ex, WebRequest request) {
+
+    log.warn("Ошибка аутентификации: {}", ex.getMessage());
+
+    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+        HttpStatus.UNAUTHORIZED, "Требуется авторизация: " + ex.getMessage());
+    problemDetail.setTitle("Ошибка аутентификации");
+    problemDetail.setProperty("timestamp", Instant.now());
+    problemDetail.setProperty("path", ((ServletWebRequest) request).getRequest().getRequestURI());
+
+    return new ResponseEntity<>(problemDetail, HttpStatus.UNAUTHORIZED);
   }
 }
