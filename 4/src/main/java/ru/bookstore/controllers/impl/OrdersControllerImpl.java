@@ -67,7 +67,7 @@ public class OrdersControllerImpl implements OrdersController {
   }
 
   @PostMapping("/setOrderStatus")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> setOrderStatus(@RequestParam("id") Long id,
                                           @RequestParam("status") OrderStatus newStatus) {
@@ -76,14 +76,14 @@ public class OrdersControllerImpl implements OrdersController {
   }
 
   @GetMapping
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> getOrders(@RequestParam("sort") OrderSort orderSort) {
     return ResponseEntity.ok(OrderMapper.INSTANCE.toListDTO(orderFacade.getAll(orderSort)));
   }
 
   @GetMapping("completed")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> getCompleted(
       @RequestParam("sort") OrderSort orderSort,
@@ -96,7 +96,7 @@ public class OrdersControllerImpl implements OrdersController {
   }
 
   @GetMapping("/countCompletedOrders")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> getCountCompletedOrders(
       @RequestParam(value = "begin", required = false)
@@ -107,7 +107,7 @@ public class OrdersControllerImpl implements OrdersController {
   }
 
   @GetMapping("/earnedSum")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> getEarnedSum(
       @RequestParam(value = "begin", required = false)
@@ -118,7 +118,7 @@ public class OrdersControllerImpl implements OrdersController {
   }
 
   @PutMapping("/import")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> importAll() {
     List<Order> importedOrders = ImportController.importAllItemsFromFile(
@@ -128,7 +128,7 @@ public class OrdersControllerImpl implements OrdersController {
   }
 
   @PutMapping("/export")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> exportAll() {
     List<Order> exportOrders = orderFacade.getAll(OrderSort.ID);
@@ -138,7 +138,7 @@ public class OrdersControllerImpl implements OrdersController {
   }
 
   @PutMapping("/import/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> importOrder(@PathVariable("id") Long id) {
     Order findOrder = ImportController.findItemInFile(id, FileConstants.IMPORT_ORDER_PATH,
@@ -148,7 +148,7 @@ public class OrdersControllerImpl implements OrdersController {
   }
 
   @PutMapping("/export/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> exportOrder(@PathVariable("id") Long id) {
     Order exportOrder = orderFacade.get(id);

@@ -40,7 +40,7 @@ public class BooksControllerImpl implements BooksController {
   }
 
   @PatchMapping("/add")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> addBook(@RequestParam("id") Long id,
                                    @RequestParam("amount") Integer amount) {
@@ -49,8 +49,8 @@ public class BooksControllerImpl implements BooksController {
     return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(book));
   }
 
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
   @PatchMapping("/writeOff")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> writeOff(@RequestParam("id") Long id,
                                     @RequestParam("amount") Integer amount) {
@@ -66,7 +66,7 @@ public class BooksControllerImpl implements BooksController {
   }
 
   @GetMapping("/stale")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> getStaleBooks(@RequestParam("sort") BookSort bookSort) {
     return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(bookFacade.getStale(bookSort)));
@@ -74,7 +74,7 @@ public class BooksControllerImpl implements BooksController {
 
 
   @PutMapping("/import")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> importAll() {
     List<Book> importedBooks = ImportController.importAllItemsFromFile(
@@ -85,7 +85,7 @@ public class BooksControllerImpl implements BooksController {
   }
 
   @PutMapping("/export")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> exportAll() {
     List<Book> exportBooks = bookFacade.getAll(BookSort.ID);
@@ -95,7 +95,7 @@ public class BooksControllerImpl implements BooksController {
   }
 
   @PutMapping("/import/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> importBook(@PathVariable("id") Long id) {
     Book findBook = ImportController.findItemInFile(id, FileConstants.IMPORT_BOOK_PATH,
@@ -106,7 +106,7 @@ public class BooksControllerImpl implements BooksController {
   }
 
   @PutMapping("/export/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> exportBook(@PathVariable("id") Long id) {
     Book exportBook = bookFacade.get(id);

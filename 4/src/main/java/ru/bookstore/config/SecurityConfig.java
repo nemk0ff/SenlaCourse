@@ -17,7 +17,7 @@ import ru.bookstore.security.JwtAuthFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(proxyTargetClass = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
   private final UserDetailsService userDetailsService;
