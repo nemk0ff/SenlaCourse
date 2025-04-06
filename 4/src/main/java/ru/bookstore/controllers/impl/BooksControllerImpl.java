@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -32,13 +33,14 @@ public class BooksControllerImpl implements BooksController {
   private final BookFacade bookFacade;
   private final OrderFacade orderFacade;
 
-  @GetMapping("{id}")
+  @GetMapping("/{id}")
   @Override
   public ResponseEntity<?> showBookDetails(@PathVariable("id") Long id) {
     return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(bookFacade.get(id)));
   }
 
-  @PatchMapping("add")
+  @PatchMapping("/add")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> addBook(@RequestParam("id") Long id,
                                    @RequestParam("amount") Integer amount) {
@@ -47,7 +49,8 @@ public class BooksControllerImpl implements BooksController {
     return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(book));
   }
 
-  @PatchMapping("writeOff")
+  @PatchMapping("/writeOff")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> writeOff(@RequestParam("id") Long id,
                                     @RequestParam("amount") Integer amount) {
@@ -62,13 +65,16 @@ public class BooksControllerImpl implements BooksController {
     return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(bookFacade.getAll(bookSort)));
   }
 
-  @GetMapping("stale")
+  @GetMapping("/stale")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> getStaleBooks(@RequestParam("sort") BookSort bookSort) {
     return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(bookFacade.getStale(bookSort)));
   }
 
-  @PutMapping("import")
+
+  @PutMapping("/import")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> importAll() {
     List<Book> importedBooks = ImportController.importAllItemsFromFile(
@@ -78,7 +84,8 @@ public class BooksControllerImpl implements BooksController {
     return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(importedBooks));
   }
 
-  @PutMapping("export")
+  @PutMapping("/export")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> exportAll() {
     List<Book> exportBooks = bookFacade.getAll(BookSort.ID);
@@ -87,7 +94,8 @@ public class BooksControllerImpl implements BooksController {
     return ResponseEntity.ok(BookMapper.INSTANCE.toListDTO(exportBooks));
   }
 
-  @PutMapping("import/{id}")
+  @PutMapping("/import/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> importBook(@PathVariable("id") Long id) {
     Book findBook = ImportController.findItemInFile(id, FileConstants.IMPORT_BOOK_PATH,
@@ -97,7 +105,8 @@ public class BooksControllerImpl implements BooksController {
     return ResponseEntity.ok(BookMapper.INSTANCE.toDTO(findBook));
   }
 
-  @PutMapping("export/{id}")
+  @PutMapping("/export/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
   @Override
   public ResponseEntity<?> exportBook(@PathVariable("id") Long id) {
     Book exportBook = bookFacade.get(id);
