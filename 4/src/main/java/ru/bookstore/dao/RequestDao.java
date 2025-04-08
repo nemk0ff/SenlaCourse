@@ -17,7 +17,7 @@ public interface RequestDao extends GenericDao<Request> {
 
   long addRequest(Book book, int amount) throws IllegalArgumentException;
 
-  void importRequest(Request request) throws IllegalArgumentException;
+  Request importRequest(Request request) throws IllegalArgumentException;
 
   void closeRequests(Map<Long, Integer> book);
 }

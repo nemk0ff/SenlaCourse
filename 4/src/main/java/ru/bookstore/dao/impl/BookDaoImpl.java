@@ -34,7 +34,7 @@ public class BookDaoImpl extends HibernateAbstractDao<Book> implements BookDao {
   }
 
   @Override
-  public void add(long bookId, int amount, LocalDateTime deliveredDate) {
+  public Book add(long bookId, int amount, LocalDateTime deliveredDate) {
     log.debug("Добавляем {} книг [{}]...", amount, bookId);
     if (amount < 0) {
       throw new IllegalArgumentException("Количество добавленных книг должно быть положительным");
@@ -47,15 +47,16 @@ public class BookDaoImpl extends HibernateAbstractDao<Book> implements BookDao {
       book.setAmount(book.getAmount() + amount);
       book.setLastDeliveredDate(deliveredDate);
 
-      sessionFactory.getCurrentSession().merge(book);
+      book = sessionFactory.getCurrentSession().merge(book);
       log.info("Успешно добавлено {} книг [{}], дата поставки: {}", amount, bookId, deliveredDate);
+      return book;
     } catch (Exception e) {
       throw new DataAccessException("Не удалось добавить книги [" + bookId + "]: " + e.getMessage(), e);
     }
   }
 
   @Override
-  public void writeOff(long bookId, int amount, LocalDateTime saleDate)
+  public Book writeOff(long bookId, int amount, LocalDateTime saleDate)
       throws IllegalArgumentException {
     log.info("Списываем {} книг [{}]...", amount, bookId);
     if (amount <= 0) {
@@ -72,8 +73,9 @@ public class BookDaoImpl extends HibernateAbstractDao<Book> implements BookDao {
       book.setAmount(book.getAmount() - amount);
       book.setLastSaleDate(saleDate);
 
-      sessionFactory.getCurrentSession().merge(book);
+      book = sessionFactory.getCurrentSession().merge(book);
       log.info("Списано {} книг [{}], дата продажи: {}", amount, bookId, saleDate);
+      return book;
     } catch (Exception e) {
       throw new DataAccessException("Не удалось списать книги [" + bookId + "]: " + e.getMessage(), e);
     }

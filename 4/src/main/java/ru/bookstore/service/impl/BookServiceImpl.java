@@ -24,13 +24,13 @@ public class BookServiceImpl implements BookService {
   }
 
   @Override
-  public void add(Long id, Integer amount, LocalDateTime addTime) {
-    bookDao.add(id, amount, addTime);
+  public Book add(Long id, Integer amount, LocalDateTime addTime) {
+    return bookDao.add(id, amount, addTime);
   }
 
   @Override
-  public void writeOff(Long id, Integer amount, LocalDateTime addTime) {
-    bookDao.writeOff(id, amount, addTime);
+  public Book writeOff(Long id, Integer amount, LocalDateTime addTime) {
+    return bookDao.writeOff(id, amount, addTime);
   }
 
   @Override

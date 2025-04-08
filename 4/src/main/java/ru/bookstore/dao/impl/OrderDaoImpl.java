@@ -24,7 +24,7 @@ public class OrderDaoImpl extends HibernateAbstractDao<Order> implements OrderDa
   }
 
   @Override
-  public void setOrderStatus(long orderId, OrderStatus status) {
+  public Order setOrderStatus(long orderId, OrderStatus status) {
     log.debug("Устанавливаем статус {} для заказа [{}]...", status, orderId);
 
     Optional<Order> orderOptional = find(orderId);
@@ -37,6 +37,7 @@ public class OrderDaoImpl extends HibernateAbstractDao<Order> implements OrderDa
 
     update(order);
     log.debug("Статус {} успешно установлен для заказа [{}]", status, orderId);
+    return order;
   }
 
   @Override

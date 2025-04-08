@@ -10,9 +10,9 @@ public interface OrderService {
 
   Order addOrder(Order order);
 
-  void updateOrder(Order order);
+  Order updateOrder(Order order);
 
-  void setOrderStatus(Long orderId, OrderStatus orderStatus);
+  Order setOrderStatus(Long orderId, OrderStatus orderStatus);
 
   List<Order> getAllOrdersById();
 

@@ -15,5 +15,5 @@ public interface RequestFacade {
 
   List<Request> getAllRequests();
 
-  void importRequest(Request request);
+  Request importRequest(Request request);
 }

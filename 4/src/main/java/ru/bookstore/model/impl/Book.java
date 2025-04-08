@@ -19,6 +19,7 @@ import ru.bookstore.model.Item;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Setter
 @Getter
 @Entity
 @Table(name = "library")

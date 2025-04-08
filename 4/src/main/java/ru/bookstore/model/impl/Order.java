@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,8 @@ import ru.bookstore.model.OrderStatus;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Setter
+@Data
 @Getter
 @Entity
 @Table(name = "orders")
@@ -61,6 +64,7 @@ public class Order implements Item {
     this.clientName = clientName;
     this.price = price;
   }
+
 
   @Override
   public boolean equals(Object o) {

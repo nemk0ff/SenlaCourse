@@ -12,21 +12,19 @@ public interface OrderFacade {
 
   List<Order> getAll(OrderSort orderSort);
 
-  void setOrderStatus(Long id, OrderStatus orderStatus);
+  Order setOrderStatus(Long id, OrderStatus orderStatus);
 
   List<Order> getCompleted(OrderSort orderSort, LocalDateTime begin, LocalDateTime end);
 
   Order createOrder(Map<Long, Integer> booksIds, String clientName, LocalDateTime createDate);
 
-  void cancelOrder(long orderId);
+  Order cancelOrder(long orderId);
 
   Double getEarnedSum(LocalDateTime begin, LocalDateTime end);
 
   Long getCountCompletedOrders(LocalDateTime begin, LocalDateTime end);
 
-  void importOrder(Order order);
+  Order importOrder(Order order);
 
   void updateOrders();
-
-  void updateOrder(Order order, LocalDateTime updateDate);
 }
