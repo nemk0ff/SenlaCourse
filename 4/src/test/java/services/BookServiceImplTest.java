@@ -78,12 +78,9 @@ class BookServiceImplTest {
 
     @Test
     void add_whenNegativeAmount_thenThrowException() {
-      when(bookDao.add(TEST_BOOK_ID, -1, TEST_DATE_TIME))
-          .thenThrow(new IllegalArgumentException("Попытка добавить неположительное количество"));
-
       assertThatThrownBy(() -> bookService.add(TEST_BOOK_ID, -1, TEST_DATE_TIME))
           .isInstanceOf(IllegalArgumentException.class)
-          .hasMessageContaining("Попытка добавить неположительное количество");
+          .hasMessageContaining("Количество добавленных книг должно быть положительным");
     }
   }
 
@@ -102,12 +99,9 @@ class BookServiceImplTest {
 
     @Test
     void writeOff_whenNegativeAmount_thenPropagateDaoException() {
-      when(bookDao.writeOff(TEST_BOOK_ID, -1, TEST_DATE_TIME))
-          .thenThrow(new IllegalArgumentException("Попытка списать неположительное количество"));
-
       assertThatThrownBy(() -> bookService.writeOff(TEST_BOOK_ID, -1, TEST_DATE_TIME))
           .isInstanceOf(IllegalArgumentException.class)
-          .hasMessageContaining("Попытка списать неположительное количество");
+          .hasMessageContaining("Количество списываемых книг должно быть положительным");
     }
   }
 

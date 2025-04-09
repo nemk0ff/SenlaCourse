@@ -25,11 +25,17 @@ public class BookServiceImpl implements BookService {
 
   @Override
   public Book add(Long id, Integer amount, LocalDateTime addTime) {
+    if (amount < 0) {
+      throw new IllegalArgumentException("Количество добавленных книг должно быть положительным");
+    }
     return bookDao.add(id, amount, addTime);
   }
 
   @Override
   public Book writeOff(Long id, Integer amount, LocalDateTime addTime) {
+    if (amount <= 0) {
+      throw new IllegalArgumentException("Количество списываемых книг должно быть положительным");
+    }
     return bookDao.writeOff(id, amount, addTime);
   }
 

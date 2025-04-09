@@ -36,9 +36,6 @@ public class BookDaoImpl extends HibernateAbstractDao<Book> implements BookDao {
   @Override
   public Book add(long bookId, int amount, LocalDateTime deliveredDate) {
     log.debug("Добавляем {} книг [{}]...", amount, bookId);
-    if (amount < 0) {
-      throw new IllegalArgumentException("Количество добавленных книг должно быть положительным");
-    }
     try {
       Book book = sessionFactory.getCurrentSession().get(Book.class, bookId);
       if (book == null) {
@@ -59,9 +56,6 @@ public class BookDaoImpl extends HibernateAbstractDao<Book> implements BookDao {
   public Book writeOff(long bookId, int amount, LocalDateTime saleDate)
       throws IllegalArgumentException {
     log.info("Списываем {} книг [{}]...", amount, bookId);
-    if (amount <= 0) {
-      throw new IllegalArgumentException("Попытка списать неположительное количество (" + amount + ") книг [" + bookId + "]");
-    }
     try {
       Book book = sessionFactory.getCurrentSession().get(Book.class, bookId);
       if (book == null) {
