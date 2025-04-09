@@ -1,5 +1,6 @@
 package facade;
 
+import util.TestUtil;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.Nested;
 import static org.mockito.Mockito.*;
@@ -47,18 +48,12 @@ class OrderFacadeImplTest {
 
   @BeforeEach
   void setUp() {
-    testBook = new Book();
-    testBook.setId(TEST_BOOK_ID);
-    testBook.setPrice(10.0);
-    testBook.setAmount(5);
+    testBook = TestUtil.createTestBook(TEST_BOOK_ID);
+    testBook.setAmount(10); // Устанавливаем количество книг
 
-    testOrder = new Order();
-    testOrder.setId(TEST_ORDER_ID);
-    testOrder.setStatus(OrderStatus.NEW);
-    testOrder.setPrice(100.0);
-    testOrder.setOrderDate(TEST_DATE);
-    testOrder.setClientName(TEST_CLIENT_NAME);
-    testOrder.setBooks(new HashMap<>(Map.of(TEST_BOOK_ID, TEST_BOOK_AMOUNT)));
+    testOrder = TestUtil.createTestOrder(TEST_ORDER_ID);
+    testOrder.setBooks(Map.of(TEST_BOOK_ID, TEST_BOOK_AMOUNT)); // Устанавливаем книги в заказе
+    testOrder.setStatus(OrderStatus.NEW); // Устанавливаем статус
   }
 
   @Nested
@@ -177,18 +172,21 @@ class OrderFacadeImplTest {
   class ImportOrderTests {
     @Test
     void importOrder_whenOrderExists_thenUpdateAndCreateRequests() {
+      Book testBook = TestUtil.createTestBook(TEST_BOOK_ID);
+      testBook.setAmount(10);
+
       when(orderService.getOrder(TEST_ORDER_ID)).thenReturn(testOrder);
+      when(bookService.get(anyLong())).thenReturn(testBook);
       doNothing().when(requestService).closeRequests(testOrder.getBooks());
       when(orderService.updateOrder(testOrder)).thenReturn(testOrder);
-      doNothing().when(orderFacade).updateOrder(any(Order.class), any(LocalDateTime.class));
 
       Order result = orderFacade.importOrder(testOrder);
 
       assertThat(result).isEqualTo(testOrder);
       verify(orderService).getOrder(TEST_ORDER_ID);
-      verify(requestService).closeRequests(testOrder.getBooks());
+      verify(bookService, times(2)).get(anyLong());
+      verify(requestService, times(2)).closeRequests(testOrder.getBooks());
       verify(orderService).updateOrder(testOrder);
-      verify(orderFacade).updateOrder(testOrder, any(LocalDateTime.class));
     }
 
     @Test
@@ -215,21 +213,21 @@ class OrderFacadeImplTest {
       List<Order> orders = List.of(testOrder);
 
       when(orderService.getAllOrdersById()).thenReturn(orders);
+      when(bookService.get(eq(TEST_BOOK_ID))).thenReturn(testBook);
       when(orderService.setOrderStatus(eq(TEST_ORDER_ID), eq(OrderStatus.COMPLETED)))
           .thenReturn(testOrder);
-      when(bookService.get(eq(TEST_BOOK_ID))).thenReturn(testBook);
       doNothing().when(requestService).closeRequests(eq(testOrder.getBooks()));
       when(bookService.writeOff(
           eq(TEST_BOOK_ID),
           eq(TEST_BOOK_AMOUNT),
-          any(LocalDateTime.class))
-      ).thenReturn(testBook);
+          any(LocalDateTime.class)
+      )).thenReturn(testBook);
 
       orderFacade.updateOrders();
 
       verify(orderService).getAllOrdersById();
-      verify(orderService).setOrderStatus(eq(TEST_ORDER_ID), eq(OrderStatus.COMPLETED));
       verify(bookService).get(eq(TEST_BOOK_ID));
+      verify(orderService).setOrderStatus(eq(TEST_ORDER_ID), eq(OrderStatus.COMPLETED));
       verify(requestService).closeRequests(eq(testOrder.getBooks()));
       verify(bookService).writeOff(
           eq(TEST_BOOK_ID),

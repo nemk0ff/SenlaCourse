@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ import ru.bookstore.model.Item;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Setter
 @Getter
 @Entity

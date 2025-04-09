@@ -1,9 +1,7 @@
 package services;
 
-import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Nested;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -27,6 +25,7 @@ import ru.bookstore.model.OrderStatus;
 import ru.bookstore.model.impl.Order;
 import ru.bookstore.service.impl.OrderServiceImpl;
 import ru.bookstore.sorting.OrderSort;
+import util.TestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceImplTest {
@@ -37,14 +36,7 @@ class OrderServiceImplTest {
   @InjectMocks
   private OrderServiceImpl orderService;
 
-  private final LocalDateTime testOrderDate =
-      LocalDateTime.of(2024, 1, 1, 12, 0);
-  private final LocalDateTime testCompleteDate =
-      LocalDateTime.of(2024, 1, 2, 12, 0);
-  private final Map<Long, Integer> testBooks = Map.of(1L, 2);
-  private final Order testOrder =
-      new Order(1L, OrderStatus.NEW, 100.0, testOrderDate,
-          testCompleteDate, "Test Client", testBooks);
+  private final Order testOrder = TestUtil.createTestOrder(1L);
   private final LocalDateTime testBegin = LocalDateTime.of(2024, 1, 1, 0, 0);
   private final LocalDateTime testEnd = LocalDateTime.of(2024, 12, 31, 23, 59);
 
