@@ -2,6 +2,8 @@ package controllers;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -33,6 +36,10 @@ import ru.bookstore.config.SpringConfig;
 import ru.bookstore.config.TestConfig;
 import ru.bookstore.controllers.impl.importexport.ExportController;
 import ru.bookstore.controllers.impl.importexport.ImportController;
+import ru.bookstore.dto.BookDTO;
+import ru.bookstore.dto.RequestDTO;
+import ru.bookstore.dto.mappers.BookMapper;
+import ru.bookstore.dto.mappers.RequestMapper;
 import ru.bookstore.facade.RequestFacade;
 import ru.bookstore.model.impl.Book;
 import ru.bookstore.model.impl.Request;
@@ -71,6 +78,7 @@ class RequestsControllerImplTest {
     @Test
     void whenAdminCreatesRequest_ShouldAllowAccess() throws Exception {
       Request mockRequest = TestUtil.createTestRequest(1L);
+      RequestDTO expectedRequest = RequestMapper.INSTANCE.toDTO(mockRequest);
       when(requestFacade.add(anyLong(), anyInt())).thenReturn(1L);
       when(requestFacade.get(1L)).thenReturn(mockRequest);
 
@@ -78,7 +86,8 @@ class RequestsControllerImplTest {
               .param("bookId", "1")
               .param("amount", "5")
               .with(user("admin").roles("ADMIN")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedRequest)));
     }
 
     @Test
@@ -97,13 +106,24 @@ class RequestsControllerImplTest {
     void whenAdminGetsRequests_ShouldAllowAccess() throws Exception {
       LinkedHashMap<Book, Long> requestsMap = new LinkedHashMap<>();
       requestsMap.put(TestUtil.createTestBook(1L), 2L);
+      LinkedHashMap<BookDTO, Long> expectedMap = new LinkedHashMap<>();
+      expectedMap.put(BookMapper.INSTANCE.toDTO(TestUtil.createTestBook(1L)), 2L);
 
       when(requestFacade.getRequests(any(RequestSort.class))).thenReturn(requestsMap);
 
       mockMvc.perform(get("/requests")
               .param("sort", "ID")
               .with(user("admin").roles("ADMIN")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(
+              requestsMap.entrySet().stream()
+                  .collect(Collectors.toMap(
+                      e -> BookMapper.INSTANCE.toDTO(e.getKey()),
+                      Map.Entry::getValue,
+                      (e1, e2) -> e1,
+                      LinkedHashMap::new
+                  ))
+          )));
     }
 
     @Test
@@ -119,14 +139,18 @@ class RequestsControllerImplTest {
   class GetAllRequestsTests {
     @Test
     void whenAdminGetsAllRequests_ShouldAllowAccess() throws Exception {
-      when(requestFacade.getAllRequests()).thenReturn(List.of(
+      List<Request> mockRequests = List.of(
           TestUtil.createTestRequest(1L),
           TestUtil.createTestRequest(2L)
-      ));
+      );
+      List<RequestDTO> expectedList = RequestMapper.INSTANCE.toListDTO(mockRequests);
+
+      when(requestFacade.getAllRequests()).thenReturn(mockRequests);
 
       mockMvc.perform(get("/requests/getAll")
               .with(user("admin").roles("ADMIN")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedList)));
     }
 
     @Test
@@ -142,6 +166,7 @@ class RequestsControllerImplTest {
     @Test
     void whenAdminImportsRequest_ShouldAllowAccess() throws Exception {
       Request mockRequest = TestUtil.createTestRequest(1L);
+      RequestDTO expectedDto = RequestMapper.INSTANCE.toDTO(mockRequest);
 
       try (MockedStatic<ImportController> importMock = Mockito.mockStatic(ImportController.class)) {
         importMock.when(() -> ImportController.findItemInFile(eq(1L), anyString(), any()))
@@ -151,13 +176,15 @@ class RequestsControllerImplTest {
 
         mockMvc.perform(put("/requests/import/1")
                 .with(user("admin").roles("ADMIN")))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedDto)));
       }
     }
 
     @Test
     void whenAdminExportsRequest_ShouldAllowAccess() throws Exception {
       Request mockRequest = TestUtil.createTestRequest(1L);
+      RequestDTO expectedDto = RequestMapper.INSTANCE.toDTO(mockRequest);
 
       try (MockedStatic<ExportController> exportMock = Mockito.mockStatic(ExportController.class)) {
         when(requestFacade.get(1L)).thenReturn(mockRequest);
@@ -166,13 +193,15 @@ class RequestsControllerImplTest {
 
         mockMvc.perform(put("/requests/export/1")
                 .with(user("admin").roles("ADMIN")))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedDto)));
       }
     }
 
     @Test
     void whenAdminImportsAllRequests_ShouldAllowAccess() throws Exception {
       List<Request> mockRequests = List.of(TestUtil.createTestRequest(1L));
+      List<RequestDTO> expectedList = RequestMapper.INSTANCE.toListDTO(mockRequests);
 
       try (MockedStatic<ImportController> importMock = Mockito.mockStatic(ImportController.class)) {
         importMock.when(() -> ImportController.importAllItemsFromFile(anyString(), any()))
@@ -182,13 +211,15 @@ class RequestsControllerImplTest {
 
         mockMvc.perform(put("/requests/import")
                 .with(user("admin").roles("ADMIN")))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedList)));
       }
     }
 
     @Test
     void whenAdminExportsAllRequests_ShouldAllowAccess() throws Exception {
       List<Request> mockRequests = List.of(TestUtil.createTestRequest(1L));
+      List<RequestDTO> expectedList = RequestMapper.INSTANCE.toListDTO(mockRequests);
 
       try (MockedStatic<ExportController> exportMock = Mockito.mockStatic(ExportController.class)) {
         when(requestFacade.getAllRequests()).thenReturn(mockRequests);
@@ -197,7 +228,8 @@ class RequestsControllerImplTest {
 
         mockMvc.perform(put("/requests/export")
                 .with(user("admin").roles("ADMIN")))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedList)));
       }
     }
   }

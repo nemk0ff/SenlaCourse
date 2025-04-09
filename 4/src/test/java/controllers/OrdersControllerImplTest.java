@@ -1,7 +1,7 @@
 package controllers;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,6 +34,7 @@ import ru.bookstore.config.TestConfig;
 import ru.bookstore.controllers.impl.importexport.ExportController;
 import ru.bookstore.controllers.impl.importexport.ImportController;
 import ru.bookstore.dto.OrderDTO;
+import ru.bookstore.dto.mappers.OrderMapper;
 import ru.bookstore.exceptions.EntityNotFoundException;
 import ru.bookstore.facade.OrderFacade;
 import ru.bookstore.model.OrderStatus;
@@ -80,7 +81,8 @@ class OrdersControllerImplTest {
               .contentType(MediaType.APPLICATION_JSON)
               .content(TestUtil.toJson(orderDTO))
               .with(user("test_client").roles("USER")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(orderDTO)));
     }
 
     @Test
@@ -112,13 +114,15 @@ class OrdersControllerImplTest {
     @Test
     void whenOrderExists_ShouldCancelOrder() throws Exception {
       Order mockOrder = TestUtil.createTestOrder(1L);
+      OrderDTO expectedDto = TestUtil.createTestOrderDTO(1L);
 
       when(orderFacade.get(1L)).thenReturn(mockOrder);
       when(orderFacade.cancelOrder(1L)).thenReturn(mockOrder);
 
       mockMvc.perform(post("/orders/cancelOrder/1")
               .with(user("test_client").roles("USER")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedDto)));
     }
 
     @Test
@@ -148,12 +152,14 @@ class OrdersControllerImplTest {
     @Test
     void whenOrderExists_ShouldReturnOrderDetails() throws Exception {
       Order mockOrder = TestUtil.createTestOrder(1L);
+      OrderDTO expectedDto = OrderMapper.INSTANCE.toDTO(mockOrder);
 
       when(orderFacade.get(1L)).thenReturn(mockOrder);
 
       mockMvc.perform(get("/orders/1")
               .with(user("test_client").roles("USER")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedDto)));
     }
 
     @Test
@@ -174,6 +180,7 @@ class OrdersControllerImplTest {
     @Test
     void whenAdminSetsStatus_ShouldAllowAccess() throws Exception {
       Order mockOrder = TestUtil.createTestOrder(1L);
+      OrderDTO expectedDto = OrderMapper.INSTANCE.toDTO(mockOrder);
 
       when(orderFacade.get(1L)).thenReturn(mockOrder);
       when(orderFacade.setOrderStatus(1L, OrderStatus.COMPLETED)).thenReturn(mockOrder);
@@ -182,7 +189,8 @@ class OrdersControllerImplTest {
               .param("id", "1")
               .param("status", "COMPLETED")
               .with(user("admin").roles("ADMIN")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedDto)));
     }
 
     @Test
@@ -196,12 +204,19 @@ class OrdersControllerImplTest {
 
     @Test
     void whenAdminGetsOrders_ShouldAllowAccess() throws Exception {
-      when(orderFacade.getAll(OrderSort.ID)).thenReturn(Collections.emptyList());
+      List<Order> mockOrders = List.of(
+          TestUtil.createTestOrder(1L),
+          TestUtil.createTestOrder(2L)
+      );
+      List<OrderDTO> expectedList = OrderMapper.INSTANCE.toListDTO(mockOrders);
+
+      when(orderFacade.getAll(OrderSort.ID)).thenReturn(mockOrders);
 
       mockMvc.perform(get("/orders")
               .param("sort", "ID")
               .with(user("admin").roles("ADMIN")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedList)));
     }
 
     @Test
@@ -218,6 +233,7 @@ class OrdersControllerImplTest {
     @Test
     void whenAdminImportsOrder_ShouldAllowAccess() throws Exception {
       Order mockOrder = TestUtil.createTestOrder(1L);
+      OrderDTO expectedDto = OrderMapper.INSTANCE.toDTO(mockOrder);
 
       try (MockedStatic<ImportController> importMock = Mockito.mockStatic(ImportController.class)) {
         importMock.when(() -> ImportController.findItemInFile(eq(1L), anyString(), any()))
@@ -227,13 +243,15 @@ class OrdersControllerImplTest {
 
         mockMvc.perform(put("/orders/import/1")
                 .with(user("admin").roles("ADMIN")))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedDto)));
       }
     }
 
     @Test
     void whenAdminExportsOrder_ShouldAllowAccess() throws Exception {
       Order mockOrder = TestUtil.createTestOrder(1L);
+      OrderDTO expectedDto = OrderMapper.INSTANCE.toDTO(mockOrder);
 
       try (MockedStatic<ExportController> exportMock = Mockito.mockStatic(ExportController.class)) {
         when(orderFacade.get(1L)).thenReturn(mockOrder);
@@ -242,7 +260,8 @@ class OrdersControllerImplTest {
 
         mockMvc.perform(put("/orders/export/1")
                 .with(user("admin").roles("ADMIN")))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedDto)));
       }
     }
   }
@@ -251,12 +270,19 @@ class OrdersControllerImplTest {
   class ReportsTests {
     @Test
     void whenAdminGetsCompletedOrders_ShouldAllowAccess() throws Exception {
-      when(orderFacade.getCompleted(any(), any(), any())).thenReturn(Collections.emptyList());
+      List<Order> mockOrders = List.of(
+          TestUtil.createTestOrder(1L),
+          TestUtil.createTestOrder(2L)
+      );
+      List<OrderDTO> expectedList = OrderMapper.INSTANCE.toListDTO(mockOrders);
+
+      when(orderFacade.getCompleted(any(), any(), any())).thenReturn(mockOrders);
 
       mockMvc.perform(get("/orders/completed")
               .param("sort", "ID")
               .with(user("admin").roles("ADMIN")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedList)));
     }
 
     @Test

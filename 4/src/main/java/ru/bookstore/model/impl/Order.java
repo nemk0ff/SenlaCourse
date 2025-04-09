@@ -1,5 +1,6 @@
 package ru.bookstore.model.impl;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -42,9 +43,11 @@ public class Order implements Item {
   @Column(nullable = false)
   private Double price;
   @Column(nullable = false)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss dd-MM-yyyy")
   private LocalDateTime orderDate;
   @Column
   @Setter
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss dd-MM-yyyy")
   private LocalDateTime completeDate;
   @Column(nullable = false)
   private String clientName;

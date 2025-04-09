@@ -1,5 +1,6 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -33,6 +35,8 @@ import ru.bookstore.config.SpringConfig;
 import ru.bookstore.config.TestConfig;
 import ru.bookstore.controllers.impl.importexport.ExportController;
 import ru.bookstore.controllers.impl.importexport.ImportController;
+import ru.bookstore.dto.BookDTO;
+import ru.bookstore.dto.mappers.BookMapper;
 import ru.bookstore.exceptions.EntityNotFoundException;
 import ru.bookstore.facade.BookFacade;
 import ru.bookstore.facade.OrderFacade;
@@ -72,11 +76,13 @@ class BooksControllerImplTest {
     @Test
     void whenBookExists_ShouldReturnBookDetails() throws Exception {
       Book mockBook = TestUtil.createTestBook(1L);
+      BookDTO expectedDto = BookMapper.INSTANCE.toDTO(mockBook);
       when(bookFacade.get(1L)).thenReturn(mockBook);
 
       mockMvc.perform(get("/books/1")
               .with(user("user").roles("USER")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedDto)));
     }
 
     @Test
@@ -101,13 +107,15 @@ class BooksControllerImplTest {
     @Test
     void whenAdmin_ShouldAllowAccess() throws Exception {
       Book book = TestUtil.createTestBook(1L);
+      BookDTO expectedDto = BookMapper.INSTANCE.toDTO(book);
       when(bookFacade.addBook(eq(1L), eq(10), any(LocalDateTime.class))).thenReturn(book);
 
       mockMvc.perform(patch("/books/add")
               .param("id", "1")
               .param("amount", "10")
               .with(user("admin").roles("ADMIN")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedDto)));
     }
 
     @Test
@@ -125,13 +133,15 @@ class BooksControllerImplTest {
     @Test
     void whenAdmin_ShouldAllowAccess() throws Exception {
       Book book = TestUtil.createTestBook(1L);
+      BookDTO expectedDto = BookMapper.INSTANCE.toDTO(book);
       when(bookFacade.writeOff(eq(1L), eq(5), any(LocalDateTime.class))).thenReturn(book);
 
       mockMvc.perform(patch("/books/writeOff")
               .param("id", "1")
               .param("amount", "5")
               .with(user("admin").roles("ADMIN")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedDto)));
     }
 
     @Test
@@ -148,12 +158,15 @@ class BooksControllerImplTest {
   class GetStaleBooksEndpointTest {
     @Test
     void whenAdmin_ShouldAllowAccess() throws Exception {
-      when(bookFacade.getStale(BookSort.ID)).thenReturn(Collections.singletonList(TestUtil.createTestBook(1L)));
+      List<Book> bookList = Collections.singletonList(TestUtil.createTestBook(1L));
+      List<BookDTO> expectedList = BookMapper.INSTANCE.toListDTO(bookList);
+      when(bookFacade.getStale(BookSort.ID)).thenReturn(bookList);
 
       mockMvc.perform(get("/books/stale")
               .param("sort", "ID")
               .with(user("admin").roles("ADMIN")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedList)));
     }
 
     @Test
@@ -173,6 +186,7 @@ class BooksControllerImplTest {
           TestUtil.createTestBook(1L),
           TestUtil.createTestBook(2L)
       );
+      List<BookDTO> expectedList = BookMapper.INSTANCE.toListDTO(mockBooks);
 
       try (MockedStatic<ExportController> exportMock = Mockito.mockStatic(ExportController.class)) {
         exportMock.when(() -> ExportController.exportAll(anyList(), anyString(), anyString()))
@@ -182,7 +196,8 @@ class BooksControllerImplTest {
 
         mockMvc.perform(put("/books/export")
                 .with(user("admin").roles("ADMIN")))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedList)));
 
         exportMock.verify(() ->
             ExportController.exportAll(eq(mockBooks), anyString(), anyString()));
@@ -195,6 +210,7 @@ class BooksControllerImplTest {
           TestUtil.createTestBook(1L),
           TestUtil.createTestBook(2L)
       );
+      List<BookDTO> expectedList = BookMapper.INSTANCE.toListDTO(mockBooks);
 
       try (MockedStatic<ExportController> exportMock = Mockito.mockStatic(ExportController.class)) {
         exportMock.when(() -> ExportController.exportAll(anyList(), anyString(), anyString()))
@@ -204,7 +220,8 @@ class BooksControllerImplTest {
 
         mockMvc.perform(put("/books/export")
                 .with(user("admin").roles("ADMIN")))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedList)));
 
         exportMock.verify(() ->
             ExportController.exportAll(eq(mockBooks), anyString(), anyString()));
@@ -231,6 +248,7 @@ class BooksControllerImplTest {
     @Test
     void whenAdminImportBook_ShouldAllowAccess() throws Exception {
       Book mockBook = TestUtil.createTestBook(1L);
+      BookDTO expectedDto = BookMapper.INSTANCE.toDTO(mockBook);
 
       try (MockedStatic<ImportController> importMock = Mockito.mockStatic(ImportController.class)) {
         importMock.when(() -> ImportController.findItemInFile(eq(1L), anyString(), any()))
@@ -241,13 +259,15 @@ class BooksControllerImplTest {
 
         mockMvc.perform(put("/books/import/1")
                 .with(user("admin").roles("ADMIN")))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedDto)));
       }
     }
 
     @Test
     void whenAdminExportBook_ShouldAllowAccess() throws Exception {
       Book mockBook = TestUtil.createTestBook(1L);
+      BookDTO expectedDto = BookMapper.INSTANCE.toDTO(mockBook);
 
       try (MockedStatic<ExportController> exportMock = Mockito.mockStatic(ExportController.class)) {
         exportMock.when(() -> ExportController.exportItemToFile(any(Book.class), anyString(), anyString()))
@@ -257,7 +277,8 @@ class BooksControllerImplTest {
 
         mockMvc.perform(put("/books/export/1")
                 .with(user("admin").roles("ADMIN")))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedDto)));
 
         exportMock.verify(() ->
             ExportController.exportItemToFile(eq(mockBook), anyString(), anyString()));
@@ -283,22 +304,36 @@ class BooksControllerImplTest {
   class GetBooksEndpointTest {
     @Test
     void whenAdmin_ShouldAllowAccess() throws Exception {
-      when(bookFacade.getAll(BookSort.ID)).thenReturn(Collections.emptyList());
+      List<Book> mockBooks = List.of(
+          TestUtil.createTestBook(1L),
+          TestUtil.createTestBook(2L)
+      );
+      List<BookDTO> expectedList = BookMapper.INSTANCE.toListDTO(mockBooks);
+
+      when(bookFacade.getAll(BookSort.ID)).thenReturn(mockBooks);
 
       mockMvc.perform(get("/books")
               .param("sort", "ID")
               .with(user("admin").roles("ADMIN")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedList)));
     }
 
     @Test
     void whenUser_ShouldAllowAccess() throws Exception {
-      when(bookFacade.getAll(BookSort.ID)).thenReturn(Collections.emptyList());
+      List<Book> mockBooks = List.of(
+          TestUtil.createTestBook(1L),
+          TestUtil.createTestBook(2L)
+      );
+      List<BookDTO> expectedList = BookMapper.INSTANCE.toListDTO(mockBooks);
+
+      when(bookFacade.getAll(BookSort.ID)).thenReturn(mockBooks);
 
       mockMvc.perform(get("/books")
               .param("sort", "ID")
               .with(user("user").roles("USER")))
-          .andExpect(status().isOk());
+          .andExpect(status().isOk())
+          .andExpect(content().json(TestUtil.objectMapper.writeValueAsString(expectedList)));
     }
   }
 }

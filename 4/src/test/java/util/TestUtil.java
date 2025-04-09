@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,11 @@ import ru.bookstore.model.impl.Order;
 import ru.bookstore.model.impl.Request;
 
 public class TestUtil {
+  public static final ObjectMapper objectMapper = new ObjectMapper()
+      .registerModule(new JavaTimeModule())
+      .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+      .setDateFormat(new SimpleDateFormat("HH:mm:ss dd-MM-yyyy"));
+
   public static Book createTestBook(Long id) {
     return Book.builder()
         .id(id)
@@ -62,9 +68,6 @@ public class TestUtil {
   }
 
   public static String toJson(Object object) throws JsonProcessingException {
-    ObjectMapper objectMapper = new ObjectMapper()
-        .registerModule(new JavaTimeModule())
-        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     return objectMapper.writeValueAsString(object);
   }
 }
