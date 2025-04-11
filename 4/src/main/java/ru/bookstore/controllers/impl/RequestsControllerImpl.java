@@ -36,7 +36,7 @@ public class RequestsControllerImpl implements RequestsController {
   public ResponseEntity<?> createRequest(@RequestParam("bookId") Long bookId,
                                          @RequestParam("amount") Integer amount) {
     Long requestId = requestFacade.add(bookId, amount);
-    return ResponseEntity.ok(requestFacade.get(requestId));
+    return ResponseEntity.ok(RequestMapper.INSTANCE.toDTO(requestFacade.get(requestId)));
   }
 
   @GetMapping

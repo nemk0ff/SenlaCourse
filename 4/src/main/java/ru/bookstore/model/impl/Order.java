@@ -1,5 +1,6 @@
 package ru.bookstore.model.impl;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +26,8 @@ import ru.bookstore.model.OrderStatus;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Setter
+@Data
 @Getter
 @Entity
 @Table(name = "orders")
@@ -39,9 +43,11 @@ public class Order implements Item {
   @Column(nullable = false)
   private Double price;
   @Column(nullable = false)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss dd-MM-yyyy")
   private LocalDateTime orderDate;
   @Column
   @Setter
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss dd-MM-yyyy")
   private LocalDateTime completeDate;
   @Column(nullable = false)
   private String clientName;
@@ -61,6 +67,7 @@ public class Order implements Item {
     this.clientName = clientName;
     this.price = price;
   }
+
 
   @Override
   public boolean equals(Object o) {

@@ -15,7 +15,7 @@ import ru.bookstore.sorting.OrderSort;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OrdersServiceImpl implements OrderService {
+public class OrderServiceImpl implements OrderService {
   private final OrderDao orderDao;
 
   @Override
@@ -30,13 +30,13 @@ public class OrdersServiceImpl implements OrderService {
   }
 
   @Override
-  public void updateOrder(Order order) {
-    orderDao.update(order);
+  public Order updateOrder(Order order) {
+    return orderDao.update(order);
   }
 
   @Override
-  public void setOrderStatus(Long orderId, OrderStatus orderStatus) {
-    orderDao.setOrderStatus(orderId, orderStatus);
+  public Order setOrderStatus(Long orderId, OrderStatus orderStatus) {
+    return orderDao.setOrderStatus(orderId, orderStatus);
   }
 
   @Override

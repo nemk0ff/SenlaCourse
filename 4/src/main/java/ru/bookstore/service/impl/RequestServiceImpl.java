@@ -47,14 +47,14 @@ public class RequestServiceImpl implements RequestService {
   }
 
   @Override
-  public void importRequest(Request request) {
+  public Request importRequest(Request request) {
     log.info("Импорт запроса {}...", request.getId());
     Optional<Request> findRequest = requestDao.getRequestById(request.getId());
     if (findRequest.isPresent()) {
       throw new IllegalArgumentException("Ошибка при импорте: Запрос " + request.getId()
           + " уже есть в магазине");
     } else {
-      requestDao.importRequest(request);
+      return requestDao.importRequest(request);
     }
   }
 

@@ -49,7 +49,7 @@ public class RequestFacadeImpl implements RequestFacade {
 
   @Transactional
   @Override
-  public void importRequest(Request request) {
-    requestService.importRequest(request);
+  public Request importRequest(Request request) {
+    return requestService.importRequest(request);
   }
 }

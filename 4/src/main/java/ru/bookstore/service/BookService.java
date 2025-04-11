@@ -5,9 +5,9 @@ import java.util.List;
 import ru.bookstore.model.impl.Book;
 
 public interface BookService {
-  void add(Long id, Integer amount, LocalDateTime addTime);
+  Book add(Long id, Integer amount, LocalDateTime addTime);
 
-  void writeOff(Long id, Integer amount, LocalDateTime addTime);
+  Book writeOff(Long id, Integer amount, LocalDateTime addTime);
 
   Book get(Long bookId);
 

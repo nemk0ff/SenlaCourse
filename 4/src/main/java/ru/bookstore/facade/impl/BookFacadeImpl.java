@@ -20,21 +20,25 @@ public class BookFacadeImpl implements BookFacade {
   @Transactional
   @Override
   public Book addBook(Long id, Integer amount, LocalDateTime deliveredDate) {
-    bookService.add(id, amount, deliveredDate);
-    return bookService.get(id);
+    return bookService.add(id, amount, deliveredDate);
   }
 
   @Transactional
   @Override
   public Book writeOff(Long id, Integer amount, LocalDateTime writeOffDate) {
-    bookService.writeOff(id, amount, writeOffDate);
-    return bookService.get(id);
+    return bookService.writeOff(id, amount, writeOffDate);
   }
 
   @Transactional(readOnly = true)
   @Override
   public Book get(Long bookId) {
     return bookService.get(bookId);
+  }
+
+  @Transactional
+  @Override
+  public void importBook(Book book) {
+    bookService.importBook(book);
   }
 
   @Transactional(readOnly = true)
@@ -45,22 +49,16 @@ public class BookFacadeImpl implements BookFacade {
       case PUBLICATION_DATE -> bookService.getAllBooksByDate();
       case PRICE -> bookService.getAllBooksByPrice();
       case STATUS -> bookService.getAllBooksByAvailable();
-      default -> bookService.getAllBooksById();
+      case null, default -> bookService.getAllBooksById();
     };
   }
 
   @Transactional(readOnly = true)
   @Override
   public List<Book> getStale(BookSort sortType) {
-    if (sortType == BookSort.STALE_BY_DATE) {
-      return bookService.getAllStaleBooksByDate();
-    }
-    return bookService.getAllStaleBooksByPrice();
-  }
-
-  @Transactional
-  @Override
-  public void importBook(Book book) {
-    bookService.importBook(book);
+    return switch (sortType) {
+      case STALE_BY_DATE -> bookService.getAllStaleBooksByDate();
+      case null, default -> bookService.getAllStaleBooksByPrice();
+    };
   }
 }

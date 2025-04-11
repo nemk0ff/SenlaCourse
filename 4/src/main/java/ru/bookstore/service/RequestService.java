@@ -17,7 +17,7 @@ public interface RequestService {
 
   LinkedHashMap<Book, Long> getRequestsByPrice();
 
-  void importRequest(Request request);
+  Request importRequest(Request request);
 
   void closeRequests(Map<Long, Integer> books);
 }

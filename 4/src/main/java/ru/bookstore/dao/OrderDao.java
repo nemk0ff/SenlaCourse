@@ -8,7 +8,7 @@ import ru.bookstore.model.impl.Order;
 import ru.bookstore.sorting.OrderSort;
 
 public interface OrderDao extends GenericDao<Order> {
-  void setOrderStatus(long orderId, OrderStatus status);
+  Order setOrderStatus(long orderId, OrderStatus status);
 
   Order addOrder(Order order);
 

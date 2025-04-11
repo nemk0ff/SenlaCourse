@@ -124,11 +124,12 @@ public class RequestDaoImpl extends HibernateAbstractDao<Request> implements Req
   }
 
   @Override
-  public void importRequest(Request request) {
+  public Request importRequest(Request request) {
     log.debug("Импортируем запрос: {}...", request);
     try {
-      update(request);
+      Request importedRequest = update(request);
       log.debug("Запрос успешно импортирован: {}", request);
+      return importedRequest;
     } catch (Exception e) {
       throw new ImportException("Не удалось импортировать запрос: " + request, e);
     }
